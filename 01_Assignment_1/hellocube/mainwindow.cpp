@@ -5,8 +5,35 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setWindowTitle("Hello Cube");
 
+    initializeMenuBar();
+}
+
+MainWindow::~MainWindow()
+{
+
+}
+
+void MainWindow::showAboutBox()
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("About Hello Cube!");
+    msgBox.setText("Written by Marcel Danz.");
+    msgBox.exec();
+}
+
+void MainWindow::initializeMenuBar()
+{
     menuBar = new QMenuBar();
 
+    initializeFileMenu();
+    initializeShadingMenu();
+    initializeAboutMenu();
+
+    setMenuBar(menuBar);
+}
+
+void MainWindow::initializeFileMenu()
+{
     fileMenu = new QMenu("&File");
 
     exitAction = new QAction("E&xit", fileMenu);
@@ -16,7 +43,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     menuBar->addMenu(fileMenu);
 
+     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+}
 
+void MainWindow::initializeShadingMenu()
+{
     shadingMenu = new QMenu("&Shading");
     shadingActionGroup = new QActionGroup(this);
 
@@ -40,6 +71,11 @@ MainWindow::MainWindow(QWidget *parent)
     gouraudShadingAction->setCheckable(true);
     phongShadingAction->setCheckable(true);
 
+    noneShadingAction->setIcon(QIcon(":/img/wireframe.png"));
+    flatShadingAction->setIcon(QIcon(":/img/flat.png"));
+    gouraudShadingAction->setIcon(QIcon(":/img/gouraud.png"));
+    phongShadingAction->setIcon(QIcon(":/img/phong.png"));
+
     shadingActionGroup->addAction(noneShadingAction);
     shadingActionGroup->addAction(flatShadingAction);
     shadingActionGroup->addAction(gouraudShadingAction);
@@ -47,14 +83,20 @@ MainWindow::MainWindow(QWidget *parent)
     flatShadingAction->setChecked(true);
 
     menuBar->addMenu(shadingMenu);
-
-    setMenuBar(menuBar);
-
-    connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
-
 }
 
-MainWindow::~MainWindow()
+void MainWindow::initializeAboutMenu()
 {
-
+    aboutMenu = new QMenu("&About");
+    aboutAction = new QAction("&About", aboutMenu);
+    aboutMenu->addAction(aboutAction);
+    menuBar->addMenu(aboutMenu);
+    connect(aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
 }
+
+
+
+
+
+
+

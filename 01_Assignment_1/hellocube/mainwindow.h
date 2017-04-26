@@ -11,11 +11,15 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void showAboutBox();
+
 private:
     QMenuBar *menuBar;
 
     QMenu *fileMenu;
     QMenu *shadingMenu;
+    QMenu *aboutMenu;
 
     QActionGroup *shadingActionGroup;
 
@@ -24,6 +28,12 @@ private:
     QAction *flatShadingAction;
     QAction *gouraudShadingAction;
     QAction *phongShadingAction;
+    QAction *aboutAction;
+
+    void initializeMenuBar();
+    void initializeFileMenu();
+    void initializeShadingMenu();
+    void initializeAboutMenu();
 };
 
 #endif // MAINWINDOW_H
