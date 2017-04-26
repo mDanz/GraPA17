@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("Hello Cube");
 
     initializeMenuBar();
+    initializeToolBar();
+    initializeStatusBar();
 }
 
 MainWindow::~MainWindow()
@@ -92,6 +94,22 @@ void MainWindow::initializeAboutMenu()
     aboutMenu->addAction(aboutAction);
     menuBar->addMenu(aboutMenu);
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
+}
+
+void MainWindow::initializeToolBar()
+{
+
+}
+
+void MainWindow::initializeStatusBar()
+{
+    menuBar = new QMenuBar();
+
+    initializeFileMenu();
+    initializeShadingMenu();
+    initializeAboutMenu();
+
+    setMenuBar(menuBar);
 }
 
 

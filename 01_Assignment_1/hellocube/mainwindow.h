@@ -34,6 +34,8 @@ private:
     void initializeFileMenu();
     void initializeShadingMenu();
     void initializeAboutMenu();
+    void initializeToolBar();
+    void initializeStatusBar();
 };
 
 #endif // MAINWINDOW_H
