@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "glrenderingwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -10,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
 	initializeMenuBar();
 	initializeToolBar();
 	initializeStatusBar();
+
+	setCentralWidget(new GLRenderingWidget(this));
 }
 
 MainWindow::~MainWindow()

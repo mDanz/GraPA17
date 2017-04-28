@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <QtWidgets>
 #include "ui_mainwindow.h"
@@ -8,10 +9,10 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	MainWindow(QWidget *parent = Q_NULLPTR);
+	explicit MainWindow(QWidget *parent = Q_NULLPTR);
 	~MainWindow();
 
-	public slots:
+public slots:
 	void showAboutBox();
 
 private:
@@ -44,3 +45,5 @@ private:
 
 	Ui::MainWindowClass ui;
 };
+
+#endif
