@@ -36,3 +36,7 @@ Makefile*
 # QtCtreator CMake
 CMakeLists.txt.user
 
+01_Assignment_1/hellocube/x64/
+01_Assignment_1/hellocube/hellocube/x64/
+*.opendb
+*.db
