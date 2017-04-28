@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/cam_home.png</file>
+        <file>img/flat.png</file>
+        <file>img/gouraud.png</file>
+        <file>img/phong.png</file>
+        <file>img/wireframe.png</file>
+    </qresource>
+</RCC>
