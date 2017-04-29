@@ -11,7 +11,7 @@
 #include <qopenglbuffer.h>
 
 
-class GLRenderingWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class GLRenderingWidget : public QOpenGLWidget//, protected QOpenGLFunctions
 {
 	Q_OBJECT
 
@@ -22,16 +22,16 @@ public:
 	QSize minimumSizeHint() const override;
 	QSize sizeHint() const override;
 
-	public slots:
-	void setXRotation(int angle);
+public slots:
+	/*void setXRotation(int angle);
 	void setYRotation(int angle);
 	void setZRotation(int angle);
-	void cleanup();
+	void cleanup();*/
 
 signals:
-	void xRotationChanged(int angle);
+	/*void xRotationChanged(int angle);
 	void yRotationChanged(int angle);
-	void zRotationChanged(int angle);
+	void zRotationChanged(int angle);*/
 
 protected:
 	void initializeGL() override;
@@ -39,9 +39,10 @@ protected:
 	void resizeGL(int width, int height) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
+	void wheelEvent(QWheelEvent *event) override;
 
 private:
-	void setupVertexAttribs();
+	/*void setupVertexAttribs();
 
 	bool m_core;
 	int m_xRot;
@@ -59,7 +60,7 @@ private:
 	QMatrix4x4 m_proj;
 	QMatrix4x4 m_camera;
 	QMatrix4x4 m_world;
-	bool m_transparent;
+	bool m_transparent;*/
 };
 
 #endif

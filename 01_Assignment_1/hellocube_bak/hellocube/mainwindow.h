@@ -1,18 +1,18 @@
-#pragma once
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-#include <QtWidgets/QMainWindow>
+#include <QtWidgets>
 #include "ui_mainwindow.h"
-#include "openglwidget.h"
 
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	explicit MainWindow(QMainWindow *parent = Q_NULLPTR);
+	explicit MainWindow(QWidget *parent = Q_NULLPTR);
 	~MainWindow();
 
-	public slots:
+public slots:
 	void showAboutBox();
 
 private:
@@ -34,9 +34,6 @@ private:
 	QAction *gouraudShadingAction;
 	QAction *phongShadingAction;
 	QAction *aboutAction;
-	QAction *resetCameraAction;
-
-	QSlider *tesselationSlider;
 
 	void initializeMenuBar();
 	void initializeFileMenu();
@@ -48,3 +45,5 @@ private:
 
 	Ui::MainWindowClass ui;
 };
+
+#endif

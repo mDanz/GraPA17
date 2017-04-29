@@ -1,0 +1,3 @@
+﻿  window.cpp
+glrenderingwidget.obj : error LNK2019: unresolved external symbol __imp_glLightfv referenced in function "protected: virtual void __cdecl GLRenderingWidget::initializeGL(void)" (?initializeGL@GLRenderingWidget@@MEAAXXZ)
+C:\Users\uaeei\Source\Repos\GRAPA\01_Assignment_1\hellocube\x64\Debug\\hellocube.exe : fatal error LNK1120: 1 unresolved externals

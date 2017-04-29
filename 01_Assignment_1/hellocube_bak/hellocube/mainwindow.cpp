@@ -1,11 +1,7 @@
 #include "mainwindow.h"
+#include "glrenderingwidget.h"
 
-#include "openglwidget.h"
-
-#include <QMessageBox>
-#include <QLabel>
-
-MainWindow::MainWindow(QMainWindow *parent)
+MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
@@ -16,7 +12,7 @@ MainWindow::MainWindow(QMainWindow *parent)
 	initializeToolBar();
 	initializeStatusBar();
 
-	setCentralWidget(new OpenGLWidget(this));
+	setCentralWidget(new GLRenderingWidget(this));
 }
 
 MainWindow::~MainWindow()
@@ -70,11 +66,6 @@ void MainWindow::initializeShadingMenu()
 	shadingMenu->addAction(phongShadingAction);
 
 	menuBar->addMenu(shadingMenu);
-
-	connect(noneShadingAction, SIGNAL(triggered()), this, SLOT(OpenGLWidget::wireframeShading()));
-	connect(flatShadingAction, SIGNAL(triggered()), this, SLOT(OpenGLWidget::flatShading()));
-	connect(gouraudShadingAction, SIGNAL(triggered()), this, SLOT(OpenGLWidget::gouraudShading()));
-	connect(phongShadingAction, SIGNAL(triggered()), this, SLOT(OpenGLWidget::phongShading()));
 }
 
 void MainWindow::initializeShadingActionGroup()
@@ -123,18 +114,7 @@ void MainWindow::initializeToolBar()
 	shadingToolBar->addAction(gouraudShadingAction);
 	shadingToolBar->addAction(phongShadingAction);
 
-	tesselationSlider = new QSlider(this);
-	shadingToolBar->addWidget(tesselationSlider);
-
-	resetCameraAction = new QAction("&Reset Camera", shadingToolBar);
-	resetCameraAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
-	resetCameraAction->setIcon(QIcon(":/img/cam_home.png"));
-	shadingToolBar->addAction(resetCameraAction);
-
 	addToolBar(shadingToolBar);
-
-	connect(tesselationSlider, SIGNAL(valueChanged()), this, SLOT(OpenGLWidget::setTesselation()));
-	connect(resetCameraAction, SIGNAL(triggered()), this, SLOT(OpenGLWidget::resetCamera()));
 }
 
 void MainWindow::initializeStatusBar()
@@ -142,4 +122,3 @@ void MainWindow::initializeStatusBar()
 	auto label = new QLabel("Ready");
 	ui.statusBar->addWidget(label); //had to use ui 
 }
-
