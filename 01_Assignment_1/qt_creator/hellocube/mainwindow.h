@@ -3,7 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QActionGroup>
 #include <QSlider>
-#include "ui_mainwindow.h"
+//#include "ui_mainwindow.h"
 #include "openglwidget.h"
 
 class MainWindow : public QMainWindow
@@ -18,7 +18,7 @@ public:
 	void showAboutBox();
 
 private:
-    Ui::MainWindowClass ui;
+    //Ui::MainWindowClass ui;
 	OpenGLWidget *openGLWidget;
 
 	QMenuBar *menuBar;

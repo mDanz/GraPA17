@@ -11,16 +11,15 @@
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
 {
-    ui.setupUi(this);
+    //ui.setupUi(this);
 
 	setWindowTitle("Hello Cube");
     openGLWidget = new OpenGLWidget(this);
+    setCentralWidget(openGLWidget);
 
 	initializeMenuBar();
 	initializeToolBar();
 	initializeStatusBar();
-
-	setCentralWidget(openGLWidget);
 }
 
 MainWindow::~MainWindow()
@@ -144,19 +143,18 @@ void MainWindow::initializeToolBar()
 void MainWindow::initializeStatusBar()
 {
 	auto label = new QLabel("Ready");
-    ui.statusBar->addWidget(label); //had to use ui otherwise statusBar would be at top of screen.
-	//statusBar = new QStatusBar(this);
-    //statusBar->addWidget(label);
+    //ui.statusBar->addWidget(label); //had to use ui
+    statusBar = new QStatusBar(this);
+    statusBar->addWidget(label);
 }
 
-QSlider* MainWindow::createSlider()
+QSlider *MainWindow::createSlider()
 {
 	auto slider = new QSlider(Qt::Horizontal);
 	slider->setRange(0, 10);
 	slider->setSingleStep(1);
 	slider->setTickPosition(QSlider::TicksRight);
 	slider->setValue(0);
-	//slider->setSizePolicy(QSizePolicy(QSizePolicy::Policy::Maximum, QSizePolicy::Policy::Ignored));
 	return slider;
 }
 
