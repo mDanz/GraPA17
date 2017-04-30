@@ -13,7 +13,7 @@
 # define M_PI           3.14159265358979323846
 
 OpenGLWidget::OpenGLWidget(QWidget* parent)
-	: QOpenGLWidget(parent), QOpenGLFunctions_4_5_Compatibility()
+	: QOpenGLWidget(parent), QOpenGLFunctions_4_4_Compatibility()
 {
 	//m_context = new QOpenGLContext;
 	//m_context->create();
@@ -57,19 +57,19 @@ QSize OpenGLWidget::sizeHint() const
 
 void OpenGLWidget::wireframeShading()
 {
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	update();
 }
 
 void OpenGLWidget::flatShading()
 {
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	update();
 }
 
 void OpenGLWidget::gouraudShading()
 {
-	//glShadeModel(GL_SMOOTH);
+	glShadeModel(GL_SMOOTH);
 	update();
 }
 
@@ -94,11 +94,11 @@ void OpenGLWidget::resetCamera()
 
 void OpenGLWidget::initializeGL()
 {
-	/*initializeOpenGLFunctions();
+	initializeOpenGLFunctions();
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	const GLfloat lightPos[4] = { 0.5f, 0.0f, 0.2f, 0.0f };
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);*/
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 }
 
 static const GLfloat cube[] = {
@@ -122,24 +122,24 @@ void OpenGLWidget::paintGL()
 	//glMultMatrixf(dragRotation.constData());	//mouse rotation
 
 	////todo
-	//glBegin(GL_QUADS);
+	glBegin(GL_QUADS);
 
-	//glVertex3f(cube[1], cube[2], cube[3]);
-	//glVertex3f(cube[4], cube[5], cube[6]);
-	//glVertex3f(cube[7], cube[8], cube[9]);
-	//glVertex3f(cube[10], cube[11], cube[12]);
+	glVertex3f(cube[1], cube[2], cube[3]);
+	glVertex3f(cube[4], cube[5], cube[6]);
+	glVertex3f(cube[7], cube[8], cube[9]);
+	glVertex3f(cube[10], cube[11], cube[12]);
 
-	//glVertex3f(cube[13], cube[14], cube[15]);
-	//glVertex3f(cube[16], cube[17], cube[18]);
-	//glVertex3f(cube[19], cube[20], cube[21]);
-	//glVertex3f(cube[22], cube[23], cube[24]);
+	glVertex3f(cube[13], cube[14], cube[15]);
+	glVertex3f(cube[16], cube[17], cube[18]);
+	glVertex3f(cube[19], cube[20], cube[21]);
+	glVertex3f(cube[22], cube[23], cube[24]);
 
-	//glEnd();
+	glEnd();
 }
 
 void OpenGLWidget::resizeGL(int width, int height)
 {
-	/*glViewport(0, 0, width, height);
+	glViewport(0, 0, width, height);
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -154,7 +154,7 @@ void OpenGLWidget::resizeGL(int width, int height)
 
 	glMatrixMode(GL_MODELVIEW);
 
-	update();*/
+	update();
 }
 
 void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
@@ -197,14 +197,14 @@ void OpenGLWidget::wheelEvent(QWheelEvent* event)
 
 void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
 {
-	/*GLdouble left, right, bottom, top;
+	GLdouble left, right, bottom, top;
 
 	top = zNear * tan(fovy * M_PI / 360.0f);
 	bottom = -top;
 	left = bottom * aspect;
 	right = top * aspect;
 
-	glFrustum(left, right, bottom, top, zNear, zFar);*/
+	glFrustum(left, right, bottom, top, zNear, zFar);
 }
 
 

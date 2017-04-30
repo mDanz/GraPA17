@@ -2,7 +2,7 @@
 
 #include <QtGui/QWindow>
 #include <QOpenGLWidget>
-#include <QtGui/QOpenGLFunctions_4_5_Compatibility>
+#include <QtGui/QOpenGLFunctions_4_4_Compatibility>
 
 #include "trackball.h"
 
@@ -10,7 +10,7 @@
 //class QOpenGlContext;
 //class QOpenGlPainterDevice;
 
-class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Compatibility
+class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Compatibility
 {
 	Q_OBJECT
 
