@@ -41,7 +41,7 @@ protected:
 private:
 	/*bool m_core;
 	bool m_transparent;*/
-	QOpenGLContext *m_context;
+	//QOpenGLContext *m_context;
 
 	int m_tesselation;
 	int m_wheelDelta;

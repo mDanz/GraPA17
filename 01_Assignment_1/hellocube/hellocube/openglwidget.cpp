@@ -14,7 +14,17 @@
 
 OpenGLWidget::OpenGLWidget(QWidget* parent)
 	: QOpenGLWidget(parent), QOpenGLFunctions_4_4_Compatibility()
+	, m_tesselation(0)
+	, m_wheelDelta(0)
+	, m_lastPos(0)
+	, m_dragTranslation(0)
+	, m_dragRotation(0)
+	, m_trackBall(0)
 {
+
+	m_dragTranslation = new QVector2D();
+	m_dragRotation = new QQuaternion();
+
 	//m_context = new QOpenGLContext;
 	//m_context->create();
 
@@ -101,38 +111,60 @@ void OpenGLWidget::initializeGL()
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 }
 
-static const GLfloat cube[] = {
-	-.5f,-.5f,.5f,
-	-.5f,-.5f,-.5f,
-	.5f,-.5f,.5f,
-	.5f,-.5f,-.5f,
-	-.5f,.5f,.5f,
-	-.5f,.5f,-.5f,
-	.5f,.5f,.5f,
-	.5f,.5f,-.5f,
+static const QVector3D cube[] = {
+	QVector3D(-.5f,-.5f,.5f),
+	QVector3D(-.5f,-.5f,-.5f),
+	QVector3D(.5f,-.5f,.5f),
+	QVector3D(.5f,-.5f,-.5f),
+	QVector3D(-.5f,.5f,.5f),
+	QVector3D(-.5f,.5f,-.5f),
+	QVector3D(.5f,.5f,.5f),
+	QVector3D(.5f,.5f,-.5f)
 };
 
 void OpenGLWidget::paintGL()
 {
-	//glTranslatef(0, 0, m_wheelDelta);	//zoom
-	//glTranslatef(m_dragTranslation->x(), m_dragTranslation->y(), 0);	//mouse dragging
+	glTranslatef(0, 0, m_wheelDelta);	//zoom
+	glTranslatef(m_dragTranslation->x(), m_dragTranslation->y(), 0);	//mouse dragging
 
-	//auto dragRotation = QMatrix4x4();
-	//dragRotation.rotate(*m_dragRotation);
-	//glMultMatrixf(dragRotation.constData());	//mouse rotation
+	auto dragRotation = QMatrix4x4();
+	dragRotation.rotate(*m_dragRotation);
+	glMultMatrixf(dragRotation.constData());	//mouse rotation
 
 	////todo
 	glBegin(GL_QUADS);
 
-	glVertex3f(cube[1], cube[2], cube[3]);
-	glVertex3f(cube[4], cube[5], cube[6]);
-	glVertex3f(cube[7], cube[8], cube[9]);
-	glVertex3f(cube[10], cube[11], cube[12]);
+	glColor3f(1, 0, 0);
+	glNormal3f(0, 1, 0);
+	glVertex3f(cube[0].x(), cube[0].y(), cube[0].z());
+	glVertex3f(cube[1].x(), cube[1].y(), cube[1].z());
+	glVertex3f(cube[2].x(), cube[2].y(), cube[2].z());
+	glVertex3f(cube[3].x(), cube[3].y(), cube[3].z());
 
-	glVertex3f(cube[13], cube[14], cube[15]);
-	glVertex3f(cube[16], cube[17], cube[18]);
-	glVertex3f(cube[19], cube[20], cube[21]);
-	glVertex3f(cube[22], cube[23], cube[24]);
+	glVertex3f(cube[2].x(), cube[2].y(), cube[2].z());
+	glVertex3f(cube[3].x(), cube[3].y(), cube[3].z());
+	glVertex3f(cube[6].x(), cube[6].y(), cube[6].z());
+	glVertex3f(cube[7].x(), cube[7].y(), cube[7].z());
+
+	glVertex3f(cube[6].x(), cube[6].y(), cube[6].z());
+	glVertex3f(cube[7].x(), cube[7].y(), cube[7].z());
+	glVertex3f(cube[4].x(), cube[4].y(), cube[4].z());
+	glVertex3f(cube[5].x(), cube[5].y(), cube[5].z());
+
+	glVertex3f(cube[4].x(), cube[4].y(), cube[4].z());
+	glVertex3f(cube[5].x(), cube[5].y(), cube[5].z());
+	glVertex3f(cube[0].x(), cube[0].y(), cube[0].z());
+	glVertex3f(cube[1].x(), cube[1].y(), cube[1].z());
+
+	glVertex3f(cube[1].x(), cube[1].y(), cube[1].z());
+	glVertex3f(cube[5].x(), cube[5].y(), cube[5].z());
+	glVertex3f(cube[3].x(), cube[3].y(), cube[3].z());
+	glVertex3f(cube[7].x(), cube[7].y(), cube[7].z());
+
+	glVertex3f(cube[4].x(), cube[4].y(), cube[4].z());
+	glVertex3f(cube[0].x(), cube[0].y(), cube[0].z());
+	glVertex3f(cube[6].x(), cube[6].y(), cube[6].z());
+	glVertex3f(cube[2].x(), cube[2].y(), cube[2].z());
 
 	glEnd();
 }
