@@ -33,6 +33,7 @@ protected:
 	void initializeGL() override;
 	void paintGL() override;
 	void resizeGL(int width, int height) override;
+	QPointF pixelPosToViewPos(const QPointF& pos) const;
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
@@ -43,12 +44,18 @@ private:
 	bool m_transparent;*/
 	//QOpenGLContext *m_context;
 
+	const GLdouble m_zNear = 0.01f;
+	const GLdouble m_zFar = 100.0f;
+	const GLdouble m_fov = 45.0f;
+
 	int m_tesselation;
 	int m_wheelDelta;
 	QPoint *m_lastPos;
 	QVector2D *m_dragTranslation;
-	QQuaternion *m_dragRotation;
+	QQuaternion m_dragRotation;
 	TrackBall *m_trackBall;
+	QColor faceColors[6];
+
 
 	void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 };

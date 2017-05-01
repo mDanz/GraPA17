@@ -85,8 +85,8 @@ void MainWindow::initializeShadingActionGroup()
 {
 	noneShadingAction = new QAction("&None (Wireframe)", shadingMenu);
 	flatShadingAction = new QAction("&Flat", shadingMenu);
-	gouraudShadingAction = new QAction("&Gouraud)", shadingMenu);
-	phongShadingAction = new QAction("&Phong)", shadingMenu);
+	gouraudShadingAction = new QAction("&Gouraud", shadingMenu);
+	phongShadingAction = new QAction("&Phong", shadingMenu);
 
 	noneShadingAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_1));
 	flatShadingAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_2));

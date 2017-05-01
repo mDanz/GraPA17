@@ -5,12 +5,40 @@
 
 # define M_PI           3.14159265358979323846
 
-TrackBall::TrackBall(TrackMode mode)
+TrackBall::TrackBall(TrackMode mode) 
+	: m_angularVelocity(0)
+	, m_paused(false)
+	,m_pressed(false)
+	, m_mode(mode)
 {
+	m_axis = QVector3D(0, 1, 0);
+	m_rotation = QQuaternion();
+	m_lastTime = QTime::currentTime();
 }
 
 TrackBall::TrackBall(float angularVelocity, const QVector3D& axis, TrackMode mode)
+	: m_axis(axis)
+	, m_angularVelocity(angularVelocity)
+	, m_paused(false)
+	, m_pressed(false)
+	, m_mode(mode)
 {
+	m_rotation = QQuaternion();
+	m_lastTime = QTime::currentTime();
+}
+
+TrackBall::TrackMode TrackBall::getMode() const
+{
+	return m_mode;
+}
+
+void TrackBall::push(const QPointF& pos)
+{
+	m_rotation = rotation();
+	m_pressed = true;
+	m_lastTime = QTime::currentTime();
+	m_lastPos = pos;
+	m_angularVelocity = 0.0f;
 }
 
 void TrackBall::move(const QPointF& pos, const QQuaternion& transformation)
@@ -45,6 +73,18 @@ void TrackBall::release(const QPointF &pos, const QQuaternion &transformation)
 {
 	move(pos, transformation);
 	m_pressed = false;
+}
+
+QQuaternion TrackBall::rotation() const
+{
+	if (m_paused || m_pressed)
+	{
+		return m_rotation;
+	}
+
+	auto currentTime = QTime::currentTime();
+	auto angle = m_angularVelocity * m_lastTime.msecsTo(currentTime);
+	return QQuaternion::fromAxisAndAngle(m_axis, angle) * m_rotation;
 }
 
 void TrackBall::calculatePlaneMove(const QPointF &pos, const QQuaternion &transformation, const int msecs)
