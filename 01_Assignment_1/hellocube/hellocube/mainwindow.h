@@ -1,8 +1,6 @@
 #pragma once
 
-#include <QtWidgets/QMainWindow>
 #include <QActionGroup>
-#include <QSlider>
 #include "ui_mainwindow.h"
 #include "openglwidget.h"
 

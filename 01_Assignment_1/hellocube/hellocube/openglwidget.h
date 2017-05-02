@@ -6,9 +6,6 @@
 
 #include "trackball.h"
 
-//class QPainter;
-//class QOpenGlContext;
-//class QOpenGlPainterDevice;
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Compatibility
 {
@@ -40,21 +37,18 @@ protected:
 	void wheelEvent(QWheelEvent *event) override;
 
 private:
-	/*bool m_core;
-	bool m_transparent;*/
-	//QOpenGLContext *m_context;
 
 	const GLdouble m_zNear = 0.01f;
-	const GLdouble m_zFar = 100.0f;
+	const GLdouble m_zFar = 1000.0f;
 	const GLdouble m_fov = 45.0f;
+	const float m_damping = 0.01f;
 
 	int m_tesselation;
 	int m_wheelDelta;
 	QPoint *m_lastPos;
-	QVector2D *m_dragTranslation;
+	GLfloat *m_dragTranslation;
 	QQuaternion m_dragRotation;
 	TrackBall *m_trackBall;
-	QColor faceColors[6];
 
 
 	void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
