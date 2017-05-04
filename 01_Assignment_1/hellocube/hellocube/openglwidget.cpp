@@ -145,6 +145,8 @@ void OpenGLWidget::paintGL()
 	{
 		glBegin(GL_QUADS);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, faceColors[i]);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_specColor);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &m_specExp);
 		glNormal3f(normals[i].x(), normals[i].y(), normals[i].z());
 		for (auto j = 0; j < 4; j++)
 		{

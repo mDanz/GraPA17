@@ -42,6 +42,8 @@ private:
 	const GLdouble m_zFar = 1000.0f;
 	const GLdouble m_fov = 45.0f;
 	const float m_damping = 0.01f;
+	const GLfloat m_specColor[4] = { .5, .5, .5, 1 };
+	const GLfloat m_specExp = 10.0;
 
 	int m_tesselation;
 	int m_wheelDelta;
