@@ -1,4 +1,4 @@
-
+﻿
 #include "openglwidget.h"
 
 #include <QtCore/QCoreApplication>
@@ -39,24 +39,30 @@ QSize OpenGLWidget::sizeHint() const
 
 void OpenGLWidget::wireframeShading()
 {
+	makeCurrent();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	update();
 }
 
 void OpenGLWidget::flatShading()
 {
+	makeCurrent();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glShadeModel(GL_FLAT);
 	update();
 }
 
 void OpenGLWidget::gouraudShading()
 {
+	makeCurrent();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glShadeModel(GL_SMOOTH);
 	update();
 }
 
 void OpenGLWidget::phongShading()
 {
+	makeCurrent();
 	//todo
 	update();
 }
