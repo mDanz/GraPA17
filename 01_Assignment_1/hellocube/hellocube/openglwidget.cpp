@@ -7,15 +7,18 @@
 #include <QWheelEvent>
 #include <QQuaternion>
 #include <QMatrix4x4>
+#include <QOpenGLFunctions>
 
+#define highp
+#define mediump
+#define lowp
 # define M_PI           3.14159265358979323846
 
 OpenGLWidget::OpenGLWidget(QWidget* parent)
 	: QOpenGLWidget(parent), QOpenGLFunctions_4_4_Compatibility()
-	, m_tesselation(0)
+	, m_tessellation(0)
 	, m_wheelDelta(0)
 {
-
 	m_lastPos = new QPoint();
 	m_dragTranslation = new GLfloat[2]{0, 0};
 	m_dragRotation = QQuaternion();
@@ -40,6 +43,7 @@ QSize OpenGLWidget::sizeHint() const
 void OpenGLWidget::wireframeShading()
 {
 	makeCurrent();
+	m_program->release();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	update();
 }
@@ -47,6 +51,7 @@ void OpenGLWidget::wireframeShading()
 void OpenGLWidget::flatShading()
 {
 	makeCurrent();
+	m_program->release();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glShadeModel(GL_FLAT);
 	update();
@@ -55,6 +60,7 @@ void OpenGLWidget::flatShading()
 void OpenGLWidget::gouraudShading()
 {
 	makeCurrent();
+	//m_program->release();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glShadeModel(GL_SMOOTH);
 	update();
@@ -63,19 +69,19 @@ void OpenGLWidget::gouraudShading()
 void OpenGLWidget::phongShading()
 {
 	makeCurrent();
-	//todo
+	m_program->bind();
 	update();
 }
 
 void OpenGLWidget::setTesselation(int t)
 {
-	m_tesselation = t;
+	m_tessellation = t;
 	update();
 }
 
 void OpenGLWidget::resetCamera()
 {
-	m_tesselation = 0;
+	//m_tessellation = 0;
 	m_wheelDelta = 0;
 	m_dragTranslation = new GLfloat[2]{0, 0};
 	m_lastPos = new QPoint();
@@ -88,35 +94,90 @@ void OpenGLWidget::resetCamera()
 	update();
 }
 
+void OpenGLWidget::cleanup()
+{
+	//todo
+}
+
+static const char *vertexShaderSource =
+"attribute vec4 vertex;\n"
+"attribute vec3 normal;\n"
+"varying vec3 vert;\n"
+"varying vec3 vertNormal;\n"
+"uniform mat4 projMatrix;\n"
+"uniform mat4 mvMatrix;\n"
+"uniform mat3 normalMatrix;\n"
+"void main() {\n"
+"   vert = vertex.xyz;\n"
+"   vertNormal = normalMatrix * normal;\n"
+"   gl_Position = projMatrix * mvMatrix * vertex;\n"
+"}\n";
+
+static const char *fragmentShaderSource =
+"varying highp vec3 vert;\n"
+"varying highp vec3 vertNormal;\n"
+"uniform highp vec3 lightPos;\n"
+"void main() {\n"
+"   highp vec3 L = normalize(lightPos - vert);\n"
+"   highp float NL = max(dot(normalize(vertNormal), L), 0.0);\n"
+"   highp vec3 color = vec3(0.39, 1.0, 0.0);\n"
+"   highp vec3 col = clamp(color * 0.2 + color * 0.8 * NL, 0.0, 1.0);\n"
+"   gl_FragColor = vec4(col, 1.0);\n"
+"}\n";
+
 
 void OpenGLWidget::initializeGL()
 {
+	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLWidget::cleanup);
+
 	initializeOpenGLFunctions();
 	glClearColor(0, 0, 0, 1);
 	glEnable(GL_LIGHTING);
-	const GLfloat lightPos[4] = { 0.5f, 0.0f, 0.2f, 1.0f };
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+	glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
 	glEnable(GL_LIGHT0);
 	glShadeModel(GL_FLAT);
 	glEnable(GL_DEPTH_TEST);
+
+	initializeShaderProgram();
 }
 
-static const float cube[6][4][3] = {
-	{ {+.5, -.5, +.5}, {+.5, -.5, -.5}, {+.5, +.5, -.5}, {+.5, +.5, +.5} },
-	{ {-.5, -.5, -.5}, {-.5, -.5, +.5}, {-.5, +.5, +.5}, {-.5, +.5, -.5} },
-	{ {+.5, -.5, -.5}, {-.5, -.5, -.5}, {-.5, +.5, -.5}, {+.5, +.5, -.5} },
-	{ {-.5, -.5, +.5}, {+.5, -.5, +.5}, {+.5, +.5, +.5}, {-.5, +.5, +.5} },
-	{ {-.5, -.5, -.5}, {+.5, -.5, -.5}, {+.5, -.5, +.5}, {-.5, -.5, +.5} },
-	{ {-.5, +.5, +.5}, {+.5, +.5, +.5}, {+.5, +.5, -.5}, {-.5, +.5, -.5} }
+//static const float cubeVertices[6][4][3] = {
+//	{ {+.5, -.5, +.5}, {+.5, -.5, -.5}, {+.5, +.5, -.5}, {+.5, +.5, +.5} },
+//	{ {-.5, -.5, -.5}, {-.5, -.5, +.5}, {-.5, +.5, +.5}, {-.5, +.5, -.5} },
+//	{ {+.5, -.5, -.5}, {-.5, -.5, -.5}, {-.5, +.5, -.5}, {+.5, +.5, -.5} },
+//	{ {-.5, -.5, +.5}, {+.5, -.5, +.5}, {+.5, +.5, +.5}, {-.5, +.5, +.5} },
+//	{ {-.5, -.5, -.5}, {+.5, -.5, -.5}, {+.5, -.5, +.5}, {-.5, -.5, +.5} },
+//	{ {-.5, +.5, +.5}, {+.5, +.5, +.5}, {+.5, +.5, -.5}, {-.5, +.5, -.5} }
+//};
+
+
+static const float cubeVertices[8*3] = {
+	+.5, -.5, +.5,
+	+.5, -.5, -.5,
+	+.5, +.5, -.5,
+	+.5, +.5, +.5,
+	-.5, -.5, -.5,
+	-.5, -.5, +.5,
+	-.5, +.5, +.5,
+	-.5, +.5, -.5
 };
 
-static const QVector3D normals[6] = {
-	QVector3D(1, 0, 0),
-	QVector3D(-1, 0, 0),
-	QVector3D(0, 0, -1),
-	QVector3D(0, 0, 1),
-	QVector3D(0, -1, 0),
-	QVector3D(0, 1, 0)
+static const int cubeIndices[6*4] = {
+	2, 3, 0, 1,
+	4, 5, 6, 7,	
+	1, 4, 7, 2,	
+	3, 6, 5, 0,
+	1, 0, 5, 4,
+	7, 6, 3, 2
+};
+
+static const float normals[6*3] = {
+	1, 0, 0,
+	-1, 0, 0,
+	0, 0, -1,
+	0, 0, 1,
+	0, -1, 0,
+	0, 1, 0
 };
 
 static const float faceColors[6][3]{
@@ -141,19 +202,11 @@ void OpenGLWidget::paintGL()
 	dragRotation.rotate(m_dragRotation);
 	glMultMatrixf(dragRotation.constData());	//mouse rotation
 
-	for (auto i = 0; i < 6; i++)
-	{
-		glBegin(GL_QUADS);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, faceColors[i]);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_specColor);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &m_specExp);
-		glNormal3f(normals[i].x(), normals[i].y(), normals[i].z());
-		for (auto j = 0; j < 4; j++)
-		{
-			glVertex3f(cube[i][j][0], cube[i][j][1], cube[i][j][2]);
-		}
-		glEnd();
-	}
+	glEnable(GL_NORMALIZE);
+
+	paintWithTessellation();
+
+	//paintWithShaderProgram();
 }
 
 void OpenGLWidget::resizeGL(int width, int height)
@@ -167,7 +220,57 @@ void OpenGLWidget::resizeGL(int width, int height)
 	
 	glMatrixMode(GL_MODELVIEW);
 
+
+	m_proj.setToIdentity();
+	m_proj.perspective(m_fov, aspect, m_zNear, m_zFar);
+
 	update();
+}
+
+void OpenGLWidget::initializeShaderProgram()
+{
+	m_program = new QOpenGLShaderProgram;
+	m_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
+	m_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
+	m_program->bindAttributeLocation("vertex", 0);
+	m_program->bindAttributeLocation("normal", 1);
+	m_program->link();
+
+	m_program->bind();
+	m_projMatrixLoc = m_program->uniformLocation("projMatrix");
+	m_mvMatrixLoc = m_program->uniformLocation("mvMatrix");
+	m_normalMatrixLoc = m_program->uniformLocation("normalMatrix");
+	m_lightPosLoc = m_program->uniformLocation("lightPos");
+
+	m_vao.create();
+	QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
+
+	m_vbo.create();
+	m_vbo.bind();
+	m_vbo.allocate(cubeVertices, sizeof(cubeVertices)/sizeof(cubeVertices[0]));
+
+	// Store the vertex attribute bindings for the program.
+	setupVertexAttribs();
+
+	// Our camera never changes in this example.
+	m_camera.setToIdentity();
+	//m_camera.translate(0, 0, -1);
+
+	// Light position is fixed.
+	m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
+
+	m_program->release();
+}
+
+void OpenGLWidget::setupVertexAttribs()
+{
+	m_vbo.bind();
+	auto functions = QOpenGLContext::currentContext()->functions();
+	functions->glEnableVertexAttribArray(0);
+	functions->glEnableVertexAttribArray(1);
+	functions->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+	functions->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+	m_vbo.release();
 }
 
 QPointF OpenGLWidget::pixelPosToViewPos(const QPointF &pos) const
@@ -240,6 +343,65 @@ void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, G
 	glFrustum(left, right, bottom, top, zNear, zFar);
 }
 
+void OpenGLWidget::paintWithTessellation()
+{
+	
+	for (auto x = 0; x <= m_tessellation; x++)
+	{
+		for (auto y = 0; y <= m_tessellation; y++)
+		{
+			for (auto z = 0; z <= m_tessellation; z++)
+			{
+				paint(x, y, z);
+			}
+		}
+	}
+	
+}
+
+void OpenGLWidget::paint(int x, int y, int z)
+{
+	float tessFactor = 1.0f / (1 + m_tessellation);
+	float xOffset = tessFactor * x;
+	float yOffset = tessFactor * y;
+	float zOffset = tessFactor * z;
+
+	glTranslatef(xOffset, yOffset, zOffset);
+	glScalef(tessFactor, tessFactor, tessFactor);
+	
+
+	for (auto i = 0; i < 6; i++)
+	{
+		glBegin(GL_QUADS);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, faceColors[i]);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_specColor);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &m_specExp);
+		glNormal3f(normals[i * 3 + 0], normals[i * 3 + 1], normals[i * 3 + 2]);
+		for (auto j = 0; j < 4; j++)
+		{
+			int index = cubeIndices[i * 4 + j] * 3;
+			glVertex3f(cubeVertices[index + 0], cubeVertices[index + 1], cubeVertices[index + 2]);
+		}
+		glEnd();
+	}
+	
+	glScalef(1 / tessFactor, 1 / tessFactor, 1 / tessFactor);
+	glTranslatef(-xOffset, -yOffset, -zOffset);
+}
+
+void OpenGLWidget::paintWithShaderProgram()
+{
+	QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
+	//m_program->bind();
+	m_program->setUniformValue(m_projMatrixLoc, m_proj);
+	m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
+	QMatrix3x3 normalMatrix = m_world.normalMatrix();
+	m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
+
+	glDrawArrays(GL_TRIANGLES, 0, 8);
+
+	//m_program->release();
+}
 
 
 

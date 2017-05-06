@@ -152,7 +152,7 @@ void MainWindow::initializeStatusBar()
 QSlider* MainWindow::createSlider()
 {
 	auto slider = new QSlider(Qt::Horizontal);
-	slider->setRange(0, 10);
+	slider->setRange(0, 6);
 	slider->setSingleStep(1);
 	slider->setTickPosition(QSlider::TicksRight);
 	slider->setValue(0);
