@@ -27,7 +27,7 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 
 OpenGLWidget::~OpenGLWidget()
 {
-	
+	cleanup();
 }
 
 QSize OpenGLWidget::minimumSizeHint() const
@@ -60,7 +60,7 @@ void OpenGLWidget::flatShading()
 void OpenGLWidget::gouraudShading()
 {
 	makeCurrent();
-	//m_program->release();
+	m_program->release();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glShadeModel(GL_SMOOTH);
 	update();
@@ -69,6 +69,7 @@ void OpenGLWidget::gouraudShading()
 void OpenGLWidget::phongShading()
 {
 	makeCurrent();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	m_program->bind();
 	update();
 }
@@ -96,7 +97,15 @@ void OpenGLWidget::resetCamera()
 
 void OpenGLWidget::cleanup()
 {
-	//todo
+	delete m_lastPos;
+	delete [] m_dragTranslation;
+	delete m_trackBall;
+
+	makeCurrent();
+	m_vbo.destroy();
+	delete m_program;
+	m_program = nullptr;
+	doneCurrent();
 }
 
 static const char *vertexShaderSource =
@@ -195,18 +204,26 @@ void OpenGLWidget::paintGL()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(0, 0, m_wheelDelta - 5);	//zoom
-	glTranslatef(m_dragTranslation[0], -m_dragTranslation[1], 0);	//mouse dragging
+	glTranslatef(m_dragTranslation[0], -m_dragTranslation[1], m_wheelDelta - 5);	//mouse dragging + zoom
 
 	auto dragRotation = QMatrix4x4();
 	dragRotation.rotate(m_dragRotation);
 	glMultMatrixf(dragRotation.constData());	//mouse rotation
 
+
+
+	m_world.setToIdentity();
+	m_world.translate(m_dragTranslation[0], -m_dragTranslation[1], m_wheelDelta - 5);
+	m_world.rotate(m_dragRotation);
+
+	
+
 	glEnable(GL_NORMALIZE);
 
-	paintWithTessellation();
+	//paintWithTessellation();
 
-	//paintWithShaderProgram();
+	paintWithShaderProgram();
+	
 }
 
 void OpenGLWidget::resizeGL(int width, int height)
@@ -220,7 +237,7 @@ void OpenGLWidget::resizeGL(int width, int height)
 	
 	glMatrixMode(GL_MODELVIEW);
 
-
+	//resize projection for shader program
 	m_proj.setToIdentity();
 	m_proj.perspective(m_fov, aspect, m_zNear, m_zFar);
 
@@ -254,7 +271,7 @@ void OpenGLWidget::initializeShaderProgram()
 
 	// Our camera never changes in this example.
 	m_camera.setToIdentity();
-	//m_camera.translate(0, 0, -1);
+	//m_camera.translate(0, 0, -5);
 
 	// Light position is fixed.
 	m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
@@ -345,31 +362,32 @@ void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, G
 
 void OpenGLWidget::paintWithTessellation()
 {
-	
+	float tessFactor = 1.0f / (1 + m_tessellation);
 	for (auto x = 0; x <= m_tessellation; x++)
 	{
+		float xOffset = tessFactor * x;
 		for (auto y = 0; y <= m_tessellation; y++)
 		{
+			float yOffset = tessFactor * y;
 			for (auto z = 0; z <= m_tessellation; z++)
 			{
-				paint(x, y, z);
+				float zOffset = tessFactor * z;
+
+				glTranslatef(xOffset, yOffset, zOffset);
+				glScalef(tessFactor, tessFactor, tessFactor);
+				
+				paint();
+
+				glScalef(1 / tessFactor, 1 / tessFactor, 1 / tessFactor);
+				glTranslatef(-xOffset, -yOffset, -zOffset);
 			}
 		}
 	}
 	
 }
 
-void OpenGLWidget::paint(int x, int y, int z)
+void OpenGLWidget::paint()
 {
-	float tessFactor = 1.0f / (1 + m_tessellation);
-	float xOffset = tessFactor * x;
-	float yOffset = tessFactor * y;
-	float zOffset = tessFactor * z;
-
-	glTranslatef(xOffset, yOffset, zOffset);
-	glScalef(tessFactor, tessFactor, tessFactor);
-	
-
 	for (auto i = 0; i < 6; i++)
 	{
 		glBegin(GL_QUADS);
@@ -384,9 +402,6 @@ void OpenGLWidget::paint(int x, int y, int z)
 		}
 		glEnd();
 	}
-	
-	glScalef(1 / tessFactor, 1 / tessFactor, 1 / tessFactor);
-	glTranslatef(-xOffset, -yOffset, -zOffset);
 }
 
 void OpenGLWidget::paintWithShaderProgram()
@@ -398,8 +413,8 @@ void OpenGLWidget::paintWithShaderProgram()
 	QMatrix3x3 normalMatrix = m_world.normalMatrix();
 	m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
 
-	glDrawArrays(GL_TRIANGLES, 0, 8);
-
+	//glDrawArrays(GL_TRIANGLES, 0, 8);
+	paint();
 	//m_program->release();
 }
 

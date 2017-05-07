@@ -72,6 +72,6 @@ private:
 	void setupVertexAttribs();
 	void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 	void paintWithTessellation();
-	void paint(int x = 0, int y = 0, int z = 0);
+	void paint();
 	void paintWithShaderProgram();
 };
