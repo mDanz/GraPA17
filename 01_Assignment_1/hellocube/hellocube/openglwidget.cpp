@@ -8,6 +8,7 @@
 #include <QQuaternion>
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
+#include <QFileInfo>
 
 #define highp
 #define mediump
@@ -107,39 +108,17 @@ void OpenGLWidget::cleanup()
 	delete m_lastPos;
 	delete [] m_dragTranslation;
 	delete m_trackBall;
+	delete m_vertexShader;
+	delete m_fragmentShader;
 
 	makeCurrent();
 	m_vbo.destroy();
+	m_nbo.destroy();
+	m_vao.destroy();
 	delete m_program;
 	m_program = nullptr;
 	doneCurrent();
 }
-
-static const char *vertexShaderSource =
-"attribute vec4 vertex;\n"
-"attribute vec3 normal;\n"
-"varying vec3 vert;\n"
-"varying vec3 vertNormal;\n"
-"uniform mat4 projMatrix;\n"
-"uniform mat4 mvMatrix;\n"
-"uniform mat3 normalMatrix;\n"
-"void main() {\n"
-"   vert = vertex.xyz;\n"
-"   vertNormal = normalMatrix * normal;\n"
-"   gl_Position = projMatrix * mvMatrix * vertex;\n"
-"}\n";
-
-static const char *fragmentShaderSource =
-"varying highp vec3 vert;\n"
-"varying highp vec3 vertNormal;\n"
-"uniform highp vec3 lightPos;\n"
-"void main() {\n"
-"   highp vec3 L = normalize(lightPos - vert);\n"
-"   highp float NL = max(dot(normalize(vertNormal), L), 0.0);\n"
-"   highp vec3 color = vec3(0.39, 1.0, 0.0);\n"
-"   highp vec3 col = clamp(color * 0.2 + color * 0.8 * NL, 0.0, 1.0);\n"
-"   gl_FragColor = vec4(col, 1.0);\n"
-"}\n";
 
 
 void OpenGLWidget::initializeGL()
@@ -157,15 +136,6 @@ void OpenGLWidget::initializeGL()
 
 	initializeShaderProgram();
 }
-
-//static const float cubeVertices[6][4][3] = {
-//	{ {+.5, -.5, +.5}, {+.5, -.5, -.5}, {+.5, +.5, -.5}, {+.5, +.5, +.5} },
-//	{ {-.5, -.5, -.5}, {-.5, -.5, +.5}, {-.5, +.5, +.5}, {-.5, +.5, -.5} },
-//	{ {+.5, -.5, -.5}, {-.5, -.5, -.5}, {-.5, +.5, -.5}, {+.5, +.5, -.5} },
-//	{ {-.5, -.5, +.5}, {+.5, -.5, +.5}, {+.5, +.5, +.5}, {-.5, +.5, +.5} },
-//	{ {-.5, -.5, -.5}, {+.5, -.5, -.5}, {+.5, -.5, +.5}, {-.5, -.5, +.5} },
-//	{ {-.5, +.5, +.5}, {+.5, +.5, +.5}, {+.5, +.5, -.5}, {-.5, +.5, -.5} }
-//};
 
 
 static const float cubeVertices[8*3] = {
@@ -256,13 +226,15 @@ void OpenGLWidget::resizeGL(int width, int height)
 	update();
 }
 
+
 void OpenGLWidget::initializeShaderProgram()
 {
 	m_program = new QOpenGLShaderProgram;
-	m_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
-	m_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
-	m_program->bindAttributeLocation("vertex", 0);
-	m_program->bindAttributeLocation("normal", 1);
+
+	initializeShaders();
+
+	m_program->bindAttributeLocation("in_position", 0);
+	m_program->bindAttributeLocation("in_normal", 1);
 	m_program->link();
 
 	m_program->bind();
@@ -270,6 +242,10 @@ void OpenGLWidget::initializeShaderProgram()
 	m_mvMatrixLoc = m_program->uniformLocation("mvMatrix");
 	m_normalMatrixLoc = m_program->uniformLocation("normalMatrix");
 	m_lightPosLoc = m_program->uniformLocation("lightPos");
+	m_ambientColor = m_program->uniformLocation("ambientColor");
+	m_diffuseColor = m_program->uniformLocation("diffuseColor");
+	m_specularColor = m_program->uniformLocation("specularColor");
+	m_specularExp  = m_program->uniformLocation("specularExp");
 
 	m_vao.create();
 	QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
@@ -278,17 +254,63 @@ void OpenGLWidget::initializeShaderProgram()
 	m_vbo.bind();
 	m_vbo.allocate(cubeVertices, sizeof(cubeVertices)/sizeof(cubeVertices[0]));
 
+	m_nbo.create();
+	m_nbo.bind();
+	m_nbo.allocate(normals, sizeof(normals) / sizeof(normals[0]));
+
 	// Store the vertex attribute bindings for the program.
-	setupVertexAttribs();
+	m_program->setAttributeArray(0, cubeVertices, 3);
+	m_program->setAttributeArray(1, normals, 3);
+	//setupVertexAttribs();
 
-	// Our camera never changes in this example.
 	m_camera.setToIdentity();
-	//m_camera.translate(0, 0, -5);
 
-	// Light position is fixed.
-	m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
+	//m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
+	//m_program->setUniformValue(m_ambientColor, QVector3D(m_ka[0], m_ka[1], m_ka[2]));
+	/*m_program->setUniformValue(m_diffuseColor, QVector3D(m_kd[0], m_kd[1], m_kd[2]));
+	m_program->setUniformValue(m_specularColor, QVector3D(m_ks[0], m_ks[1], m_ks[2]));
+	m_program->setUniformValue(m_specularExp, m_specExp);*/
 
 	m_program->release();
+}
+
+void OpenGLWidget::initializeShaders()
+{
+	QFileInfo vsh(m_vshFile);
+	if (vsh.exists())
+	{
+		m_vertexShader = new QOpenGLShader(QOpenGLShader::Vertex);
+		if (m_vertexShader->compileSourceFile(m_vshFile))
+		{
+			m_program->addShader(m_vertexShader);
+		}
+		else
+		{
+			qWarning() << "Vertex Shader Error" << m_vertexShader->log();
+		}
+	}
+	else
+	{
+		qWarning() << "Vertex Shader source file" << m_vshFile << " not found.";
+	}
+
+	QFileInfo fsh(m_fshFile);
+	if (vsh.exists())
+	{
+		m_fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment);
+		if (m_fragmentShader->compileSourceFile(m_fshFile))
+		{
+			m_program->addShader(m_fragmentShader);
+		}
+		else
+		{
+			qWarning() << "Fragment Shader Error" << m_fragmentShader->log();
+		}
+	}
+	else
+	{
+		qWarning() << "Fragment Shader source file" << m_fshFile << " not found.";
+	}
 }
 
 void OpenGLWidget::setupVertexAttribs()
@@ -296,9 +318,15 @@ void OpenGLWidget::setupVertexAttribs()
 	m_vbo.bind();
 	auto functions = QOpenGLContext::currentContext()->functions();
 	functions->glEnableVertexAttribArray(0);
-	functions->glEnableVertexAttribArray(1);
+	//functions->glEnableVertexAttribArray(1);
 	functions->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-	functions->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+	//functions->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+	m_vbo.release();
+
+	m_nbo.bind();
+	//auto functions = QOpenGLContext::currentContext()->functions();
+	functions->glEnableVertexAttribArray(1);
+	functions->glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 6 * sizeof(GLfloat), 0);
 	m_vbo.release();
 }
 
@@ -404,7 +432,7 @@ void OpenGLWidget::paint()
 	{
 		glBegin(GL_QUADS);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, faceColors[i]);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_specColor);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_ks);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &m_specExp);
 		glNormal3f(normals[i * 3 + 0], normals[i * 3 + 1], normals[i * 3 + 2]);
 		for (auto j = 0; j < 4; j++)
@@ -419,15 +447,32 @@ void OpenGLWidget::paint()
 void OpenGLWidget::paintWithShaderProgram()
 {
 	QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
-	//m_program->bind();
 	m_program->setUniformValue(m_projMatrixLoc, m_proj);
 	m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
 	QMatrix3x3 normalMatrix = m_world.normalMatrix();
 	m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
-
-	//glDrawArrays(GL_TRIANGLES, 0, 8);
-	paint();
-	//m_program->release();
+	m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
+	m_program->setUniformValue(m_diffuseColor, QVector3D(m_kd[0], m_kd[1], m_kd[2]));
+	m_program->setUniformValue(m_specularColor, QVector3D(m_ks[0], m_ks[1], m_ks[2]));
+	m_program->setUniformValue(m_specularExp, m_specExp);
+	for (auto i = 0; i < 6; i++)
+	{
+		m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[i][0], faceColors[i][1], faceColors[i][2]));
+		//m_program->setUniformValue(m_diffuseColor, QVector3D(faceColors[i][0], faceColors[i][1], faceColors[i][2]));
+		/*m_program->enableAttributeArray(0);
+		m_program->enableAttributeArray(1);
+		glDrawArrays(GL_LINES, 0, sizeof(cubeVertices) / sizeof(cubeVertices[0]));
+		m_program->disableAttributeArray(0);
+		m_program->disableAttributeArray(1);*/
+		glBegin(GL_QUADS);
+		glNormal3f(normals[i * 3 + 0], normals[i * 3 + 1], normals[i * 3 + 2]);
+		for (auto j = 0; j < 4; j++)
+		{
+			int index = cubeIndices[i * 4 + j] * 3;
+			glVertex3f(cubeVertices[index + 0], cubeVertices[index + 1], cubeVertices[index + 2]);
+		}
+		glEnd();
+	}
 }
 
 
