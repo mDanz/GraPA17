@@ -67,6 +67,7 @@ private:
 	GLfloat *m_dragTranslation;
 	QQuaternion m_dragRotation;
 	TrackBall *m_trackBall;
+	bool m_isTessellationEnabled;
 
 	void initializeShaderProgram();
 	void setupVertexAttribs();

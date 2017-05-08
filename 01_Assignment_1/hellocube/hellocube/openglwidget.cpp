@@ -42,6 +42,8 @@ QSize OpenGLWidget::sizeHint() const
 
 void OpenGLWidget::wireframeShading()
 {
+	m_isTessellationEnabled = true;
+
 	makeCurrent();
 	m_program->release();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -50,6 +52,8 @@ void OpenGLWidget::wireframeShading()
 
 void OpenGLWidget::flatShading()
 {
+	m_isTessellationEnabled = true;
+
 	makeCurrent();
 	m_program->release();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -59,6 +63,8 @@ void OpenGLWidget::flatShading()
 
 void OpenGLWidget::gouraudShading()
 {
+	m_isTessellationEnabled = true;
+
 	makeCurrent();
 	m_program->release();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -68,6 +74,7 @@ void OpenGLWidget::gouraudShading()
 
 void OpenGLWidget::phongShading()
 {
+	m_isTessellationEnabled = false;
 	makeCurrent();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	m_program->bind();
@@ -137,6 +144,7 @@ static const char *fragmentShaderSource =
 
 void OpenGLWidget::initializeGL()
 {
+	m_isTessellationEnabled = true;
 	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLWidget::cleanup);
 
 	initializeOpenGLFunctions();
@@ -201,6 +209,8 @@ static const float faceColors[6][3]{
 void OpenGLWidget::paintGL()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_NORMALIZE);
+
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -218,12 +228,14 @@ void OpenGLWidget::paintGL()
 
 	
 
-	glEnable(GL_NORMALIZE);
-
-	//paintWithTessellation();
-
-	paintWithShaderProgram();
-	
+	if (m_isTessellationEnabled)
+	{
+		paintWithTessellation();
+	}
+	else
+	{
+		paintWithShaderProgram();
+	}
 }
 
 void OpenGLWidget::resizeGL(int width, int height)
