@@ -5,5 +5,7 @@
         <file>img/gouraud.png</file>
         <file>img/phong.png</file>
         <file>img/wireframe.png</file>
+        <file>shaders/phong.fsh</file>
+        <file>shaders/phong.vsh</file>
     </qresource>
 </RCC>

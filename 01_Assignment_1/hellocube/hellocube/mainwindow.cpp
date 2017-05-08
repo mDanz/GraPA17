@@ -1,18 +1,25 @@
 #include "mainwindow.h"
-#include "glrenderingwidget.h"
 
-MainWindow::MainWindow(QWidget *parent)
+#include "openglwidget.h"
+
+#include <QMessageBox>
+#include <QLabel>
+#include <QMenuBar>
+#include <QToolBar>
+
+MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
 {
-	ui.setupUi(this);
+    ui.setupUi(this);
 
 	setWindowTitle("Hello Cube");
+    openGLWidget = new OpenGLWidget(this);
 
 	initializeMenuBar();
 	initializeToolBar();
 	initializeStatusBar();
 
-	setCentralWidget(new GLRenderingWidget(this));
+	setCentralWidget(openGLWidget);
 }
 
 MainWindow::~MainWindow()
@@ -66,14 +73,19 @@ void MainWindow::initializeShadingMenu()
 	shadingMenu->addAction(phongShadingAction);
 
 	menuBar->addMenu(shadingMenu);
+
+    connect(noneShadingAction, SIGNAL(triggered()), openGLWidget, SLOT(wireframeShading()));
+    connect(flatShadingAction, SIGNAL(triggered()), openGLWidget, SLOT(flatShading()));
+    connect(gouraudShadingAction, SIGNAL(triggered()), openGLWidget, SLOT(gouraudShading()));
+    connect(phongShadingAction, SIGNAL(triggered()), openGLWidget, SLOT(phongShading()));
 }
 
 void MainWindow::initializeShadingActionGroup()
 {
 	noneShadingAction = new QAction("&None (Wireframe)", shadingMenu);
 	flatShadingAction = new QAction("&Flat", shadingMenu);
-	gouraudShadingAction = new QAction("&Gouraud)", shadingMenu);
-	phongShadingAction = new QAction("&Phong)", shadingMenu);
+	gouraudShadingAction = new QAction("&Gouraud", shadingMenu);
+	phongShadingAction = new QAction("&Phong", shadingMenu);
 
 	noneShadingAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_1));
 	flatShadingAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_2));
@@ -103,7 +115,7 @@ void MainWindow::initializeAboutMenu()
 	aboutAction = new QAction("&About", aboutMenu);
 	aboutMenu->addAction(aboutAction);
 	menuBar->addMenu(aboutMenu);
-	connect(aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
+    connect(aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
 }
 
 void MainWindow::initializeToolBar()
@@ -114,11 +126,34 @@ void MainWindow::initializeToolBar()
 	shadingToolBar->addAction(gouraudShadingAction);
 	shadingToolBar->addAction(phongShadingAction);
 
+	tesselationSlider = createSlider();
+	shadingToolBar->addWidget(tesselationSlider);
+
+	resetCameraAction = new QAction("&Reset Camera", shadingToolBar);
+	resetCameraAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+	resetCameraAction->setIcon(QIcon(":/img/cam_home.png"));
+	shadingToolBar->addAction(resetCameraAction);
+
 	addToolBar(shadingToolBar);
+
+    connect(tesselationSlider, SIGNAL(valueChanged(int)), openGLWidget, SLOT(setTesselation(int)));
+    connect(resetCameraAction, SIGNAL(triggered()), openGLWidget, SLOT(resetCamera()));
 }
 
 void MainWindow::initializeStatusBar()
 {
-	auto label = new QLabel("Ready");
-	ui.statusBar->addWidget(label); //had to use ui 
+	auto label = new QLabel();
+    ui.statusBar->addWidget(label); //had to use ui otherwise statusBar would be at top of screen.
 }
+
+QSlider* MainWindow::createSlider()
+{
+	auto slider = new QSlider(Qt::Horizontal);
+	slider->setRange(0, 6);
+	slider->setSingleStep(1);
+	slider->setTickPosition(QSlider::TicksRight);
+	slider->setValue(0);
+	//slider->setSizePolicy(QSizePolicy(QSizePolicy::Policy::Maximum, QSizePolicy::Policy::Ignored));
+	return slider;
+}
+
