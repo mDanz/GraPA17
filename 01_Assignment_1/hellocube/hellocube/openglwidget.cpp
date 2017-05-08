@@ -17,8 +17,20 @@
 
 OpenGLWidget::OpenGLWidget(QWidget* parent)
 	: QOpenGLWidget(parent), QOpenGLFunctions_4_4_Compatibility()
+	, m_program(nullptr)
+	, m_projMatrixLoc(0)
+	, m_mvMatrixLoc(0)
+	, m_normalMatrixLoc(0)
+	, m_lightPosLoc(0)
+	, m_ambientColor(0)
+	, m_diffuseColor(0)
+	, m_specularColor(0)
+	, m_specularExp(0)
 	, m_tessellation(0)
 	, m_wheelDelta(0)
+	, m_isTessellationEnabled(false)
+	, m_vertexShader(nullptr)
+	, m_fragmentShader(nullptr)
 {
 	m_lastPos = new QPoint();
 	m_dragTranslation = new GLfloat[2]{0, 0};
@@ -313,22 +325,22 @@ void OpenGLWidget::initializeShaders()
 	}
 }
 
-void OpenGLWidget::setupVertexAttribs()
-{
-	m_vbo.bind();
-	auto functions = QOpenGLContext::currentContext()->functions();
-	functions->glEnableVertexAttribArray(0);
-	//functions->glEnableVertexAttribArray(1);
-	functions->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-	//functions->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-	m_vbo.release();
-
-	m_nbo.bind();
-	//auto functions = QOpenGLContext::currentContext()->functions();
-	functions->glEnableVertexAttribArray(1);
-	functions->glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 6 * sizeof(GLfloat), 0);
-	m_vbo.release();
-}
+//void OpenGLWidget::setupVertexAttribs()
+//{
+//	m_vbo.bind();
+//	auto functions = QOpenGLContext::currentContext()->functions();
+//	functions->glEnableVertexAttribArray(0);
+//	//functions->glEnableVertexAttribArray(1);
+//	functions->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+//	//functions->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+//	m_vbo.release();
+//
+//	m_nbo.bind();
+//	//auto functions = QOpenGLContext::currentContext()->functions();
+//	functions->glEnableVertexAttribArray(1);
+//	functions->glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 6 * sizeof(GLfloat), 0);
+//	m_vbo.release();
+//}
 
 QPointF OpenGLWidget::pixelPosToViewPos(const QPointF &pos) const
 {

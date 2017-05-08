@@ -6,7 +6,6 @@
 #include <QLabel>
 #include <QMenuBar>
 #include <QToolBar>
-#include <QStatusBar>
 
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
@@ -143,10 +142,8 @@ void MainWindow::initializeToolBar()
 
 void MainWindow::initializeStatusBar()
 {
-	auto label = new QLabel("Ready");
+	auto label = new QLabel();
     ui.statusBar->addWidget(label); //had to use ui otherwise statusBar would be at top of screen.
-	//statusBar = new QStatusBar(this);
-    //statusBar->addWidget(label);
 }
 
 QSlider* MainWindow::createSlider()
