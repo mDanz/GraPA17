@@ -16,8 +16,7 @@ MainWindow::MainWindow(QMainWindow *parent)
 	setWindowTitle("Hello Cube");
     openGLWidget = new OpenGLWidget(this);
 
-
-	//todo separate action init from menu init
+	initializeActions();
 	initializeMenuBar();
 	initializeToolBar();	//todo seperate toolbars
 	initializeStatusBar();
@@ -38,66 +37,21 @@ void MainWindow::showAboutBox()
 	msgBox.exec();
 }
 
-void MainWindow::initializeMenuBar()
+void MainWindow::initializeActions()
 {
-	menuBar = new QMenuBar();
-
-	initializeFileMenu();
-	initializeInteractionModeMenu();
-	initializeViewModeMenu();
-	initializeAboutMenu();
-
-	setMenuBar(menuBar);
-}
-
-void MainWindow::initializeFileMenu()
-{
-	fileMenu = new QMenu("&File");
-
-	exitAction = new QAction("E&xit", fileMenu);
+	exitAction = new QAction("E&xit", this);
 	exitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
 
-	fileMenu->addAction(exitAction);
+	aboutAction = new QAction("&About", aboutMenu);
 
-	menuBar->addMenu(fileMenu);
-
-	connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
-}
-
-void MainWindow::initializeInteractionModeMenu()
-{
-	interactionModeMenu = new QMenu("&Interaction");
+	resetCameraAction = new QAction("&Reset Camera", toolBar);
+	resetCameraAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+	resetCameraAction->setIcon(QIcon(":/Resources/img/cam_home.png"));
 
 	initializeInteractionModeActionGroup();
-
-	interactionModeMenu->addAction(cameraModeAction);
-	interactionModeMenu->addAction(objManipulationModeAction);
-
-	menuBar->addMenu(interactionModeMenu);
-
-	//todo connect signals
-	//connect(cameraModeAction, SIGNAL(triggered()), target, SLOT(cameraModeActivated()));
-	//connect(objManipulationModeAction, SIGNAL(triggered()), target, SLOT(objManipulationModeActivated()));
-}
-
-void MainWindow::initializeViewModeMenu()
-{
-	viewModeMenu = new QMenu("&View");
-
 	initializeViewModeActionGroup();
-
-	viewModeMenu->addAction(singleViewAction);
-	viewModeMenu->addAction(dualViewAction);
-	viewModeMenu->addAction(quadViewAction);
-
-	menuBar->addMenu(viewModeMenu);
-
-	//todo connect signals
-	//connect(singleViewAction, SIGNAL(triggered()), target, SLOT(singleViewModeActivated()));
-	//connect(dualViewAction, SIGNAL(triggered()), target, SLOT(dualViewModeActivated()));
-	//connect(quadViewAction, SIGNAL(triggered()), target, SLOT(QuadViewModeActivated()));
+	initializeActionConnections();
 }
-
 
 void MainWindow::initializeInteractionModeActionGroup()
 {
@@ -143,13 +97,64 @@ void MainWindow::initializeViewModeActionGroup()
 	singleViewAction->setChecked(true);
 }
 
+void MainWindow::initializeActionConnections()
+{
+	connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+	connect(aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
+	connect(resetCameraAction, SIGNAL(triggered()), openGLWidget, SLOT(resetCamera()));
+	//todo connect signals
+	//connect(cameraModeAction, SIGNAL(triggered()), target, SLOT(cameraModeActivated()));
+	//connect(objManipulationModeAction, SIGNAL(triggered()), target, SLOT(objManipulationModeActivated()));
+	//connect(singleViewAction, SIGNAL(triggered()), target, SLOT(singleViewModeActivated()));
+	//connect(dualViewAction, SIGNAL(triggered()), target, SLOT(dualViewModeActivated()));
+	//connect(quadViewAction, SIGNAL(triggered()), target, SLOT(QuadViewModeActivated()));
+}
+
+void MainWindow::initializeMenuBar()
+{
+	menuBar = new QMenuBar();
+
+	initializeFileMenu();
+	initializeInteractionModeMenu();
+	initializeViewModeMenu();
+	initializeAboutMenu();
+
+	setMenuBar(menuBar);
+}
+
+void MainWindow::initializeFileMenu()
+{
+	fileMenu = new QMenu("&File");
+	fileMenu->addAction(exitAction);
+
+	menuBar->addMenu(fileMenu);
+}
+
+void MainWindow::initializeInteractionModeMenu()
+{
+	interactionModeMenu = new QMenu("&Interaction");
+	interactionModeMenu->addAction(cameraModeAction);
+	interactionModeMenu->addAction(objManipulationModeAction);
+
+	menuBar->addMenu(interactionModeMenu);
+}
+
+void MainWindow::initializeViewModeMenu()
+{
+	viewModeMenu = new QMenu("&View");
+	viewModeMenu->addAction(singleViewAction);
+	viewModeMenu->addAction(dualViewAction);
+	viewModeMenu->addAction(quadViewAction);
+
+	menuBar->addMenu(viewModeMenu);
+}
+
 void MainWindow::initializeAboutMenu()
 {
 	aboutMenu = new QMenu("&About");
-	aboutAction = new QAction("&About", aboutMenu);
 	aboutMenu->addAction(aboutAction);
+
 	menuBar->addMenu(aboutMenu);
-    connect(aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
 }
 
 void MainWindow::initializeToolBar()
@@ -168,15 +173,11 @@ void MainWindow::initializeToolBar()
 	tesselationSlider = createSlider();
 	toolBar->addWidget(tesselationSlider);
 
-	resetCameraAction = new QAction("&Reset Camera", toolBar);
-	resetCameraAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
-	resetCameraAction->setIcon(QIcon(":/Resources/img/cam_home.png"));
 	toolBar->addAction(resetCameraAction);
 
 	addToolBar(toolBar);
 
     connect(tesselationSlider, SIGNAL(valueChanged(int)), openGLWidget, SLOT(setTesselation(int)));
-    connect(resetCameraAction, SIGNAL(triggered()), openGLWidget, SLOT(resetCamera()));
 }
 
 void MainWindow::initializeStatusBar()

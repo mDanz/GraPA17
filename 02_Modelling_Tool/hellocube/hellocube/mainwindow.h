@@ -44,12 +44,14 @@ private:
 
 	QSlider *tesselationSlider;
 
+	void initializeActions();
+	void initializeInteractionModeActionGroup();
+	void initializeViewModeActionGroup();
+	void initializeActionConnections();
 	void initializeMenuBar();
 	void initializeFileMenu();
 	void initializeInteractionModeMenu();
 	void initializeViewModeMenu();
-	void initializeInteractionModeActionGroup();
-	void initializeViewModeActionGroup();
 	void initializeAboutMenu();
 	void initializeToolBar();
 	void initializeStatusBar();
