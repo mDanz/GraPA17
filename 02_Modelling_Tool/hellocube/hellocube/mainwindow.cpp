@@ -7,6 +7,9 @@
 #include <QMenuBar>
 #include <QToolBar>
 #include <QToolButton>
+#include <QDockWidget>
+#include <QTreeView>
+#include <QFileSystemModel>
 
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
@@ -20,6 +23,7 @@ MainWindow::MainWindow(QMainWindow *parent)
 	initializeMenuBar();
 	initializeToolBar();	//todo seperate toolbars
 	initializeStatusBar();
+	initializeDockWidgets();
 
 	setCentralWidget(openGLWidget);
 }
@@ -184,6 +188,27 @@ void MainWindow::initializeStatusBar()
 {
 	auto label = new QLabel();
     ui.statusBar->addWidget(label); //had to use ui otherwise statusBar would be at top of screen.
+}
+
+void MainWindow::initializeDockWidgets()
+{
+	initializeOutliner();
+}
+
+void MainWindow::initializeOutliner()
+{
+	outlinerDock = new QDockWidget(this);
+	auto model = new QFileSystemModel();	//todo set correct model
+	model->setRootPath(QDir::currentPath());
+
+	outlinerTreeView = new QTreeView(outlinerDock);
+	outlinerTreeView->setModel(model);
+	outlinerTreeView->setRootIndex(model->index(QDir::currentPath()));
+
+	outlinerDock->setWidget(outlinerTreeView);
+	outlinerDock->setWindowTitle("Outliner");
+
+	addDockWidget(Qt::LeftDockWidgetArea, outlinerDock);
 }
 
 QSlider* MainWindow::createSlider()

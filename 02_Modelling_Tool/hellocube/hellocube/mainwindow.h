@@ -30,6 +30,8 @@ private:
 
 	QStatusBar *statusBar;
 
+	QDockWidget *outlinerDock;
+
 	QActionGroup *interactionModeActionGroup;
 	QActionGroup *viewModeActionGroup;
 
@@ -44,6 +46,8 @@ private:
 
 	QSlider *tesselationSlider;
 
+	QTreeView *outlinerTreeView;
+
 	void initializeActions();
 	void initializeInteractionModeActionGroup();
 	void initializeViewModeActionGroup();
@@ -55,5 +59,7 @@ private:
 	void initializeAboutMenu();
 	void initializeToolBar();
 	void initializeStatusBar();
+	void initializeDockWidgets();
+	void initializeOutliner();
 	QSlider* createSlider();
 };
