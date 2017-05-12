@@ -45,12 +45,12 @@ OpenGLWidget::~OpenGLWidget()
 
 QSize OpenGLWidget::minimumSizeHint() const
 {
-	return QSize(1200, 700);
+	return QSize(400, 200);
 }
 
 QSize OpenGLWidget::sizeHint() const
 {
-	return QSize(2000, 1500);
+	return QSize(800, 400);
 }
 
 void OpenGLWidget::wireframeShading()

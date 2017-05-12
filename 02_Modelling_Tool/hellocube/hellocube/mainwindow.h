@@ -3,6 +3,9 @@
 #include <QActionGroup>
 #include "ui_mainwindow.h"
 #include "openglwidget.h"
+#include <QGridLayout>
+#include <QSplitter>
+#include <QStackedWidget>
 
 class MainWindow : public QMainWindow
 {
@@ -12,41 +15,56 @@ public:
 	explicit MainWindow(QMainWindow *parent = Q_NULLPTR);
 	~MainWindow();
 
-	public slots:
+public slots:
 	void showAboutBox();
+	void singleViewModeActivated();
+	void dualViewModeActivated();
+	void quadViewModeActivated();
 
 private:
-    Ui::MainWindowClass ui;
-	OpenGLWidget *openGLWidget;
+    Ui::MainWindowClass m_ui;
+	QStackedWidget *m_stackedWidget;
+	QSplitter *m_dualViewSplitter;
+	QSplitter *m_quadViewSplitter;
+	QSplitter *m_topRowSplitter;
+	QSplitter *m_bottomRowSplitter;
+	OpenGLWidget *m_openGLWidget; //todo change to selected glwidget
+	OpenGLWidget *m_singlePerspreciveView;
+	OpenGLWidget *m_perspectiveGLWidgetDual;
+	OpenGLWidget *m_perspectiveGLWidgetQuad;
+	OpenGLWidget *m_frontGLWidgetDual;
+	OpenGLWidget *m_frontGLWidgetQuad;
+	OpenGLWidget *m_leftGLWidgetQuad;
+	OpenGLWidget *m_topGLWidgetQuad;
 
-	QMenuBar *menuBar;
+	QMenuBar *m_menuBar;
 
-	QMenu *fileMenu;
-	QMenu *interactionModeMenu;
-	QMenu *viewModeMenu;
-	QMenu *aboutMenu;
+	QMenu *m_fileMenu;
+	QMenu *m_interactionModeMenu;
+	QMenu *m_viewModeMenu;
+	QMenu *m_aboutMenu;
 
-	QToolBar *toolBar;
+	QToolBar *m_toolBar;
 
-	QStatusBar *statusBar;
+	QStatusBar *m_statusBar;
 
-	QDockWidget *outlinerDock;
+	QDockWidget *m_outlinerDock;
 
-	QActionGroup *interactionModeActionGroup;
-	QActionGroup *viewModeActionGroup;
+	QActionGroup *m_interactionModeActionGroup;
+	QActionGroup *m_viewModeActionGroup;
 
-	QAction *exitAction;
-	QAction *aboutAction;
-	QAction *resetCameraAction;
-	QAction *cameraModeAction;
-	QAction *objManipulationModeAction;
-	QAction *singleViewAction;
-	QAction *dualViewAction;
-	QAction *quadViewAction;
+	QAction *m_exitAction;
+	QAction *m_aboutAction;
+	QAction *m_resetCameraAction;
+	QAction *m_cameraModeAction;
+	QAction *m_objManipulationModeAction;
+	QAction *m_singleViewAction;
+	QAction *m_dualViewAction;
+	QAction *m_quadViewAction;
 
-	QSlider *tesselationSlider;
+	QSlider *m_tesselationSlider;
 
-	QTreeView *outlinerTreeView;
+	QTreeView *m_outlinerTreeView;
 
 	void initializeActions();
 	void initializeInteractionModeActionGroup();
@@ -60,6 +78,7 @@ private:
 	void initializeToolBar();
 	void initializeStatusBar();
 	void initializeDockWidgets();
+	void initializeViewportLayouts();
 	void initializeOutliner();
 	QSlider* createSlider();
 };

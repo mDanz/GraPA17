@@ -10,22 +10,23 @@
 #include <QDockWidget>
 #include <QTreeView>
 #include <QFileSystemModel>
+#include "scenemodel.h"
+#include <QSplitter>
+#include <QStackedWidget>
 
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
 {
-    ui.setupUi(this);
+    m_ui.setupUi(this);
 
 	setWindowTitle("Hello Cube");
-    openGLWidget = new OpenGLWidget(this);
 
+	initializeViewportLayouts();
 	initializeActions();
 	initializeMenuBar();
 	initializeToolBar();	//todo seperate toolbars
 	initializeStatusBar();
 	initializeDockWidgets();
-
-	setCentralWidget(openGLWidget);
 }
 
 MainWindow::~MainWindow()
@@ -41,16 +42,31 @@ void MainWindow::showAboutBox()
 	msgBox.exec();
 }
 
+void MainWindow::singleViewModeActivated()
+{
+	m_stackedWidget->setCurrentWidget(m_singlePerspreciveView);
+}
+
+void MainWindow::dualViewModeActivated()
+{
+	m_stackedWidget->setCurrentWidget(m_dualViewSplitter);
+}
+
+void MainWindow::quadViewModeActivated()
+{
+	m_stackedWidget->setCurrentWidget(m_quadViewSplitter);
+}
+
 void MainWindow::initializeActions()
 {
-	exitAction = new QAction("E&xit", this);
-	exitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
+	m_exitAction = new QAction("E&xit", this);
+	m_exitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
 
-	aboutAction = new QAction("&About", aboutMenu);
+	m_aboutAction = new QAction("&About", m_aboutMenu);
 
-	resetCameraAction = new QAction("&Reset Camera", toolBar);
-	resetCameraAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
-	resetCameraAction->setIcon(QIcon(":/Resources/img/cam_home.png"));
+	m_resetCameraAction = new QAction("&Reset Camera", m_toolBar);
+	m_resetCameraAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+	m_resetCameraAction->setIcon(QIcon(":/Resources/img/cam_home.png"));
 
 	initializeInteractionModeActionGroup();
 	initializeViewModeActionGroup();
@@ -59,135 +75,135 @@ void MainWindow::initializeActions()
 
 void MainWindow::initializeInteractionModeActionGroup()
 {
-	interactionModeActionGroup = new QActionGroup(this);
+	m_interactionModeActionGroup = new QActionGroup(this);
 
-	cameraModeAction = new QAction("&Camera", interactionModeMenu);
-	objManipulationModeAction = new QAction("&Object Manipulation", interactionModeMenu);
+	m_cameraModeAction = new QAction("&Camera", m_interactionModeMenu);
+	m_objManipulationModeAction = new QAction("&Object Manipulation", m_interactionModeMenu);
 
-	cameraModeAction->setIcon(QIcon(":/Resources/img/camera.png"));
-	objManipulationModeAction->setIcon(QIcon(":/Resources/img/select.png"));
+	m_cameraModeAction->setIcon(QIcon(":/Resources/img/camera.png"));
+	m_objManipulationModeAction->setIcon(QIcon(":/Resources/img/select.png"));
 
-	cameraModeAction->setCheckable(true);
-	objManipulationModeAction->setCheckable(true);
+	m_cameraModeAction->setCheckable(true);
+	m_objManipulationModeAction->setCheckable(true);
 
-	interactionModeActionGroup->addAction(cameraModeAction);
-	interactionModeActionGroup->addAction(objManipulationModeAction);
-	cameraModeAction->setChecked(true);
+	m_interactionModeActionGroup->addAction(m_cameraModeAction);
+	m_interactionModeActionGroup->addAction(m_objManipulationModeAction);
+	m_cameraModeAction->setChecked(true);
 }
 
 void MainWindow::initializeViewModeActionGroup()
 {
-	viewModeActionGroup = new QActionGroup(this);
+	m_viewModeActionGroup = new QActionGroup(this);
 
-	singleViewAction = new QAction("&Single View", viewModeMenu);
-	dualViewAction = new QAction("&Dual View", viewModeMenu);
-	quadViewAction = new QAction("&Quad View", viewModeMenu);
+	m_singleViewAction = new QAction("&Single View", m_viewModeMenu);
+	m_dualViewAction = new QAction("&Dual View", m_viewModeMenu);
+	m_quadViewAction = new QAction("&Quad View", m_viewModeMenu);
 
-	singleViewAction->setShortcut(QKeySequence(Qt::Key_1));
-	dualViewAction->setShortcut(QKeySequence(Qt::Key_2));
-	quadViewAction->setShortcut(QKeySequence(Qt::Key_4));
+	m_singleViewAction->setShortcut(QKeySequence(Qt::Key_1));
+	m_dualViewAction->setShortcut(QKeySequence(Qt::Key_2));
+	m_quadViewAction->setShortcut(QKeySequence(Qt::Key_4));
 
-	singleViewAction->setIcon(QIcon(":/Resources/img/view-single.png"));
-	dualViewAction->setIcon(QIcon(":/Resources/img/view-dual.png"));
-	quadViewAction->setIcon(QIcon(":/Resources/img/viewports.png"));
+	m_singleViewAction->setIcon(QIcon(":/Resources/img/view-single.png"));
+	m_dualViewAction->setIcon(QIcon(":/Resources/img/view-dual.png"));
+	m_quadViewAction->setIcon(QIcon(":/Resources/img/viewports.png"));
 
-	singleViewAction->setCheckable(true);
-	dualViewAction->setCheckable(true);
-	quadViewAction->setCheckable(true);
+	m_singleViewAction->setCheckable(true);
+	m_dualViewAction->setCheckable(true);
+	m_quadViewAction->setCheckable(true);
 
-	viewModeActionGroup->addAction(singleViewAction);
-	viewModeActionGroup->addAction(dualViewAction);
-	viewModeActionGroup->addAction(quadViewAction);
-	singleViewAction->setChecked(true);
+	m_viewModeActionGroup->addAction(m_singleViewAction);
+	m_viewModeActionGroup->addAction(m_dualViewAction);
+	m_viewModeActionGroup->addAction(m_quadViewAction);
+	m_singleViewAction->setChecked(true);
 }
 
 void MainWindow::initializeActionConnections()
 {
-	connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
-	connect(aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
-	connect(resetCameraAction, SIGNAL(triggered()), openGLWidget, SLOT(resetCamera()));
+	connect(m_exitAction, SIGNAL(triggered()), this, SLOT(close()));
+	connect(m_aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
+	connect(m_resetCameraAction, SIGNAL(triggered()), m_openGLWidget, SLOT(resetCamera()));
 	//todo connect signals
-	//connect(cameraModeAction, SIGNAL(triggered()), target, SLOT(cameraModeActivated()));
-	//connect(objManipulationModeAction, SIGNAL(triggered()), target, SLOT(objManipulationModeActivated()));
-	//connect(singleViewAction, SIGNAL(triggered()), target, SLOT(singleViewModeActivated()));
-	//connect(dualViewAction, SIGNAL(triggered()), target, SLOT(dualViewModeActivated()));
-	//connect(quadViewAction, SIGNAL(triggered()), target, SLOT(QuadViewModeActivated()));
+	//connect(m_cameraModeAction, SIGNAL(triggered()), target, SLOT(cameraModeActivated()));
+	//connect(m_objManipulationModeAction, SIGNAL(triggered()), target, SLOT(objManipulationModeActivated()));
+	connect(m_singleViewAction, SIGNAL(triggered()), this, SLOT(singleViewModeActivated()));
+	connect(m_dualViewAction, SIGNAL(triggered()), this, SLOT(dualViewModeActivated()));
+	connect(m_quadViewAction, SIGNAL(triggered()), this, SLOT(quadViewModeActivated()));
 }
 
 void MainWindow::initializeMenuBar()
 {
-	menuBar = new QMenuBar();
+	m_menuBar = new QMenuBar();
 
 	initializeFileMenu();
 	initializeInteractionModeMenu();
 	initializeViewModeMenu();
 	initializeAboutMenu();
 
-	setMenuBar(menuBar);
+	setMenuBar(m_menuBar);
 }
 
 void MainWindow::initializeFileMenu()
 {
-	fileMenu = new QMenu("&File");
-	fileMenu->addAction(exitAction);
+	m_fileMenu = new QMenu("&File");
+	m_fileMenu->addAction(m_exitAction);
 
-	menuBar->addMenu(fileMenu);
+	m_menuBar->addMenu(m_fileMenu);
 }
 
 void MainWindow::initializeInteractionModeMenu()
 {
-	interactionModeMenu = new QMenu("&Interaction");
-	interactionModeMenu->addAction(cameraModeAction);
-	interactionModeMenu->addAction(objManipulationModeAction);
+	m_interactionModeMenu = new QMenu("&Interaction");
+	m_interactionModeMenu->addAction(m_cameraModeAction);
+	m_interactionModeMenu->addAction(m_objManipulationModeAction);
 
-	menuBar->addMenu(interactionModeMenu);
+	m_menuBar->addMenu(m_interactionModeMenu);
 }
 
 void MainWindow::initializeViewModeMenu()
 {
-	viewModeMenu = new QMenu("&View");
-	viewModeMenu->addAction(singleViewAction);
-	viewModeMenu->addAction(dualViewAction);
-	viewModeMenu->addAction(quadViewAction);
+	m_viewModeMenu = new QMenu("&View");
+	m_viewModeMenu->addAction(m_singleViewAction);
+	m_viewModeMenu->addAction(m_dualViewAction);
+	m_viewModeMenu->addAction(m_quadViewAction);
 
-	menuBar->addMenu(viewModeMenu);
+	m_menuBar->addMenu(m_viewModeMenu);
 }
 
 void MainWindow::initializeAboutMenu()
 {
-	aboutMenu = new QMenu("&About");
-	aboutMenu->addAction(aboutAction);
+	m_aboutMenu = new QMenu("&About");
+	m_aboutMenu->addAction(m_aboutAction);
 
-	menuBar->addMenu(aboutMenu);
+	m_menuBar->addMenu(m_aboutMenu);
 }
 
 void MainWindow::initializeToolBar()
 {
-	toolBar = new QToolBar("View Mode");
-	toolBar->addAction(cameraModeAction);
-	toolBar->addAction(objManipulationModeAction);
+	m_toolBar = new QToolBar("View Mode");
+	m_toolBar->addAction(m_cameraModeAction);
+	m_toolBar->addAction(m_objManipulationModeAction);
 
 
 	auto viewModeButton = new QToolButton();
-	viewModeButton->setMenu(viewModeMenu);
+	viewModeButton->setMenu(m_viewModeMenu);
 	viewModeButton->setPopupMode(QToolButton::InstantPopup);
 	viewModeButton->setIcon(QIcon(":/Resources/img/viewports.png"));
-	toolBar->addWidget(viewModeButton);
+	m_toolBar->addWidget(viewModeButton);
 
-	tesselationSlider = createSlider();
-	toolBar->addWidget(tesselationSlider);
+	m_tesselationSlider = createSlider();
+	m_toolBar->addWidget(m_tesselationSlider);
 
-	toolBar->addAction(resetCameraAction);
+	m_toolBar->addAction(m_resetCameraAction);
 
-	addToolBar(toolBar);
+	addToolBar(m_toolBar);
 
-    connect(tesselationSlider, SIGNAL(valueChanged(int)), openGLWidget, SLOT(setTesselation(int)));
+    connect(m_tesselationSlider, SIGNAL(valueChanged(int)), m_openGLWidget, SLOT(setTesselation(int)));
 }
 
 void MainWindow::initializeStatusBar()
 {
 	auto label = new QLabel();
-    ui.statusBar->addWidget(label); //had to use ui otherwise statusBar would be at top of screen.
+    m_ui.statusBar->addWidget(label); //had to use m_ui otherwise statusBar would be at top of screen.
 }
 
 void MainWindow::initializeDockWidgets()
@@ -195,20 +211,61 @@ void MainWindow::initializeDockWidgets()
 	initializeOutliner();
 }
 
+void MainWindow::initializeViewportLayouts()
+{
+	m_openGLWidget = new OpenGLWidget(this);	//todo select current 
+	m_singlePerspreciveView = new OpenGLWidget(this);
+	m_perspectiveGLWidgetDual = new OpenGLWidget(this);
+	m_perspectiveGLWidgetQuad = new OpenGLWidget(this);
+	m_frontGLWidgetDual = new OpenGLWidget(this);
+	m_frontGLWidgetQuad = new OpenGLWidget(this);
+	m_leftGLWidgetQuad = new OpenGLWidget(this);
+	m_topGLWidgetQuad = new OpenGLWidget(this);
+
+	m_dualViewSplitter = new QSplitter(this);
+	m_dualViewSplitter->addWidget(m_perspectiveGLWidgetDual);
+	m_dualViewSplitter->addWidget(m_frontGLWidgetDual);
+
+	m_topRowSplitter = new QSplitter(this);
+	m_topRowSplitter->addWidget(m_perspectiveGLWidgetQuad);
+	m_topRowSplitter->addWidget(m_frontGLWidgetQuad);
+
+	m_bottomRowSplitter = new QSplitter(this);
+	m_bottomRowSplitter->addWidget(m_leftGLWidgetQuad);
+	m_bottomRowSplitter->addWidget(m_topGLWidgetQuad);
+
+	m_quadViewSplitter = new QSplitter(this);
+	m_quadViewSplitter->addWidget(m_topRowSplitter);
+	m_quadViewSplitter->addWidget(m_bottomRowSplitter);
+	m_quadViewSplitter->setOrientation(Qt::Vertical);
+
+	m_stackedWidget = new QStackedWidget;
+	m_stackedWidget->addWidget(m_singlePerspreciveView);
+	m_stackedWidget->addWidget(m_dualViewSplitter);
+	m_stackedWidget->addWidget(m_quadViewSplitter);
+
+	setCentralWidget(m_stackedWidget);
+}
+
 void MainWindow::initializeOutliner()
 {
-	outlinerDock = new QDockWidget(this);
-	auto model = new QFileSystemModel();	//todo set correct model
-	model->setRootPath(QDir::currentPath());
+	QFile file(":/Resources/shaders/phong.fsh");
+	file.open(QIODevice::ReadOnly);
+	SceneModel model(file.readAll());
+	file.close();
 
-	outlinerTreeView = new QTreeView(outlinerDock);
-	outlinerTreeView->setModel(model);
-	outlinerTreeView->setRootIndex(model->index(QDir::currentPath()));
+	m_outlinerDock = new QDockWidget(this);
+	//auto model = new QFileSystemModel();	//todo set correct model
+	//model->setRootPath(QDir::currentPath());
 
-	outlinerDock->setWidget(outlinerTreeView);
-	outlinerDock->setWindowTitle("Outliner");
+	m_outlinerTreeView = new QTreeView(m_outlinerDock);
+	m_outlinerTreeView->setModel(&model);
+	//m_outlinerTreeView->setRootIndex(model->index(QDir::currentPath()));
 
-	addDockWidget(Qt::LeftDockWidgetArea, outlinerDock);
+	m_outlinerDock->setWidget(m_outlinerTreeView);
+	m_outlinerDock->setWindowTitle("Outliner");
+
+	addDockWidget(Qt::LeftDockWidgetArea, m_outlinerDock);
 }
 
 QSlider* MainWindow::createSlider()
