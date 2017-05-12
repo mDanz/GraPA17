@@ -143,10 +143,13 @@ void OpenGLWidget::initializeGL()
 	glEnable(GL_LIGHTING);
 	glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
 	glEnable(GL_LIGHT0);
-	glShadeModel(GL_FLAT);
+	//glShadeModel(GL_FLAT);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
 	initializeShaderProgram();
+
+	m_cube = new OpenGLCube;
 }
 
 
@@ -191,16 +194,16 @@ static const float faceColors[6][3]{
 void OpenGLWidget::paintGL()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_NORMALIZE);
+	//glEnable(GL_NORMALIZE);
 
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef(m_dragTranslation[0], -m_dragTranslation[1], m_wheelDelta - 5);	//mouse dragging + zoom
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+	//glTranslatef(m_dragTranslation[0], -m_dragTranslation[1], m_wheelDelta - 5);	//mouse dragging + zoom
 
-	auto dragRotation = QMatrix4x4();
-	dragRotation.rotate(m_dragRotation);
-	glMultMatrixf(dragRotation.constData());	//mouse rotation
+	//auto dragRotation = QMatrix4x4();
+	//dragRotation.rotate(m_dragRotation);
+	//glMultMatrixf(dragRotation.constData());	//mouse rotation
 
 
 
@@ -210,14 +213,14 @@ void OpenGLWidget::paintGL()
 
 	
 
-	if (m_isTessellationEnabled)
-	{
-		paintWithTessellation();
-	}
-	else
-	{
+	//if (m_isTessellationEnabled)
+	//{
+	//	paintWithTessellation();
+	//}
+	//else
+	//{
 		paintWithShaderProgram();
-	}
+	//}
 }
 
 void OpenGLWidget::resizeGL(int width, int height)
@@ -259,20 +262,20 @@ void OpenGLWidget::initializeShaderProgram()
 	m_specularColor = m_program->uniformLocation("specularColor");
 	m_specularExp  = m_program->uniformLocation("specularExp");
 
-	m_vao.create();
-	QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
+	//m_vao.create();
+	//QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
-	m_vbo.create();
-	m_vbo.bind();
-	m_vbo.allocate(cubeVertices, sizeof(cubeVertices)/sizeof(cubeVertices[0]));
+	//m_vbo.create();
+	//m_vbo.bind();
+	//m_vbo.allocate(cubeVertices, sizeof(cubeVertices)/sizeof(cubeVertices[0]));
 
-	m_nbo.create();
-	m_nbo.bind();
-	m_nbo.allocate(normals, sizeof(normals) / sizeof(normals[0]));
+	//m_nbo.create();
+	//m_nbo.bind();
+	//m_nbo.allocate(normals, sizeof(normals) / sizeof(normals[0]));
 
 	// Store the vertex attribute bindings for the program.
-	m_program->setAttributeArray(0, cubeVertices, 3);
-	m_program->setAttributeArray(1, normals, 3);
+	//m_program->setAttributeArray(0, cubeVertices, 3);
+	//m_program->setAttributeArray(1, normals, 3);
 	//setupVertexAttribs();
 
 	m_camera.setToIdentity();
@@ -283,7 +286,7 @@ void OpenGLWidget::initializeShaderProgram()
 	m_program->setUniformValue(m_specularColor, QVector3D(m_ks[0], m_ks[1], m_ks[2]));
 	m_program->setUniformValue(m_specularExp, m_specExp);*/
 
-	m_program->release();
+	//m_program->release();
 }
 
 void OpenGLWidget::initializeShaders()
@@ -458,33 +461,38 @@ void OpenGLWidget::paint()
 
 void OpenGLWidget::paintWithShaderProgram()
 {
-	QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
+	//QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 	m_program->setUniformValue(m_projMatrixLoc, m_proj);
 	m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
 	QMatrix3x3 normalMatrix = m_world.normalMatrix();
 	m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
-	m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
+	/*m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
 	m_program->setUniformValue(m_diffuseColor, QVector3D(m_kd[0], m_kd[1], m_kd[2]));
 	m_program->setUniformValue(m_specularColor, QVector3D(m_ks[0], m_ks[1], m_ks[2]));
-	m_program->setUniformValue(m_specularExp, m_specExp);
-	for (auto i = 0; i < 6; i++)
-	{
-		m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[i][0], faceColors[i][1], faceColors[i][2]));
-		//m_program->setUniformValue(m_diffuseColor, QVector3D(faceColors[i][0], faceColors[i][1], faceColors[i][2]));
-		/*m_program->enableAttributeArray(0);
-		m_program->enableAttributeArray(1);
-		glDrawArrays(GL_LINES, 0, sizeof(cubeVertices) / sizeof(cubeVertices[0]));
-		m_program->disableAttributeArray(0);
-		m_program->disableAttributeArray(1);*/
-		glBegin(GL_QUADS);
-		glNormal3f(normals[i * 3 + 0], normals[i * 3 + 1], normals[i * 3 + 2]);
-		for (auto j = 0; j < 4; j++)
-		{
-			int index = cubeIndices[i * 4 + j] * 3;
-			glVertex3f(cubeVertices[index + 0], cubeVertices[index + 1], cubeVertices[index + 2]);
-		}
-		glEnd();
-	}
+	m_program->setUniformValue(m_specularExp, m_specExp);*/
+	m_program->setUniformValue(m_ambientColor, QVector3D(1, 1, 1));
+	m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[0][0], faceColors[0][1], faceColors[0][2]));
+	
+	m_cube->drawCubeGeometry(m_program);
+	
+	//for (auto i = 0; i < 6; i++)
+	//{
+	//	m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[i][0], faceColors[i][1], faceColors[i][2]));
+	//	//m_program->setUniformValue(m_diffuseColor, QVector3D(faceColors[i][0], faceColors[i][1], faceColors[i][2]));
+	//	/*m_program->enableAttributeArray(0);
+	//	m_program->enableAttributeArray(1);
+	//	glDrawArrays(GL_LINES, 0, sizeof(cubeVertices) / sizeof(cubeVertices[0]));
+	//	m_program->disableAttributeArray(0);
+	//	m_program->disableAttributeArray(1);*/
+	//	glBegin(GL_QUADS);
+	//	glNormal3f(normals[i * 3 + 0], normals[i * 3 + 1], normals[i * 3 + 2]);
+	//	for (auto j = 0; j < 4; j++)
+	//	{
+	//		int index = cubeIndices[i * 4 + j] * 3;
+	//		glVertex3f(cubeVertices[index + 0], cubeVertices[index + 1], cubeVertices[index + 2]);
+	//	}
+	//	glEnd();
+	//}
 }
 
 

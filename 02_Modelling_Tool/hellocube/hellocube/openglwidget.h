@@ -9,6 +9,7 @@
 
 #include "trackball.h"
 #include <qfileinfo.h>
+#include "openglcube.h"
 
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Compatibility
@@ -82,7 +83,8 @@ private:
 	bool m_isTessellationEnabled;
 	QOpenGLShader* m_vertexShader;
 	QOpenGLShader* m_fragmentShader;
-
+	
+	OpenGLCube *m_cube;
 
 	void initializeShaderProgram();
 	void initializeShaders();

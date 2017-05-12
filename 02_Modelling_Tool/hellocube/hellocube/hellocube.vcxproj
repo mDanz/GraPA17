@@ -96,6 +96,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
+    <ClCompile Include="openglcube.cpp" />
     <ClCompile Include="openglwidget.cpp" />
     <ClCompile Include="rigidbodytransformation.cpp" />
     <ClCompile Include="scenecomponent.cpp" />
@@ -129,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
+    <ClInclude Include="openglcube.h" />
     <ClInclude Include="rigidbodytransformation.h" />
     <ClInclude Include="scenecomponent.h" />
     <ClInclude Include="sceneitem.h" />
