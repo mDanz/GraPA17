@@ -4,18 +4,20 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
+#include <QOpenGLVertexArrayObject>
 
 class OpenGLCube : protected QOpenGLFunctions
 {
 public:
-	OpenGLCube();
+	OpenGLCube(QObject *parent);
 	virtual ~OpenGLCube();
 
 	void drawCubeGeometry(QOpenGLShaderProgram *program);
 
 private:
-	void initCubeGeometry();
+	void initCubeGeometry(QObject* parent);
 
+	QOpenGLVertexArrayObject *m_vao;
 	QOpenGLBuffer m_vertexBuf;
 	QOpenGLBuffer m_normalBuf;
 	QOpenGLBuffer m_indexBuf;

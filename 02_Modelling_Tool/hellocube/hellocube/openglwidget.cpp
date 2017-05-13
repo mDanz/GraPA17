@@ -17,6 +17,7 @@
 
 OpenGLWidget::OpenGLWidget(QWidget* parent)
 	: QOpenGLWidget(parent), QOpenGLFunctions_4_4_Compatibility()
+	, m_manipulationModeFlag(false)
 	, m_program(nullptr)
 	, m_projMatrixLoc(0)
 	, m_mvMatrixLoc(0)
@@ -132,6 +133,10 @@ void OpenGLWidget::cleanup()
 	doneCurrent();
 }
 
+void OpenGLWidget::toggleManipulationMode(bool f)
+{
+	m_manipulationModeFlag = f;
+}
 
 void OpenGLWidget::initializeGL()
 {
@@ -139,17 +144,18 @@ void OpenGLWidget::initializeGL()
 	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLWidget::cleanup);
 
 	initializeOpenGLFunctions();
-	glClearColor(0, 0, 0, 1);
+	glClearColor(.7, .7, .7, 1);
 	glEnable(GL_LIGHTING);
 	glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
 	glEnable(GL_LIGHT0);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glShadeModel(GL_FLAT);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
 	initializeShaderProgram();
 
-	m_cube = new OpenGLCube;
+	m_cube = new OpenGLCube(this);
 }
 
 
@@ -205,11 +211,21 @@ void OpenGLWidget::paintGL()
 	//dragRotation.rotate(m_dragRotation);
 	//glMultMatrixf(dragRotation.constData());	//mouse rotation
 
+	m_camera.setToIdentity();
+	m_camera.translate(0, 0, m_wheelDelta - 5);
 
-
-	m_world.setToIdentity();
-	m_world.translate(m_dragTranslation[0], -m_dragTranslation[1], m_wheelDelta - 5);
-	m_world.rotate(m_dragRotation);
+	if (m_manipulationModeFlag)
+	{
+		m_world.setToIdentity();
+		m_world.translate(m_dragTranslation[0], -m_dragTranslation[1], 0);
+		m_world.rotate(m_dragRotation);
+	}
+	else
+	{
+		m_camera.rotate(m_dragRotation);
+		m_camera.translate(m_dragTranslation[0], -m_dragTranslation[1], 0);
+	}
+	
 
 	
 
@@ -466,12 +482,13 @@ void OpenGLWidget::paintWithShaderProgram()
 	m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
 	QMatrix3x3 normalMatrix = m_world.normalMatrix();
 	m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
-	/*m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
-	m_program->setUniformValue(m_diffuseColor, QVector3D(m_kd[0], m_kd[1], m_kd[2]));
+	m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
+	/*m_program->setUniformValue(m_diffuseColor, QVector3D(m_kd[0], m_kd[1], m_kd[2]));
 	m_program->setUniformValue(m_specularColor, QVector3D(m_ks[0], m_ks[1], m_ks[2]));
 	m_program->setUniformValue(m_specularExp, m_specExp);*/
-	m_program->setUniformValue(m_ambientColor, QVector3D(1, 1, 1));
-	m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[0][0], faceColors[0][1], faceColors[0][2]));
+	m_program->setUniformValue(m_ambientColor, QVector3D(0.3, 0.3, 0.3));
+	m_program->setUniformValue(m_diffuseColor, QVector3D(.3, 0, 0));
+	//m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[0][0], faceColors[0][1], faceColors[0][2]));
 	
 	m_cube->drawCubeGeometry(m_program);
 	

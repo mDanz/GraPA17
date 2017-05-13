@@ -31,6 +31,7 @@ public slots:
 	void setTesselation(int t);
 	void resetCamera();
 	void cleanup();
+	void toggleManipulationMode(bool f);
 
 
 protected:
@@ -56,6 +57,8 @@ private:
 	const GLfloat m_specExp = 50.0;
 	const QString m_vshFile = ":/Resources/shaders/phong.vsh";
 	const QString m_fshFile = ":/Resources/shaders/phong.fsh";
+
+	bool m_manipulationModeFlag;
 
 	QOpenGLVertexArrayObject m_vao;
 	QOpenGLBuffer m_vbo;

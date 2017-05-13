@@ -28,7 +28,7 @@ private:
 	QSplitter *m_quadViewSplitter;
 	QSplitter *m_topRowSplitter;
 	QSplitter *m_bottomRowSplitter;
-	OpenGLWidget *m_openGLWidget; //todo change to selected glwidget
+	OpenGLWidget *m_currentGLWidget;
 	OpenGLWidget *m_singlePerspreciveView;
 	OpenGLWidget *m_perspectiveGLWidgetDual;
 	OpenGLWidget *m_perspectiveGLWidgetQuad;

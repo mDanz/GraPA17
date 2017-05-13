@@ -121,10 +121,10 @@ void MainWindow::initializeActionConnections()
 {
 	connect(m_exitAction, SIGNAL(triggered()), this, SLOT(close()));
 	connect(m_aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
-	connect(m_resetCameraAction, SIGNAL(triggered()), m_openGLWidget, SLOT(resetCamera()));
-	//todo connect signals
-	//connect(m_cameraModeAction, SIGNAL(triggered()), target, SLOT(cameraModeActivated()));
-	//connect(m_objManipulationModeAction, SIGNAL(triggered()), target, SLOT(objManipulationModeActivated()));
+	connect(m_resetCameraAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(resetCamera()));
+	//todo fix toggle manipulation mode
+	connect(m_cameraModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(toggleManipulationMode(false)));
+	connect(m_objManipulationModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(toggleManipulationMode(true)));
 	connect(m_singleViewAction, SIGNAL(triggered()), this, SLOT(singleViewModeActivated()));
 	connect(m_dualViewAction, SIGNAL(triggered()), this, SLOT(dualViewModeActivated()));
 	connect(m_quadViewAction, SIGNAL(triggered()), this, SLOT(quadViewModeActivated()));
@@ -197,7 +197,7 @@ void MainWindow::initializeToolBar()
 
 	addToolBar(m_toolBar);
 
-    connect(m_tesselationSlider, SIGNAL(valueChanged(int)), m_openGLWidget, SLOT(setTesselation(int)));
+    connect(m_tesselationSlider, SIGNAL(valueChanged(int)), m_currentGLWidget, SLOT(setTesselation(int)));
 }
 
 void MainWindow::initializeStatusBar()
@@ -212,8 +212,7 @@ void MainWindow::initializeDockWidgets()
 }
 
 void MainWindow::initializeViewportLayouts()
-{
-	m_openGLWidget = new OpenGLWidget(this);	//todo select current 
+{ 
 	m_singlePerspreciveView = new OpenGLWidget(this);
 	m_perspectiveGLWidgetDual = new OpenGLWidget(this);
 	m_perspectiveGLWidgetQuad = new OpenGLWidget(this);
@@ -245,6 +244,7 @@ void MainWindow::initializeViewportLayouts()
 	m_stackedWidget->addWidget(m_quadViewSplitter);
 
 	setCentralWidget(m_stackedWidget);
+	m_currentGLWidget = m_singlePerspreciveView; //todo make selection correct
 }
 
 void MainWindow::initializeOutliner()
