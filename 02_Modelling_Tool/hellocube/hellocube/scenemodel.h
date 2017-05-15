@@ -10,6 +10,7 @@ class SceneModel : public QAbstractItemModel
 
 public:
 	explicit SceneModel(const QString &data, QObject *parent = 0);
+	SceneModel();
 	~SceneModel();
 
 	QVariant data(const QModelIndex &index, int role) const override;
@@ -21,7 +22,7 @@ public:
 	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
-	void setupModelData(const QStringList &lines, SceneItem *parent);
+	void setupModelData(SceneItem *parent);
 
 	SceneItem *m_root;
 };

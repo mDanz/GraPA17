@@ -10,6 +10,7 @@
 #include "trackball.h"
 #include <qfileinfo.h>
 #include "openglcube.h"
+#include "modellingtoolmodel.h"
 
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Compatibility
@@ -18,6 +19,7 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Compat
 
 public:
 	explicit OpenGLWidget(QWidget *parent = 0);
+	explicit OpenGLWidget(const SceneModel *scene, const CameraModel *cameraModel, QWidget *parent = 0);
 	~OpenGLWidget();
 
 	QSize minimumSizeHint() const override;
@@ -43,6 +45,8 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
 	void wheelEvent(QWheelEvent *event) override;
+	virtual void focusInEvent(QFocusEvent *event) override;
+	virtual void focusOutEvent(QFocusEvent *event) override;
 
 private:
 
@@ -76,11 +80,13 @@ private:
 
 	QMatrix4x4 m_proj;
 	QMatrix4x4 m_camera;
+	const CameraModel* m_cameraModel;
+	const SceneModel* m_scene;
 	QMatrix4x4 m_world;
 	int m_tessellation;
 	int m_wheelDelta;
 	QPoint *m_lastPos;
-	GLfloat *m_dragTranslation;
+	QVector3D *m_dragTranslation;
 	QQuaternion m_dragRotation;
 	TrackBall *m_trackBall;
 	bool m_isTessellationEnabled;

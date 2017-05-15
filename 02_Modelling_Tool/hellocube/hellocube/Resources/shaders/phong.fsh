@@ -26,7 +26,7 @@ void main() {
        float specAngle = max(dot(R, V), 0.0);
        specular = pow(specAngle, specularExp);
     }
-    gl_FragColor = vec4(lambertian*diffuseColor, 1.0);// + specular*specularColor, 1.0);
+    gl_FragColor = vec4(ambient, 1.0);// + specular*specularColor, 1.0);
 
 
 }

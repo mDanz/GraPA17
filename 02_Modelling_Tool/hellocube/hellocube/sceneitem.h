@@ -21,5 +21,9 @@ public:
 private:
 	QList<SceneItem*> m_children;
 	QList<QVariant> m_data;
+	/*RigidBodyTransformation *m_rigidBodyTransform;
+	QVariant *m_primitive;
+	QVariant *m_primitiveName;
+	int m_id;*/
 	SceneItem *m_parent;
 };

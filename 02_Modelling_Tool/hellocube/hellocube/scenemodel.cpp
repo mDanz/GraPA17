@@ -7,7 +7,15 @@ SceneModel::SceneModel(const QString& data, QObject* parent)
 	QList<QVariant> rootData;
 	rootData << "Title" << "Summary";
 	m_root = new SceneItem(rootData);
-	setupModelData(data.split(QString("\n")), m_root);
+	//setupModelData(data.split(QString("\n")), m_root);
+}
+
+SceneModel::SceneModel()
+{
+	QList<QVariant> rootData;
+	rootData << "Scene";
+	m_root = new SceneItem(rootData);
+	setupModelData(m_root);
 }
 
 SceneModel::~SceneModel()
@@ -89,52 +97,63 @@ int SceneModel::columnCount(const QModelIndex& parent) const
 	return m_root->columnCount();
 }
 
-void SceneModel::setupModelData(const QStringList& lines, SceneItem* parent)	//todo make this custom
+void SceneModel::setupModelData(SceneItem* parent)	//todo make this custom
 {
-	QList<SceneItem*> parents;
-	QList<int> indentations;
-	parents << parent;
-	indentations << 0;
+	QList<QVariant> data;
+	data.append("Name");
+	data.append("12345");
+	data.append("object");
+	data.append("RBT");
+	parent->appendChild(new SceneItem(data, parent));
+	parent->appendChild(new SceneItem(data, parent));
+	parent->appendChild(new SceneItem(data, parent));
 
-	int number = 0;
 
-	while (number < lines.count()) {
-		int position = 0;
-		while (position < lines[number].length()) {
-			if (lines[number].at(position) != ' ')
-				break;
-			position++;
-		}
 
-		QString lineData = lines[number].mid(position).trimmed();
+	//QList<SceneItem*> parents;
+	//QList<int> indentations;
+	//parents << parent;
+	//indentations << 0;
 
-		if (!lineData.isEmpty()) {
-			// Read the column data from the rest of the line.
-			QStringList columnStrings = lineData.split("\t", QString::SkipEmptyParts);
-			QList<QVariant> columnData;
-			for (int column = 0; column < columnStrings.count(); ++column)
-				columnData << columnStrings[column];
+	//int number = 0;
 
-			if (position > indentations.last()) {
-				// The last child of the current parent is now the new parent
-				// unless the current parent has no children.
+	//while (number < lines.count()) {
+	//	int position = 0;
+	//	while (position < lines[number].length()) {
+	//		if (lines[number].at(position) != ' ')
+	//			break;
+	//		position++;
+	//	}
 
-				if (parents.last()->childCount() > 0) {
-					parents << parents.last()->child(parents.last()->childCount() - 1);
-					indentations << position;
-				}
-			}
-			else {
-				while (position < indentations.last() && parents.count() > 0) {
-					parents.pop_back();
-					indentations.pop_back();
-				}
-			}
+	//	QString lineData = lines[number].mid(position).trimmed();
 
-			// Append a new item to the current parent's list of children.
-			parents.last()->appendChild(new SceneItem(columnData, parents.last()));
-		}
+	//	if (!lineData.isEmpty()) {
+	//		// Read the column data from the rest of the line.
+	//		QStringList columnStrings = lineData.split("\t", QString::SkipEmptyParts);
+	//		QList<QVariant> columnData;
+	//		for (int column = 0; column < columnStrings.count(); ++column)
+	//			columnData << columnStrings[column];
 
-		++number;
-	}
+	//		if (position > indentations.last()) {
+	//			// The last child of the current parent is now the new parent
+	//			// unless the current parent has no children.
+
+	//			if (parents.last()->childCount() > 0) {
+	//				parents << parents.last()->child(parents.last()->childCount() - 1);
+	//				indentations << position;
+	//			}
+	//		}
+	//		else {
+	//			while (position < indentations.last() && parents.count() > 0) {
+	//				parents.pop_back();
+	//				indentations.pop_back();
+	//			}
+	//		}
+
+	//		// Append a new item to the current parent's list of children.
+	//		parents.last()->appendChild(new SceneItem(columnData, parents.last()));
+	//	}
+
+	//	++number;
+	//}
 }

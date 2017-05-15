@@ -21,6 +21,7 @@ MainWindow::MainWindow(QMainWindow *parent)
 
 	setWindowTitle("Hello Cube");
 
+	initializeModel();
 	initializeViewportLayouts();
 	initializeActions();
 	initializeMenuBar();
@@ -44,7 +45,7 @@ void MainWindow::showAboutBox()
 
 void MainWindow::singleViewModeActivated()
 {
-	m_stackedWidget->setCurrentWidget(m_singlePerspreciveView);
+	m_stackedWidget->setCurrentWidget(m_singlePerspectiveView);
 }
 
 void MainWindow::dualViewModeActivated()
@@ -55,6 +56,11 @@ void MainWindow::dualViewModeActivated()
 void MainWindow::quadViewModeActivated()
 {
 	m_stackedWidget->setCurrentWidget(m_quadViewSplitter);
+}
+
+void MainWindow::initializeModel()
+{
+	m_model = new ModellingToolModel();
 }
 
 void MainWindow::initializeActions()
@@ -213,13 +219,14 @@ void MainWindow::initializeDockWidgets()
 
 void MainWindow::initializeViewportLayouts()
 { 
-	m_singlePerspreciveView = new OpenGLWidget(this);
-	m_perspectiveGLWidgetDual = new OpenGLWidget(this);
-	m_perspectiveGLWidgetQuad = new OpenGLWidget(this);
-	m_frontGLWidgetDual = new OpenGLWidget(this);
-	m_frontGLWidgetQuad = new OpenGLWidget(this);
-	m_leftGLWidgetQuad = new OpenGLWidget(this);
-	m_topGLWidgetQuad = new OpenGLWidget(this);
+	//todo correct rotations for cameras
+	m_singlePerspectiveView = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(0), this);
+	m_perspectiveGLWidgetDual = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(0), this);
+	m_perspectiveGLWidgetQuad = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(0), this);
+	m_frontGLWidgetDual = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(1), this);
+	m_frontGLWidgetQuad = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(1), this);
+	m_leftGLWidgetQuad = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(2), this);
+	m_topGLWidgetQuad = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(3), this);
 
 	m_dualViewSplitter = new QSplitter(this);
 	m_dualViewSplitter->addWidget(m_perspectiveGLWidgetDual);
@@ -239,27 +246,27 @@ void MainWindow::initializeViewportLayouts()
 	m_quadViewSplitter->setOrientation(Qt::Vertical);
 
 	m_stackedWidget = new QStackedWidget;
-	m_stackedWidget->addWidget(m_singlePerspreciveView);
+	m_stackedWidget->addWidget(m_singlePerspectiveView);
 	m_stackedWidget->addWidget(m_dualViewSplitter);
 	m_stackedWidget->addWidget(m_quadViewSplitter);
 
 	setCentralWidget(m_stackedWidget);
-	m_currentGLWidget = m_singlePerspreciveView; //todo make selection correct
+	m_currentGLWidget = m_singlePerspectiveView; //todo make selection correct
 }
 
 void MainWindow::initializeOutliner()
 {
-	QFile file(":/Resources/shaders/phong.fsh");
-	file.open(QIODevice::ReadOnly);
-	SceneModel model(file.readAll());
-	file.close();
+	//QFile file(":/Resources/shaders/phong.fsh");
+	//file.open(QIODevice::ReadOnly);
+	//SceneModel model(file.readAll());
+	//file.close();
 
 	m_outlinerDock = new QDockWidget(this);
 	//auto model = new QFileSystemModel();	//todo set correct model
 	//model->setRootPath(QDir::currentPath());
 
 	m_outlinerTreeView = new QTreeView(m_outlinerDock);
-	m_outlinerTreeView->setModel(&model);
+	m_outlinerTreeView->setModel(m_model->GetScene());
 	//m_outlinerTreeView->setRootIndex(model->index(QDir::currentPath()));
 
 	m_outlinerDock->setWidget(m_outlinerTreeView);

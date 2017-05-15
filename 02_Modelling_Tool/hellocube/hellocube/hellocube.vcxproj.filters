@@ -88,6 +88,9 @@
     <ClCompile Include="openglcube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="modellingtoolmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -123,6 +126,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="openglcube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modellingtoolmodel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

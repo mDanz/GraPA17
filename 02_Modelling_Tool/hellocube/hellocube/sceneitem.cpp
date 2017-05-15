@@ -31,6 +31,7 @@ int SceneItem::childCount() const
 int SceneItem::columnCount() const
 {
 	return m_data.count();
+	
 }
 
 QVariant SceneItem::data(int column) const

@@ -3,9 +3,10 @@
 #include <QActionGroup>
 #include "ui_mainwindow.h"
 #include "openglwidget.h"
-#include <QGridLayout>
 #include <QSplitter>
 #include <QStackedWidget>
+#include "scenemodel.h"
+#include "modellingtoolmodel.h"
 
 class MainWindow : public QMainWindow
 {
@@ -22,6 +23,8 @@ public slots:
 	void quadViewModeActivated();
 
 private:
+	ModellingToolModel *m_model;
+
     Ui::MainWindowClass m_ui;
 	QStackedWidget *m_stackedWidget;
 	QSplitter *m_dualViewSplitter;
@@ -29,7 +32,7 @@ private:
 	QSplitter *m_topRowSplitter;
 	QSplitter *m_bottomRowSplitter;
 	OpenGLWidget *m_currentGLWidget;
-	OpenGLWidget *m_singlePerspreciveView;
+	OpenGLWidget *m_singlePerspectiveView;
 	OpenGLWidget *m_perspectiveGLWidgetDual;
 	OpenGLWidget *m_perspectiveGLWidgetQuad;
 	OpenGLWidget *m_frontGLWidgetDual;
@@ -66,6 +69,7 @@ private:
 
 	QTreeView *m_outlinerTreeView;
 
+	void initializeModel();
 	void initializeActions();
 	void initializeInteractionModeActionGroup();
 	void initializeViewModeActionGroup();

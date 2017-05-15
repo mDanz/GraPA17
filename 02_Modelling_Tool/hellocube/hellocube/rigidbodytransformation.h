@@ -2,7 +2,7 @@
 #include <QQuaternion>
 
 
-class RigidBodyTransformation
+class RigidBodyTransformation : public QVariant
 {
 public:
 	RigidBodyTransformation(QVector3D* m_translation, QQuaternion* m_rotation);
