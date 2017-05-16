@@ -1,41 +1,20 @@
 
 #include "modellingtoolmodel.h"
-#include <QMatrix4x4>
-
-CameraModel::CameraModel(bool isOrthographic)
-{
-	m_isOrthographic = isOrthographic;
-}
-
-CameraModel::~CameraModel()
-{
-}
-
-QMatrix4x4 CameraModel::GetCameraMatrix() const
-{
-	return QMatrix4x4();
-}
-
-bool CameraModel::isOrthographic() const
-{
-	return m_isOrthographic;
-}
+#include "cameramodel.h"
 
 ModellingToolModel::ModellingToolModel()
 {
 	m_scene = new SceneModel;
-	m_cameras = new QList<CameraModel>;
-	m_cameras->append(CameraModel());
-	m_cameras->append(CameraModel(true));
-	m_cameras->append(CameraModel(true));
-	m_cameras->append(CameraModel(true));
+	m_cameras[0] = new CameraModel(false, QVector3D(0, 0, -5));
+	m_cameras[1] = new CameraModel(true, QVector3D(0, 0, -5));
+	m_cameras[2] = new CameraModel(true, QVector3D(0, 0, -5), QQuaternion::fromAxisAndAngle(0, 1, 0, 90));
+	m_cameras[3] = new CameraModel(true, QVector3D(0, 0, -5), QQuaternion::fromAxisAndAngle(1, 0, 0, 90));
 }
 
 ModellingToolModel::~ModellingToolModel()
 {
 	delete m_scene;
-	m_cameras->clear();
-	delete m_cameras;
+	delete [] m_cameras; //todo fix warning
 }
 
 SceneModel* ModellingToolModel::GetScene() const
@@ -43,8 +22,8 @@ SceneModel* ModellingToolModel::GetScene() const
 	return m_scene;
 }
 
-const CameraModel* ModellingToolModel::GetCamera(int number) const
+CameraModel* ModellingToolModel::GetCamera(int number) const
 {
-	return &(m_cameras->at(number));
+	return m_cameras[number];
 }
 

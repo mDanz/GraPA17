@@ -25,14 +25,55 @@ MainWindow::MainWindow(QMainWindow *parent)
 	initializeViewportLayouts();
 	initializeActions();
 	initializeMenuBar();
-	initializeToolBar();	//todo seperate toolbars
+	initializeToolBar();
 	initializeStatusBar();
 	initializeDockWidgets();
+	initializeActionConnections();
 }
 
 MainWindow::~MainWindow()
 {
-
+	delete m_model;
+	delete m_stackedWidget;
+	delete m_dualViewSplitter;
+	delete m_quadViewSplitter;
+	delete m_topRowSplitter;
+	delete m_bottomRowSplitter;
+	delete m_currentGLWidget;
+	delete m_singlePerspectiveView;
+	delete m_perspectiveGLWidgetDual;
+	delete m_perspectiveGLWidgetQuad;
+	delete m_frontGLWidgetDual;
+	delete m_frontGLWidgetQuad;
+	delete m_leftGLWidgetQuad;
+	delete m_topGLWidgetQuad;
+	delete m_menuBar;
+	delete m_fileMenu;
+	delete m_interactionModeMenu;
+	delete m_viewModeMenu;
+	delete m_geometryMenu;
+	delete m_aboutMenu;
+	delete m_generalToolBar;
+	delete m_geometryToolBar;
+	delete m_statusBar;
+	delete m_outlinerDock;
+	delete m_interactionModeActionGroup;
+	delete m_viewModeActionGroup;
+	delete m_exitAction;
+	delete m_aboutAction;
+	delete m_resetCameraAction;
+	delete m_cameraModeAction;
+	delete m_objManipulationModeAction;
+	delete m_singleViewAction;
+	delete m_dualViewAction;
+	delete m_quadViewAction;
+	delete m_addSphereAction;
+	delete m_addCylinderAction;
+	delete m_addConeAction;
+	delete m_addTorusAction;
+	delete m_addCubeAction;
+	delete m_tesselationSlider;
+	delete m_outlinerTreeView;
 }
 
 void MainWindow::showAboutBox()
@@ -58,6 +99,31 @@ void MainWindow::quadViewModeActivated()
 	m_stackedWidget->setCurrentWidget(m_quadViewSplitter);
 }
 
+void MainWindow::cubeAdded()
+{
+	//todo add cube to model; use tesselation slider value
+}
+
+void MainWindow::sphereAdded()
+{
+	//todo add sphere to model; use tesselation slider value
+}
+
+void MainWindow::cylinderAdded()
+{
+	//todo add cylinder to model; use tesselation slider value
+}
+
+void MainWindow::coneAdded()
+{
+	//todo add cone to model; use tesselation slider value
+}
+
+void MainWindow::torusAdded()
+{
+	//todo add torus to model; use tesselation slider value
+}
+
 void MainWindow::initializeModel()
 {
 	m_model = new ModellingToolModel();
@@ -68,23 +134,23 @@ void MainWindow::initializeActions()
 	m_exitAction = new QAction("E&xit", this);
 	m_exitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
 
-	m_aboutAction = new QAction("&About", m_aboutMenu);
+	m_aboutAction = new QAction("&About", this);
 
-	m_resetCameraAction = new QAction("&Reset Camera", m_toolBar);
+	m_resetCameraAction = new QAction("&Reset Camera", this);
 	m_resetCameraAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
 	m_resetCameraAction->setIcon(QIcon(":/Resources/img/cam_home.png"));
 
 	initializeInteractionModeActionGroup();
 	initializeViewModeActionGroup();
-	initializeActionConnections();
+	initializeGeometryActions();
 }
 
 void MainWindow::initializeInteractionModeActionGroup()
 {
 	m_interactionModeActionGroup = new QActionGroup(this);
 
-	m_cameraModeAction = new QAction("&Camera", m_interactionModeMenu);
-	m_objManipulationModeAction = new QAction("&Object Manipulation", m_interactionModeMenu);
+	m_cameraModeAction = new QAction("&Camera", this);
+	m_objManipulationModeAction = new QAction("&Object Manipulation", this);
 
 	m_cameraModeAction->setIcon(QIcon(":/Resources/img/camera.png"));
 	m_objManipulationModeAction->setIcon(QIcon(":/Resources/img/select.png"));
@@ -101,9 +167,9 @@ void MainWindow::initializeViewModeActionGroup()
 {
 	m_viewModeActionGroup = new QActionGroup(this);
 
-	m_singleViewAction = new QAction("&Single View", m_viewModeMenu);
-	m_dualViewAction = new QAction("&Dual View", m_viewModeMenu);
-	m_quadViewAction = new QAction("&Quad View", m_viewModeMenu);
+	m_singleViewAction = new QAction("&Single View", this);
+	m_dualViewAction = new QAction("&Dual View", this);
+	m_quadViewAction = new QAction("&Quad View", this);
 
 	m_singleViewAction->setShortcut(QKeySequence(Qt::Key_1));
 	m_dualViewAction->setShortcut(QKeySequence(Qt::Key_2));
@@ -123,17 +189,42 @@ void MainWindow::initializeViewModeActionGroup()
 	m_singleViewAction->setChecked(true);
 }
 
+void MainWindow::initializeGeometryActions()
+{
+	m_addSphereAction = new QAction("&Sphere", this);
+	m_addCylinderAction = new QAction("&Cylinder", this);
+	m_addConeAction = new QAction("&Cone", this);
+	m_addTorusAction = new QAction("&Torus", this);
+	m_addCubeAction = new QAction("&Cube", this);
+
+	m_addSphereAction->setIcon(QIcon(":/Resources/img/sphere.png"));
+	m_addCylinderAction->setIcon(QIcon(":/Resources/img/cylinder.png"));
+	m_addConeAction->setIcon(QIcon(":/Resources/img/cone.png"));
+	m_addTorusAction->setIcon(QIcon(":/Resources/img/torus.png"));
+	m_addCubeAction->setIcon(QIcon(":/Resources/img/box.png"));
+	
+
+}
+
 void MainWindow::initializeActionConnections()
 {
 	connect(m_exitAction, SIGNAL(triggered()), this, SLOT(close()));
 	connect(m_aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
 	connect(m_resetCameraAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(resetCamera()));
-	//todo fix toggle manipulation mode
-	connect(m_cameraModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(toggleManipulationMode(false)));
-	connect(m_objManipulationModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(toggleManipulationMode(true)));
+
+	connect(m_cameraModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedCameraMode()));
+	connect(m_objManipulationModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedObjManipulationMode()));
 	connect(m_singleViewAction, SIGNAL(triggered()), this, SLOT(singleViewModeActivated()));
 	connect(m_dualViewAction, SIGNAL(triggered()), this, SLOT(dualViewModeActivated()));
 	connect(m_quadViewAction, SIGNAL(triggered()), this, SLOT(quadViewModeActivated()));
+	connect(m_addCubeAction, SIGNAL(triggered()), this, SLOT(cubeAdded()));
+	connect(m_addSphereAction, SIGNAL(triggered()), this, SLOT(sphereAdded()));
+	connect(m_addCylinderAction, SIGNAL(triggered()), this, SLOT(cylinderAdded()));
+	connect(m_addConeAction, SIGNAL(triggered()), this, SLOT(coneAdded()));
+	connect(m_addTorusAction, SIGNAL(triggered()), this, SLOT(torusAdded()));
+
+	connect(m_tesselationSlider, SIGNAL(valueChanged(int)), m_currentGLWidget, SLOT(setTesselation(int)));
+
 }
 
 void MainWindow::initializeMenuBar()
@@ -143,6 +234,7 @@ void MainWindow::initializeMenuBar()
 	initializeFileMenu();
 	initializeInteractionModeMenu();
 	initializeViewModeMenu();
+	initializeGeometryMenu();
 	initializeAboutMenu();
 
 	setMenuBar(m_menuBar);
@@ -175,6 +267,18 @@ void MainWindow::initializeViewModeMenu()
 	m_menuBar->addMenu(m_viewModeMenu);
 }
 
+void MainWindow::initializeGeometryMenu()
+{
+	m_geometryMenu = new QMenu("&Geometry");
+	m_geometryMenu->addAction(m_addCubeAction);
+	m_geometryMenu->addAction(m_addSphereAction);
+	m_geometryMenu->addAction(m_addCylinderAction);
+	m_geometryMenu->addAction(m_addConeAction);
+	m_geometryMenu->addAction(m_addTorusAction);
+
+	m_menuBar->addMenu(m_geometryMenu);
+}
+
 void MainWindow::initializeAboutMenu()
 {
 	m_aboutMenu = new QMenu("&About");
@@ -185,25 +289,41 @@ void MainWindow::initializeAboutMenu()
 
 void MainWindow::initializeToolBar()
 {
-	m_toolBar = new QToolBar("View Mode");
-	m_toolBar->addAction(m_cameraModeAction);
-	m_toolBar->addAction(m_objManipulationModeAction);
+	
+	initializeGeneralToolBar();
+	initializeGeometryToolBar();
+}
 
+void MainWindow::initializeGeneralToolBar()
+{
+	m_generalToolBar = new QToolBar("View Mode", this);
+	m_generalToolBar->addAction(m_cameraModeAction);
+	m_generalToolBar->addAction(m_objManipulationModeAction);
 
 	auto viewModeButton = new QToolButton();
 	viewModeButton->setMenu(m_viewModeMenu);
 	viewModeButton->setPopupMode(QToolButton::InstantPopup);
 	viewModeButton->setIcon(QIcon(":/Resources/img/viewports.png"));
-	m_toolBar->addWidget(viewModeButton);
+	m_generalToolBar->addWidget(viewModeButton);
+
+	m_generalToolBar->addAction(m_resetCameraAction);
 
 	m_tesselationSlider = createSlider();
-	m_toolBar->addWidget(m_tesselationSlider);
+	m_generalToolBar->addWidget(m_tesselationSlider);
 
-	m_toolBar->addAction(m_resetCameraAction);
+	addToolBar(m_generalToolBar);
+}
 
-	addToolBar(m_toolBar);
+void MainWindow::initializeGeometryToolBar()
+{
+	m_geometryToolBar = new QToolBar("Geometry", this);
+	m_geometryToolBar->addAction(m_addCubeAction);
+	m_geometryToolBar->addAction(m_addSphereAction);
+	m_geometryToolBar->addAction(m_addCylinderAction);
+	m_geometryToolBar->addAction(m_addConeAction);
+	m_geometryToolBar->addAction(m_addTorusAction);
 
-    connect(m_tesselationSlider, SIGNAL(valueChanged(int)), m_currentGLWidget, SLOT(setTesselation(int)));
+	addToolBar(m_geometryToolBar);
 }
 
 void MainWindow::initializeStatusBar()

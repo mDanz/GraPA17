@@ -21,6 +21,11 @@ public slots:
 	void singleViewModeActivated();
 	void dualViewModeActivated();
 	void quadViewModeActivated();
+	void cubeAdded();
+	void sphereAdded();
+	void cylinderAdded();
+	void coneAdded();
+	void torusAdded();
 
 private:
 	ModellingToolModel *m_model;
@@ -45,9 +50,11 @@ private:
 	QMenu *m_fileMenu;
 	QMenu *m_interactionModeMenu;
 	QMenu *m_viewModeMenu;
+	QMenu *m_geometryMenu;
 	QMenu *m_aboutMenu;
 
-	QToolBar *m_toolBar;
+	QToolBar *m_generalToolBar;
+	QToolBar *m_geometryToolBar;
 
 	QStatusBar *m_statusBar;
 
@@ -64,6 +71,11 @@ private:
 	QAction *m_singleViewAction;
 	QAction *m_dualViewAction;
 	QAction *m_quadViewAction;
+	QAction *m_addSphereAction;
+	QAction *m_addCylinderAction;
+	QAction *m_addConeAction;
+	QAction *m_addTorusAction;
+	QAction *m_addCubeAction;
 
 	QSlider *m_tesselationSlider;
 
@@ -73,13 +85,17 @@ private:
 	void initializeActions();
 	void initializeInteractionModeActionGroup();
 	void initializeViewModeActionGroup();
+	void initializeGeometryActions();
 	void initializeActionConnections();
 	void initializeMenuBar();
 	void initializeFileMenu();
 	void initializeInteractionModeMenu();
 	void initializeViewModeMenu();
+	void initializeGeometryMenu();
 	void initializeAboutMenu();
 	void initializeToolBar();
+	void initializeGeneralToolBar();
+	void initializeGeometryToolBar();
 	void initializeStatusBar();
 	void initializeDockWidgets();
 	void initializeViewportLayouts();

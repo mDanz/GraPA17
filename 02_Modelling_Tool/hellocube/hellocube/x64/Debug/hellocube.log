@@ -1,9 +1,4 @@
-﻿  moc_mainwindow.cpp
-  moc_openglwidget.cpp
-  main.cpp
-  mainwindow.cpp
-  modellingtoolmodel.cpp
-  openglwidget.cpp
-  Generating Code...
-  hellocube.vcxproj -> C:\Users\uaeei\Source\Repos\GRAPA\02_Modelling_Tool\hellocube\x64\Debug\hellocube.exe
-  hellocube.vcxproj -> C:\Users\uaeei\Source\Repos\GRAPA\02_Modelling_Tool\hellocube\x64\Debug\hellocube.pdb (Full PDB)
+﻿  modellingtoolmodel.cpp
+modellingtoolmodel.cpp(17): warning C4154: deletion of an array expression; conversion to pointer supplied
+openglwidget.obj : error LNK2019: unresolved external symbol "public: void __cdecl SceneModel::deleteSelectedGeometry(void)" (?deleteSelectedGeometry@SceneModel@@QEAAXXZ) referenced in function "protected: virtual void __cdecl OpenGLWidget::keyPressEvent(class QKeyEvent *)" (?keyPressEvent@OpenGLWidget@@MEAAXPEAVQKeyEvent@@@Z)
+C:\Users\uaeei\Source\Repos\GRAPA\02_Modelling_Tool\hellocube\x64\Debug\\hellocube.exe : fatal error LNK1120: 1 unresolved externals

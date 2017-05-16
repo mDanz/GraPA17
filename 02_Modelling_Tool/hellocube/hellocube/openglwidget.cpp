@@ -9,6 +9,7 @@
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
 #include <QFileInfo>
+#include "cameramodel.h"
 
 #define highp
 #define mediump
@@ -27,11 +28,14 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 	, m_diffuseColor(0)
 	, m_specularColor(0)
 	, m_specularExp(0)
+	, m_cameraModel(nullptr)
+	, m_scene(nullptr)
 	, m_tessellation(0)
 	, m_wheelDelta(0)
 	, m_isTessellationEnabled(false)
 	, m_vertexShader(nullptr)
 	, m_fragmentShader(nullptr)
+	, m_cube(nullptr)
 {
 	m_lastPos = new QPoint();
 	m_dragTranslation = new QVector3D;
@@ -39,11 +43,31 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 	m_trackBall = new TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::TrackMode::Sphere);
 }
 
-OpenGLWidget::OpenGLWidget(const SceneModel* scene, const CameraModel* cameraModel, QWidget* parent)
-	: QOpenGLWidget(parent)
+OpenGLWidget::OpenGLWidget(SceneModel* scene, CameraModel* cameraModel, QWidget* parent)
+	: QOpenGLWidget(parent), QOpenGLFunctions_4_4_Compatibility()
+	, m_manipulationModeFlag(false)
+	, m_program(nullptr)
+	, m_projMatrixLoc(0)
+	, m_mvMatrixLoc(0)
+	, m_normalMatrixLoc(0)
+	, m_lightPosLoc(0)
+	, m_ambientColor(0)
+	, m_diffuseColor(0)
+	, m_specularColor(0)
+	, m_specularExp(0)
+	, m_tessellation(0)
+	, m_wheelDelta(0)
+	, m_isTessellationEnabled(false)
+	, m_vertexShader(nullptr)
+	, m_fragmentShader(nullptr)
+	, m_cube(nullptr)
 {
 	m_scene = scene;
 	m_cameraModel = cameraModel;
+	m_lastPos = new QPoint();
+	m_dragTranslation = new QVector3D;
+	m_dragRotation = QQuaternion();
+	m_trackBall = new TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::TrackMode::Sphere);
 }
 
 OpenGLWidget::~OpenGLWidget()
@@ -140,9 +164,14 @@ void OpenGLWidget::cleanup()
 	doneCurrent();
 }
 
-void OpenGLWidget::toggleManipulationMode(bool f)
+void OpenGLWidget::selectedCameraMode()
 {
-	m_manipulationModeFlag = f;
+	m_manipulationModeFlag = false;
+}
+
+void OpenGLWidget::selectedObjManipulationMode()
+{
+	m_manipulationModeFlag = true;
 }
 
 void OpenGLWidget::initializeGL()
@@ -162,10 +191,6 @@ void OpenGLWidget::initializeGL()
 
 	initializeShaderProgram();
 
-	//m_cameraModel = new CameraModel();
-	//m_cameraModel->center = { 0,0,0 };
-	//m_cameraModel->eye = { 0,0,-5 };
-	//m_cameraModel->up = { 0,1,0 };
 	m_cube = new OpenGLCube(this);
 }
 
@@ -222,31 +247,33 @@ void OpenGLWidget::paintGL()
 	//dragRotation.rotate(m_dragRotation);
 	//glMultMatrixf(dragRotation.constData());	//mouse rotation
 
-	/*m_cameraModel->eye.setZ(m_cameraModel->eye.z() + m_wheelDelta);
-	m_cameraModel->center.setX(m_cameraModel->center.x() + m_dragTranslation->x());
-	m_cameraModel->center.setY(m_cameraModel->center.y() - m_dragTranslation->y());
-	m_cameraModel->up = m_dragRotation.rotatedVector(m_cameraModel->up);*/
-	m_camera = m_cameraModel->GetCameraMatrix();
-
 	/*m_camera.setToIdentity();
 	m_camera.translate(0, 0, m_wheelDelta - 5);*/
 
 
 
-	//if (m_manipulationModeFlag)
-	//{
-	//	m_world.setToIdentity();
-	//	m_world.translate(m_dragTranslation->x(), -1 * m_dragTranslation->y(), 0);
-	//	m_world.rotate(m_dragRotation);
-	//}
-	//else
-	//{
-	//	/*m_camera.translate(-m_cameraModel->center);
-	//	m_camera.rotate(m_dragRotation);
-	//	m_camera.translate(m_cameraModel->center);*/
-	//	//m_camera.rotate(m_dragRotation);
-	//	//m_camera.translate(m_dragTranslation->x(), -m_dragTranslation->y(), 0);
-	//}
+	if (m_manipulationModeFlag)	//todo move this code to button event handlers to support ctrl swapping
+	{
+		m_world.setToIdentity();
+		m_world.translate(m_dragTranslation->x(), -1 * m_dragTranslation->y(), 0);
+		m_world.rotate(m_dragRotation);
+	}
+	else
+	{
+		m_cameraModel->move(m_dragTranslation);
+		if(!m_cameraModel->isOrthographic())
+		{
+			m_cameraModel->rotate(m_dragRotation);
+		}
+		/*m_camera.translate(-m_cameraModel->center);
+		m_camera.rotate(m_dragRotation);
+		m_camera.translate(m_cameraModel->center);*/
+		//m_camera.rotate(m_dragRotation);
+		//m_camera.translate(m_dragTranslation->x(), -m_dragTranslation->y(), 0);
+	}
+
+	m_cameraModel->zoom(m_wheelDelta);
+	m_camera = m_cameraModel->GetCameraMatrix();
 	
 
 	//if (m_isTessellationEnabled)
@@ -263,23 +290,25 @@ void OpenGLWidget::resizeGL(int width, int height)
 {
 	glViewport(0, 0, width, height);
 	
-	glMatrixMode(GL_PROJECTION);
+	/*glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();	
 	GLdouble aspect = GLfloat(width) / (height ? height : 1);
 	perspective(m_fov, aspect, m_zNear, m_zFar);
 	
-	glMatrixMode(GL_MODELVIEW);
-
+	glMatrixMode(GL_MODELVIEW);*/
+	GLdouble aspect = GLfloat(width) / (height ? height : 1);
 	//resize projection for shader program
 	m_proj.setToIdentity();
 
 	if (m_cameraModel->isOrthographic())
 	{
-		float top = m_zNear * tan(m_fov * M_PI / 360.0f);
-		float bottom = -top;
-		float left = bottom * aspect;
-		float right = top * aspect;
-		m_proj.ortho(left, right, top, bottom, m_zNear, m_zFar);
+		float r = width, t = height;//todo fix ortho projection
+		float l = -r, b = -t;
+		//float top = m_zNear * tan(m_fov * M_PI / 360.0f);
+		//float bottom = -top;
+		//float left = bottom * aspect;
+		//float right = top * aspect;
+		m_proj.ortho(l, r, b, t, m_zNear, m_zFar);
 	}
 	else
 	{
@@ -452,6 +481,14 @@ void OpenGLWidget::wheelEvent(QWheelEvent* event)
 	update();
 }
 
+void OpenGLWidget::keyPressEvent(QKeyEvent* e)
+{
+	if (e->key() == Qt::Key_Delete)
+	{
+		m_scene->deleteSelectedGeometry();
+	}
+}
+
 void OpenGLWidget::focusInEvent(QFocusEvent* event)
 {
 	//todo impl
@@ -529,8 +566,8 @@ void OpenGLWidget::paintWithShaderProgram()
 	/*m_program->setUniformValue(m_diffuseColor, QVector3D(m_kd[0], m_kd[1], m_kd[2]));
 	m_program->setUniformValue(m_specularColor, QVector3D(m_ks[0], m_ks[1], m_ks[2]));
 	m_program->setUniformValue(m_specularExp, m_specExp);*/
-	m_program->setUniformValue(m_ambientColor, QVector3D(0.3, 0.3, 0.3));
-	m_program->setUniformValue(m_diffuseColor, QVector3D(.3, 0.0, 0.0));
+	m_program->setUniformValue(m_ambientColor, QVector3D(0.7, 0.7, 0.7));
+	m_program->setUniformValue(m_diffuseColor, QVector3D(.7, 0.0, 0.0));
 	//m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[0][0], faceColors[0][1], faceColors[0][2]));
 	
 	m_cube->drawCubeGeometry(m_program);

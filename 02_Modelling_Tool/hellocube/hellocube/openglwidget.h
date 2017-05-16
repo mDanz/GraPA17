@@ -19,7 +19,7 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Compat
 
 public:
 	explicit OpenGLWidget(QWidget *parent = 0);
-	explicit OpenGLWidget(const SceneModel *scene, const CameraModel *cameraModel, QWidget *parent = 0);
+	explicit OpenGLWidget(SceneModel *scene, CameraModel *cameraModel, QWidget *parent = 0);
 	~OpenGLWidget();
 
 	QSize minimumSizeHint() const override;
@@ -33,7 +33,8 @@ public slots:
 	void setTesselation(int t);
 	void resetCamera();
 	void cleanup();
-	void toggleManipulationMode(bool f);
+	void selectedCameraMode();
+	void selectedObjManipulationMode();
 
 
 protected:
@@ -45,6 +46,7 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
 	void wheelEvent(QWheelEvent *event) override;
+	void keyPressEvent(QKeyEvent *e) override;
 	virtual void focusInEvent(QFocusEvent *event) override;
 	virtual void focusOutEvent(QFocusEvent *event) override;
 
@@ -80,8 +82,8 @@ private:
 
 	QMatrix4x4 m_proj;
 	QMatrix4x4 m_camera;
-	const CameraModel* m_cameraModel;
-	const SceneModel* m_scene;
+	CameraModel* m_cameraModel;
+	SceneModel* m_scene;
 	QMatrix4x4 m_world;
 	int m_tessellation;
 	int m_wheelDelta;
