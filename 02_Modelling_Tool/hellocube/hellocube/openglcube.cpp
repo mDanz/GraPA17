@@ -18,7 +18,7 @@ OpenGLCube::~OpenGLCube()
 	m_indexBuf.destroy();
 }
 
-void OpenGLCube::drawCubeGeometry(QOpenGLShaderProgram* program)
+void OpenGLCube::draw(QOpenGLShaderProgram* program)
 {
 	m_vertexBuf.bind();
 	// Tell OpenGL programmable pipeline how to locate vertex position data

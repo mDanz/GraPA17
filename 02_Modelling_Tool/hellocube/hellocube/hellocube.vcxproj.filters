@@ -38,6 +38,18 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="Header Files\geometry">
+      <UniqueIdentifier>{2e1e867c-e668-4148-9ebc-c8093afe6f98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\model">
+      <UniqueIdentifier>{169f19b5-e5cb-47ba-9f36-e8b82efd7d1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\model">
+      <UniqueIdentifier>{d8d84476-c661-4681-a97f-2002c4f1201b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\geometry">
+      <UniqueIdentifier>{39eacf81-79e1-49ef-bd64-a12d7e2c8698}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -55,20 +67,8 @@
     <ClCompile Include="trackball.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rigidbodytransformation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scenecomponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sceneitem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_scenemodel.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="scenemodel.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_scenemodel.cpp">
       <Filter>Generated Files\Release</Filter>
@@ -85,14 +85,29 @@
     <ClCompile Include="GeneratedFiles\Release\moc_openglwidget.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="openglcube.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="cameramodel.cpp">
+      <Filter>Source Files\model</Filter>
     </ClCompile>
     <ClCompile Include="modellingtoolmodel.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\model</Filter>
     </ClCompile>
-    <ClCompile Include="cameramodel.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="rigidbodytransformation.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
+    <ClCompile Include="scenecomponent.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
+    <ClCompile Include="sceneitem.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
+    <ClCompile Include="scenemodel.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
+    <ClCompile Include="openglcube.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="openglsphere.cpp">
+      <Filter>Source Files\geometry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -109,7 +124,7 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="scenemodel.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\model</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -119,23 +134,38 @@
     <ClInclude Include="trackball.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rigidbodytransformation.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="opengltorus.h">
+      <Filter>Header Files\geometry</Filter>
     </ClInclude>
-    <ClInclude Include="scenecomponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sceneitem.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="openglcone.h">
+      <Filter>Header Files\geometry</Filter>
     </ClInclude>
     <ClInclude Include="openglcube.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\geometry</Filter>
     </ClInclude>
-    <ClInclude Include="modellingtoolmodel.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="openglcylinder.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="openglgeometry.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="openglsphere.h">
+      <Filter>Header Files\geometry</Filter>
     </ClInclude>
     <ClInclude Include="cameramodel.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="modellingtoolmodel.h">
+      <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="scenecomponent.h">
+      <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="sceneitem.h">
+      <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="rigidbodytransformation.h">
+      <Filter>Header Files\model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

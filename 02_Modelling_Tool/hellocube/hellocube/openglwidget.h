@@ -6,6 +6,7 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QtGui/QOpenGLFunctions_4_4_Compatibility>
+#include <QOpenGLFramebufferObject>
 
 #include "trackball.h"
 #include <qfileinfo.h>
@@ -70,6 +71,7 @@ private:
 	QOpenGLBuffer m_vbo;
 	QOpenGLBuffer m_nbo;
 	QOpenGLShaderProgram *m_program;
+	QOpenGLFramebufferObject *m_fbo;
 
 	int m_projMatrixLoc;
 	int m_mvMatrixLoc;
@@ -97,6 +99,7 @@ private:
 	
 	OpenGLCube *m_cube;
 
+	void initializeFrameBufferObject();
 	void initializeShaderProgram();
 	void initializeShaders();
 	void setupVertexAttribs();

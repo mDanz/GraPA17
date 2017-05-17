@@ -97,6 +97,11 @@ int SceneModel::columnCount(const QModelIndex& parent) const
 	return m_root->columnCount();
 }
 
+void SceneModel::deleteSelectedGeometry()
+{
+	//todo impl
+}
+
 void SceneModel::setupModelData(SceneItem* parent)	//todo make this custom
 {
 	QList<QVariant> data;

@@ -35,7 +35,7 @@ MainWindow::~MainWindow()
 {
 	delete m_model;
 	delete m_stackedWidget;
-	delete m_dualViewSplitter;
+	/*delete  m_dualViewSplitter;
 	delete m_quadViewSplitter;
 	delete m_topRowSplitter;
 	delete m_bottomRowSplitter;
@@ -57,6 +57,7 @@ MainWindow::~MainWindow()
 	delete m_geometryToolBar;
 	delete m_statusBar;
 	delete m_outlinerDock;
+	*/
 	delete m_interactionModeActionGroup;
 	delete m_viewModeActionGroup;
 	delete m_exitAction;

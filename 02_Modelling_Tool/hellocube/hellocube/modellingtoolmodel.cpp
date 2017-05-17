@@ -14,7 +14,10 @@ ModellingToolModel::ModellingToolModel()
 ModellingToolModel::~ModellingToolModel()
 {
 	delete m_scene;
-	delete [] m_cameras; //todo fix warning
+	for (int i = 0; i < 4; i++)
+	{
+		delete m_cameras[i];
+	}
 }
 
 SceneModel* ModellingToolModel::GetScene() const

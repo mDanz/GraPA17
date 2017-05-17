@@ -5,14 +5,15 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
+#include "OpenGLGeometry.h"
 
-class OpenGLCube : protected QOpenGLFunctions
+class OpenGLCube : OpenGLGeometry
 {
 public:
 	OpenGLCube(QObject *parent);
 	virtual ~OpenGLCube();
 
-	void drawCubeGeometry(QOpenGLShaderProgram *program);
+	virtual void draw(QOpenGLShaderProgram *program) override;
 
 private:
 	void initCubeGeometry(QObject* parent);

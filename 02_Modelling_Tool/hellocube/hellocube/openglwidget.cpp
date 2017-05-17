@@ -161,6 +161,7 @@ void OpenGLWidget::cleanup()
 	m_vao.destroy();
 	delete m_program;
 	m_program = nullptr;
+	delete m_fbo;
 	doneCurrent();
 }
 
@@ -180,7 +181,7 @@ void OpenGLWidget::initializeGL()
 	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLWidget::cleanup);
 
 	initializeOpenGLFunctions();
-	glClearColor(.7, .7, .7, 1);
+	glClearColor(.1, .1, .1, 1);
 	glEnable(GL_LIGHTING);
 	glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
 	glEnable(GL_LIGHT0);
@@ -320,6 +321,38 @@ void OpenGLWidget::resizeGL(int width, int height)
 	update();
 }
 
+
+void OpenGLWidget::initializeFrameBufferObject()
+{
+	makeCurrent();
+	m_fbo = new QOpenGLFramebufferObject();
+	m_fbo->bind();
+	m_fbo->addColorAttachment();
+
+	glGenFramebuffers()
+	glGenFramebuffersEXT(1, &m_fbo);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
+
+	glGenTextures(1, &mTexColor);
+	glBindTexture(GL_TEXTURE_2D, mTexColor);
+	//<texture params>
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, mTexColor, 0);
+
+	glGenTextures(1, &mTexNormal);
+	glBindTexture(GL_TEXTURE_2D, mTexNormal);
+	//<Texture params>
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D, mTexNormal, 0);
+
+	glGenTextures(1, &mTexDepth);
+	glBindTexture(GL_TEXTURE_2D, mTexDepth);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, w, h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, mTexDepth, 0);
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
+	
+}
 
 void OpenGLWidget::initializeShaderProgram()
 {
@@ -570,7 +603,7 @@ void OpenGLWidget::paintWithShaderProgram()
 	m_program->setUniformValue(m_diffuseColor, QVector3D(.7, 0.0, 0.0));
 	//m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[0][0], faceColors[0][1], faceColors[0][2]));
 	
-	m_cube->drawCubeGeometry(m_program);
+	m_cube->draw(m_program);
 	
 	//for (auto i = 0; i < 6; i++)
 	//{
