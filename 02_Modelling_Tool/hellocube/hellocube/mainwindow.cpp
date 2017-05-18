@@ -125,6 +125,11 @@ void MainWindow::torusAdded()
 	//todo add torus to model; use tesselation slider value
 }
 
+void MainWindow::selectedObjectChanged(const QModelIndex& current, const QModelIndex& previous) const
+{
+	m_model->getScene()->updateSelectedItem(current, previous);
+}
+
 void MainWindow::initializeModel()
 {
 	m_model = new ModellingToolModel();
@@ -225,7 +230,7 @@ void MainWindow::initializeActionConnections()
 	connect(m_addTorusAction, SIGNAL(triggered()), this, SLOT(torusAdded()));
 
 	connect(m_tesselationSlider, SIGNAL(valueChanged(int)), m_currentGLWidget, SLOT(setTesselation(int)));
-
+	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex, const QModelIndex)), this, SLOT(selectedObjectChanged(const QModelIndex, const QModelIndex)));
 }
 
 void MainWindow::initializeMenuBar()
@@ -341,13 +346,13 @@ void MainWindow::initializeDockWidgets()
 void MainWindow::initializeViewportLayouts()
 { 
 	//todo correct rotations for cameras
-	m_singlePerspectiveView = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(0), this);
-	m_perspectiveGLWidgetDual = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(0), this);
-	m_perspectiveGLWidgetQuad = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(0), this);
-	m_frontGLWidgetDual = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(1), this);
-	m_frontGLWidgetQuad = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(1), this);
-	m_leftGLWidgetQuad = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(2), this);
-	m_topGLWidgetQuad = new OpenGLWidget(m_model->GetScene(), m_model->GetCamera(3), this);
+	m_singlePerspectiveView = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
+	m_perspectiveGLWidgetDual = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
+	m_perspectiveGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
+	m_frontGLWidgetDual = new OpenGLWidget(m_model->getScene(), m_model->getCamera(1), this);
+	m_frontGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(1), this);
+	m_leftGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(2), this);
+	m_topGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(3), this);
 
 	m_dualViewSplitter = new QSplitter(this);
 	m_dualViewSplitter->addWidget(m_perspectiveGLWidgetDual);
@@ -387,7 +392,7 @@ void MainWindow::initializeOutliner()
 	//model->setRootPath(QDir::currentPath());
 
 	m_outlinerTreeView = new QTreeView(m_outlinerDock);
-	m_outlinerTreeView->setModel(m_model->GetScene());
+	m_outlinerTreeView->setModel(m_model->getScene());
 	//m_outlinerTreeView->setRootIndex(model->index(QDir::currentPath()));
 
 	m_outlinerDock->setWidget(m_outlinerTreeView);

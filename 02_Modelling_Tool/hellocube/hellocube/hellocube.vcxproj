@@ -98,6 +98,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="modellingtoolmodel.cpp" />
+    <ClCompile Include="objectid.cpp" />
     <ClCompile Include="openglcube.cpp" />
     <ClCompile Include="openglsphere.cpp" />
     <ClCompile Include="openglwidget.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="cameramodel.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="modellingtoolmodel.h" />
+    <ClInclude Include="objectid.h" />
     <ClInclude Include="openglcone.h" />
     <ClInclude Include="openglcube.h" />
     <ClInclude Include="openglcylinder.h" />

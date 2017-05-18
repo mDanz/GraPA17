@@ -161,7 +161,7 @@ void OpenGLWidget::cleanup()
 	m_vao.destroy();
 	delete m_program;
 	m_program = nullptr;
-	delete m_fbo;
+	//delete m_fbo;
 	doneCurrent();
 }
 
@@ -324,34 +324,34 @@ void OpenGLWidget::resizeGL(int width, int height)
 
 void OpenGLWidget::initializeFrameBufferObject()
 {
-	makeCurrent();
-	m_fbo = new QOpenGLFramebufferObject();
-	m_fbo->bind();
-	m_fbo->addColorAttachment();
+	//makeCurrent();
+	//m_fbo = new QOpenGLFramebufferObject();
+	//m_fbo->bind();
+	//m_fbo->addColorAttachment();//todo fbo 
 
-	glGenFramebuffers()
-	glGenFramebuffersEXT(1, &m_fbo);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
+	//glGenFramebuffers()
+	//glGenFramebuffersEXT(1, &m_fbo);
+	//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
 
-	glGenTextures(1, &mTexColor);
-	glBindTexture(GL_TEXTURE_2D, mTexColor);
-	//<texture params>
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, mTexColor, 0);
+	//glGenTextures(1, &mTexColor);
+	//glBindTexture(GL_TEXTURE_2D, mTexColor);
+	////<texture params>
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	//glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, mTexColor, 0);
 
-	glGenTextures(1, &mTexNormal);
-	glBindTexture(GL_TEXTURE_2D, mTexNormal);
-	//<Texture params>
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D, mTexNormal, 0);
+	//glGenTextures(1, &mTexNormal);
+	//glBindTexture(GL_TEXTURE_2D, mTexNormal);
+	////<Texture params>
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	//glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D, mTexNormal, 0);
 
-	glGenTextures(1, &mTexDepth);
-	glBindTexture(GL_TEXTURE_2D, mTexDepth);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, w, h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, mTexDepth, 0);
+	//glGenTextures(1, &mTexDepth);
+	//glBindTexture(GL_TEXTURE_2D, mTexDepth);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, w, h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+	//glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, mTexDepth, 0);
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
-	
+	//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
+	//
 }
 
 void OpenGLWidget::initializeShaderProgram()
@@ -518,7 +518,7 @@ void OpenGLWidget::keyPressEvent(QKeyEvent* e)
 {
 	if (e->key() == Qt::Key_Delete)
 	{
-		m_scene->deleteSelectedGeometry();
+		m_scene->deleteSelectedItem();
 	}
 }
 

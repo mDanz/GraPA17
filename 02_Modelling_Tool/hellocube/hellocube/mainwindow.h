@@ -26,6 +26,7 @@ public slots:
 	void cylinderAdded();
 	void coneAdded();
 	void torusAdded();
+	void selectedObjectChanged(const QModelIndex &current, const QModelIndex &previous) const;
 
 private:
 	ModellingToolModel *m_model;

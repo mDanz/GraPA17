@@ -20,11 +20,15 @@ public:
 	QModelIndex parent(const QModelIndex &index) const override;
 	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-
-	void deleteSelectedGeometry();
+	
+	void deleteSelectedItem() const;
+	SceneItem* getSelectedItem() const;
+	void addItem(SceneItem *geometry) const;
+	void updateSelectedItem(const QModelIndex& current, const QModelIndex& previous) const;
 
 private:
-	void setupModelData(SceneItem *parent);
+	void setupModelData(SceneItem *parent) const;
 
 	SceneItem *m_root;
+	QModelIndex m_selected;
 };

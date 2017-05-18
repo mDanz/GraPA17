@@ -109,6 +109,9 @@
     <ClCompile Include="openglsphere.cpp">
       <Filter>Source Files\geometry</Filter>
     </ClCompile>
+    <ClCompile Include="objectid.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -165,6 +168,9 @@
       <Filter>Header Files\model</Filter>
     </ClInclude>
     <ClInclude Include="rigidbodytransformation.h">
+      <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="objectid.h">
       <Filter>Header Files\model</Filter>
     </ClInclude>
   </ItemGroup>

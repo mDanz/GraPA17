@@ -20,12 +20,12 @@ ModellingToolModel::~ModellingToolModel()
 	}
 }
 
-SceneModel* ModellingToolModel::GetScene() const
+SceneModel* ModellingToolModel::getScene() const
 {
 	return m_scene;
 }
 
-CameraModel* ModellingToolModel::GetCamera(int number) const
+CameraModel* ModellingToolModel::getCamera(int number) const
 {
 	return m_cameras[number];
 }

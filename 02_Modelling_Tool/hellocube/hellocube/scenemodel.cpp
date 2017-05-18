@@ -15,6 +15,7 @@ SceneModel::SceneModel()
 	QList<QVariant> rootData;
 	rootData << "Scene";
 	m_root = new SceneItem(rootData);
+	m_root->setSelected(true);
 	setupModelData(m_root);
 }
 
@@ -31,7 +32,7 @@ QVariant SceneModel::data(const QModelIndex& index, int role) const
 	}
 
 	auto item = static_cast<SceneItem*>(index.internalPointer());
-	return item->data(index.column());
+	return item->data(index, role);//item->data(index.column());
 }
 
 Qt::ItemFlags SceneModel::flags(const QModelIndex& index) const
@@ -52,7 +53,7 @@ QModelIndex SceneModel::index(int row, int column, const QModelIndex& parent) co
 	}
 
 	auto root = !parent.isValid() ? m_root : static_cast<SceneItem*>(parent.internalPointer());
-
+	
 	auto child = root->child(row);
 	if (child)
 	{
@@ -97,18 +98,47 @@ int SceneModel::columnCount(const QModelIndex& parent) const
 	return m_root->columnCount();
 }
 
-void SceneModel::deleteSelectedGeometry()
+void SceneModel::deleteSelectedItem() const
 {
-	//todo impl
+	auto item = getSelectedItem();
+	auto parent = item->parent();
+	parent->removeChild(item);
 }
 
-void SceneModel::setupModelData(SceneItem* parent)	//todo make this custom
+SceneItem* SceneModel::getSelectedItem() const
+{
+	return m_root->getSelectedItem();
+	//return static_cast<SceneItem*>(index.internalPointer());
+}
+
+void SceneModel::addItem(SceneItem * geometry) const
+{
+	getSelectedItem()->appendChild(geometry);
+
+}
+
+void SceneModel::updateSelectedItem(const QModelIndex& current, const QModelIndex& previous) const
+{
+	auto previousItem = static_cast<SceneItem*>(previous.internalPointer());
+	if (previousItem) 
+	{
+		previousItem->setSelected(false);
+	}
+	auto currentItem = static_cast<SceneItem*>(current.internalPointer());
+	if (currentItem)
+	{
+		currentItem->setSelected(true);
+	}
+}
+
+void SceneModel::setupModelData(SceneItem* parent) const
+//todo make this custom
 {
 	QList<QVariant> data;
-	data.append("Name");
 	data.append("12345");
-	data.append("object");
+	data.append("Name");
 	data.append("RBT");
+	data.append("object");
 	parent->appendChild(new SceneItem(data, parent));
 	parent->appendChild(new SceneItem(data, parent));
 	parent->appendChild(new SceneItem(data, parent));

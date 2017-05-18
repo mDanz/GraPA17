@@ -9,8 +9,8 @@ class ModellingToolModel
 public:
 	ModellingToolModel();
 	~ModellingToolModel();
-	SceneModel* GetScene() const;
-	CameraModel* GetCamera(int number) const;
+	SceneModel* getScene() const;
+	CameraModel* getCamera(int number) const;
 
 
 private:
