@@ -9,7 +9,6 @@ class SceneModel : public QAbstractItemModel
 	Q_OBJECT
 
 public:
-	explicit SceneModel(const QString &data, QObject *parent = 0);
 	SceneModel();
 	~SceneModel();
 
@@ -30,5 +29,4 @@ private:
 	void setupModelData(SceneItem *parent) const;
 
 	SceneItem *m_root;
-	QModelIndex m_selected;
 };

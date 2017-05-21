@@ -7,6 +7,7 @@ c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debu
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\openglwidget.obj
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\openglsphere.obj
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\openglcube.obj
+c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\objectid.obj
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\modellingtoolmodel.obj
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\mainwindow.obj
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\main.obj
@@ -20,6 +21,8 @@ c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\generate
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\generatedfiles\debug\moc_scenemodel.cpp
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\generatedfiles\debug\moc_openglwidget.cpp
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\generatedfiles\qrc_mainwindow.cpp
+c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\x64\debug\hellocube.ilk
+c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\x64\debug\hellocube.exe
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\x64\debug\hellocube.pdb
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\cl.command.1.tlog
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\cl.read.1.tlog
@@ -27,10 +30,6 @@ c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debu
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\custombuild.command.1.tlog
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\custombuild.read.1.tlog
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\custombuild.write.1.tlog
-c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\link-cvtres.read.1.tlog
-c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\link-cvtres.write.1.tlog
-c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\link-rc.read.1.tlog
-c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\link-rc.write.1.tlog
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\link.command.1.tlog
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\link.read.1.tlog
 c:\users\uaeei\source\repos\grapa\02_modelling_tool\hellocube\hellocube\x64\debug\hellocube.tlog\link.write.1.tlog

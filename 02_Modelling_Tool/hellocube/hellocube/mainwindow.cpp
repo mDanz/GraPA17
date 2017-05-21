@@ -378,6 +378,7 @@ void MainWindow::initializeViewportLayouts()
 
 	setCentralWidget(m_stackedWidget);
 	m_currentGLWidget = m_singlePerspectiveView; //todo make selection correct
+	m_currentGLWidget->setFocus();
 }
 
 void MainWindow::initializeOutliner()

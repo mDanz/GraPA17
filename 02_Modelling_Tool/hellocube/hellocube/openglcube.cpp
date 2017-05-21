@@ -1,6 +1,15 @@
 
 #include "openglcube.h"
 
+static const float faceColors[6][3]{
+	{ 1, 0, 0 },
+	{ 0, 1, 1 },
+	{ 1, 0, 1 },
+	{ 0, 0, 1 },
+	{ 1, 1, 0 },
+	{ 0, 1, 0 }
+};
+
 OpenGLCube::OpenGLCube(QObject *parent = nullptr)
 	: m_vertexBuf(QOpenGLBuffer::VertexBuffer)
 	, m_normalBuf(QOpenGLBuffer::VertexBuffer)

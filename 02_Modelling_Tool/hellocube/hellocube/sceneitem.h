@@ -1,5 +1,7 @@
 #pragma once
 #include <qlist.h>
+#include <QButtonGroup>
+#include "objectid.h"
 
 class QModelIndex;
 class QVariant;
@@ -7,7 +9,7 @@ class QVariant;
 class SceneItem
 {
 public:
-	explicit SceneItem(const QList<QVariant> &data, SceneItem *parent = 0);
+	explicit SceneItem(const ObjectID &id, QString &name, SceneItem *parent = 0);
 	~SceneItem();
 
 	void appendChild(SceneItem *child);
@@ -22,13 +24,16 @@ public:
 	bool isSelected();
 	void setSelected(bool status);
 	SceneItem* getSelectedItem();
+	void clearChildren() const;
+	const ObjectID getId() const;
+
 private:
 	QList<SceneItem*> m_children;
-	QList<QVariant> m_data;
 	/*RigidBodyTransformation *m_rigidBodyTransform;
 	QVariant *m_primitive;
-	QVariant *m_primitiveName;
-	int m_id;*/
+	QVariant *m_primitiveName;*/
+	QString m_name;
+	const ObjectID m_id;
 	SceneItem *m_parent;
 	bool m_isSelected;
 };

@@ -2,11 +2,13 @@
 #include <QVariant>
 #include <QFileSystemModel>
 
-SceneItem::SceneItem(const QList<QVariant>& data, SceneItem* parent)
-	: m_data(data)
-	, m_parent(parent)
-{
 
+SceneItem::SceneItem(const ObjectID& id, QString& name, SceneItem* parent)
+	: m_name(name)
+	, m_id(id)
+	, m_parent(parent)
+	, m_isSelected(false)
+{
 }
 
 SceneItem::~SceneItem()
@@ -36,20 +38,26 @@ int SceneItem::childCount() const
 
 int SceneItem::columnCount() const
 {
-	return m_data.count();
+	return 5;
 	
 }
 
 QVariant SceneItem::data(int column) const
 {
-	return m_data.value(column);
+	switch (column)
+	{
+	case 0:
+		return m_name;
+	default:
+		return QVariant();
+	}
 }
 
 QVariant SceneItem::data(const QModelIndex& index, int role) const
 {
 	if (role == Qt::DisplayRole)
 	{
-		return m_data.value(1);
+		return m_name;
 	}
 
 	return QVariant();
@@ -96,4 +104,14 @@ SceneItem* SceneItem::getSelectedItem()
 		}
 		return nullptr;
 	}
+}
+
+void SceneItem::clearChildren() const
+{
+	qDeleteAll(m_children);
+}
+
+const ObjectID SceneItem::getId() const
+{
+	return m_id;
 }

@@ -27,16 +27,13 @@ public:
 	QSize sizeHint() const override;
 
 public slots:
-	void wireframeShading();
-	void flatShading();
-	void gouraudShading();
-	void phongShading();
 	void setTesselation(int t);
 	void resetCamera();
 	void cleanup();
 	void selectedCameraMode();
 	void selectedObjManipulationMode();
-
+	void keyPressEvent(QKeyEvent *e) override;
+	void keyReleaseEvent(QKeyEvent* e) override;
 
 protected:
 	void initializeGL() override;
@@ -47,9 +44,8 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
 	void wheelEvent(QWheelEvent *event) override;
-	void keyPressEvent(QKeyEvent *e) override;
-	virtual void focusInEvent(QFocusEvent *event) override;
-	virtual void focusOutEvent(QFocusEvent *event) override;
+	void focusInEvent(QFocusEvent *event) override;
+	void focusOutEvent(QFocusEvent *event) override;
 
 private:
 
@@ -64,6 +60,8 @@ private:
 	const GLfloat m_specExp = 50.0;
 	const QString m_vshFile = ":/Resources/shaders/phong.vsh";
 	const QString m_fshFile = ":/Resources/shaders/phong.fsh";
+	const QString m_colorPicker_vshFile = ":/Resources/shaders/colorpicker.vsh";
+	const QString m_colorPicker_fshFile = ":/Resources/shaders/colorpickerhong.vsh";
 
 	bool m_manipulationModeFlag;
 
@@ -71,6 +69,7 @@ private:
 	QOpenGLBuffer m_vbo;
 	QOpenGLBuffer m_nbo;
 	QOpenGLShaderProgram *m_program;
+	QOpenGLShaderProgram *m_colorPickerProgram; 
 	QOpenGLFramebufferObject *m_fbo;
 
 	int m_projMatrixLoc;
@@ -81,6 +80,10 @@ private:
 	int m_diffuseColor;
 	int m_specularColor;
 	int m_specularExp;
+
+	int m_colorPicker_ProjMatrixLoc;
+	int m_colorPicker_mvMatrixLoc;
+	int m_colorPicker_objId;
 
 	QMatrix4x4 m_proj;
 	QMatrix4x4 m_camera;
@@ -96,15 +99,20 @@ private:
 	bool m_isTessellationEnabled;
 	QOpenGLShader* m_vertexShader;
 	QOpenGLShader* m_fragmentShader;
+	QOpenGLShader* m_colorPicker_vertexShader;
+	QOpenGLShader* m_colorPicker_fragmentShader;
 	
 	OpenGLCube *m_cube;
-
-	void initializeFrameBufferObject();
-	void initializeShaderProgram();
-	void initializeShaders();
-	void setupVertexAttribs();
+	void initializeFrameBufferObject(int width, int height);
+	void initializeSceneShaderProgram();
+	void initializeColorPickerShaderProgram();
+	void initializeSceneShaders();
+	void initializeColorPickerShaders();
 	void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
-	void paintWithTessellation();
-	void paint();
-	void paintWithShaderProgram();
+	void paintWithSceneShaderProgram();
+	void paintWithColorPickerProgram();
+	void paintFocusHighlight();
+	void manipulateScene();
+	void updateOrthoProjection(int width, int height);
+	static GLfloat calculateAspectRatio(int width, int height);
 };

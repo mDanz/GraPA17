@@ -10,6 +10,7 @@
 #include <QOpenGLFunctions>
 #include <QFileInfo>
 #include "cameramodel.h"
+#include "sceneitem.h"
 
 #define highp
 #define mediump
@@ -20,6 +21,8 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 	: QOpenGLWidget(parent), QOpenGLFunctions_4_4_Compatibility()
 	, m_manipulationModeFlag(false)
 	, m_program(nullptr)
+	, m_colorPickerProgram(nullptr)
+	, m_fbo(nullptr)
 	, m_projMatrixLoc(0)
 	, m_mvMatrixLoc(0)
 	, m_normalMatrixLoc(0)
@@ -28,6 +31,9 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 	, m_diffuseColor(0)
 	, m_specularColor(0)
 	, m_specularExp(0)
+	, m_colorPicker_ProjMatrixLoc(0)
+	, m_colorPicker_mvMatrixLoc(0)
+	, m_colorPicker_objId(0)
 	, m_cameraModel(nullptr)
 	, m_scene(nullptr)
 	, m_tessellation(0)
@@ -35,6 +41,8 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 	, m_isTessellationEnabled(false)
 	, m_vertexShader(nullptr)
 	, m_fragmentShader(nullptr)
+	, m_colorPicker_vertexShader(nullptr)
+	, m_colorPicker_fragmentShader(nullptr)
 	, m_cube(nullptr)
 {
 	m_lastPos = new QPoint();
@@ -47,6 +55,8 @@ OpenGLWidget::OpenGLWidget(SceneModel* scene, CameraModel* cameraModel, QWidget*
 	: QOpenGLWidget(parent), QOpenGLFunctions_4_4_Compatibility()
 	, m_manipulationModeFlag(false)
 	, m_program(nullptr)
+	, m_colorPickerProgram(nullptr)
+	, m_fbo(nullptr)
 	, m_projMatrixLoc(0)
 	, m_mvMatrixLoc(0)
 	, m_normalMatrixLoc(0)
@@ -55,11 +65,16 @@ OpenGLWidget::OpenGLWidget(SceneModel* scene, CameraModel* cameraModel, QWidget*
 	, m_diffuseColor(0)
 	, m_specularColor(0)
 	, m_specularExp(0)
+	, m_colorPicker_ProjMatrixLoc(0)
+	, m_colorPicker_mvMatrixLoc(0)
+	, m_colorPicker_objId(0)
 	, m_tessellation(0)
 	, m_wheelDelta(0)
 	, m_isTessellationEnabled(false)
 	, m_vertexShader(nullptr)
 	, m_fragmentShader(nullptr)
+	, m_colorPicker_vertexShader(nullptr)
+	, m_colorPicker_fragmentShader(nullptr)
 	, m_cube(nullptr)
 {
 	m_scene = scene;
@@ -85,46 +100,6 @@ QSize OpenGLWidget::sizeHint() const
 	return QSize(800, 400);
 }
 
-void OpenGLWidget::wireframeShading()
-{
-	m_isTessellationEnabled = true;
-
-	makeCurrent();
-	m_program->release();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	update();
-}
-
-void OpenGLWidget::flatShading()
-{
-	m_isTessellationEnabled = true;
-
-	makeCurrent();
-	m_program->release();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glShadeModel(GL_FLAT);
-	update();
-}
-
-void OpenGLWidget::gouraudShading()
-{
-	m_isTessellationEnabled = true;
-
-	makeCurrent();
-	m_program->release();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glShadeModel(GL_SMOOTH);
-	update();
-}
-
-void OpenGLWidget::phongShading()
-{
-	m_isTessellationEnabled = false;
-	makeCurrent();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	m_program->bind();
-	update();
-}
 
 void OpenGLWidget::setTesselation(int t)
 {
@@ -134,7 +109,12 @@ void OpenGLWidget::setTesselation(int t)
 
 void OpenGLWidget::resetCamera()
 {
-	//m_tessellation = 0;
+	m_cameraModel->reset();
+	if (m_cameraModel->isOrthographic()) 
+	{
+		updateOrthoProjection(width(), height());
+	}
+
 	m_wheelDelta = 0;
 	m_dragTranslation = new QVector3D;
 	m_lastPos = new QPoint();
@@ -154,6 +134,8 @@ void OpenGLWidget::cleanup()
 	delete m_trackBall;
 	delete m_vertexShader;
 	delete m_fragmentShader;
+	delete m_colorPicker_fragmentShader;
+	delete m_colorPicker_vertexShader;
 
 	makeCurrent();
 	m_vbo.destroy();
@@ -161,7 +143,9 @@ void OpenGLWidget::cleanup()
 	m_vao.destroy();
 	delete m_program;
 	m_program = nullptr;
-	//delete m_fbo;
+	delete m_colorPickerProgram;
+	m_colorPickerProgram = nullptr;
+	delete m_fbo;
 	doneCurrent();
 }
 
@@ -181,62 +165,24 @@ void OpenGLWidget::initializeGL()
 	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLWidget::cleanup);
 
 	initializeOpenGLFunctions();
-	glClearColor(.1, .1, .1, 1);
+	glClearColor(.2, .2, .2, 1);
 	glEnable(GL_LIGHTING);
 	glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
 	glEnable(GL_LIGHT0);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glShadeModel(GL_FLAT);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
-	initializeShaderProgram();
+	initializeFrameBufferObject(width(), height());
+	initializeSceneShaderProgram();
+	initializeColorPickerShaderProgram();
+
+	m_camera.setToIdentity();
 
 	m_cube = new OpenGLCube(this);
 }
 
-
-static const float cubeVertices[8*3] = {
-	+.5, -.5, +.5,
-	+.5, -.5, -.5,
-	+.5, +.5, -.5,
-	+.5, +.5, +.5,
-	-.5, -.5, -.5,
-	-.5, -.5, +.5,
-	-.5, +.5, +.5,
-	-.5, +.5, -.5
-};
-
-static const int cubeIndices[6*4] = {
-	2, 3, 0, 1,
-	4, 5, 6, 7,	
-	1, 4, 7, 2,	
-	3, 6, 5, 0,
-	1, 0, 5, 4,
-	7, 6, 3, 2
-};
-
-static const float normals[6*3] = {
-	1, 0, 0,
-	-1, 0, 0,
-	0, 0, -1,
-	0, 0, 1,
-	0, -1, 0,
-	0, 1, 0
-};
-
-static const float faceColors[6][3]{
-	{ 1, 0, 0 },
-	{ 0, 1, 1 },
-	{ 1, 0, 1 },
-	{ 0, 0, 1 },
-	{ 1, 1, 0 },
-	{ 0, 1, 0 }
-};
-
 void OpenGLWidget::paintGL()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glEnable(GL_NORMALIZE);
 
 
@@ -252,113 +198,66 @@ void OpenGLWidget::paintGL()
 	m_camera.translate(0, 0, m_wheelDelta - 5);*/
 
 
+	manipulateScene();
 
-	if (m_manipulationModeFlag)	//todo move this code to button event handlers to support ctrl swapping
-	{
-		m_world.setToIdentity();
-		m_world.translate(m_dragTranslation->x(), -1 * m_dragTranslation->y(), 0);
-		m_world.rotate(m_dragRotation);
-	}
-	else
-	{
-		m_cameraModel->move(m_dragTranslation);
-		if(!m_cameraModel->isOrthographic())
-		{
-			m_cameraModel->rotate(m_dragRotation);
-		}
-		/*m_camera.translate(-m_cameraModel->center);
-		m_camera.rotate(m_dragRotation);
-		m_camera.translate(m_cameraModel->center);*/
-		//m_camera.rotate(m_dragRotation);
-		//m_camera.translate(m_dragTranslation->x(), -m_dragTranslation->y(), 0);
-	}
+	paintFocusHighlight();
 
-	m_cameraModel->zoom(m_wheelDelta);
-	m_camera = m_cameraModel->GetCameraMatrix();
-	
+	m_fbo->bind();
+	m_program->bind();
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	paintWithSceneShaderProgram();
 
-	//if (m_isTessellationEnabled)
-	//{
-	//	paintWithTessellation();
-	//}
-	//else
-	//{
-		paintWithShaderProgram();
-	//}
+	m_program->release();
+
+	m_colorPickerProgram->bind();
+	glDrawBuffer(GL_COLOR_ATTACHMENT1);
+	paintWithColorPickerProgram();
+	m_colorPickerProgram->release();
+	m_fbo->release();
 }
 
 void OpenGLWidget::resizeGL(int width, int height)
 {
 	glViewport(0, 0, width, height);
-	
-	/*glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();	
-	GLdouble aspect = GLfloat(width) / (height ? height : 1);
-	perspective(m_fov, aspect, m_zNear, m_zFar);
-	
-	glMatrixMode(GL_MODELVIEW);*/
-	GLdouble aspect = GLfloat(width) / (height ? height : 1);
-	//resize projection for shader program
+
 	m_proj.setToIdentity();
 
 	if (m_cameraModel->isOrthographic())
 	{
-		float r = width, t = height;//todo fix ortho projection
-		float l = -r, b = -t;
-		//float top = m_zNear * tan(m_fov * M_PI / 360.0f);
-		//float bottom = -top;
-		//float left = bottom * aspect;
-		//float right = top * aspect;
-		m_proj.ortho(l, r, b, t, m_zNear, m_zFar);
+		updateOrthoProjection(width, height);
 	}
 	else
 	{
-		m_proj.perspective(m_fov, aspect, m_zNear, m_zFar);
+		m_proj.perspective(m_fov, calculateAspectRatio(width, height), m_zNear, m_zFar);
 	}
 	
-	
+	delete m_fbo;
+	initializeFrameBufferObject(width, height);
 
 	update();
 }
 
 
-void OpenGLWidget::initializeFrameBufferObject()
+void OpenGLWidget::initializeFrameBufferObject(int width, int height)
 {
-	//makeCurrent();
-	//m_fbo = new QOpenGLFramebufferObject();
-	//m_fbo->bind();
-	//m_fbo->addColorAttachment();//todo fbo 
-
-	//glGenFramebuffers()
-	//glGenFramebuffersEXT(1, &m_fbo);
-	//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
-
-	//glGenTextures(1, &mTexColor);
-	//glBindTexture(GL_TEXTURE_2D, mTexColor);
-	////<texture params>
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-	//glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, mTexColor, 0);
-
-	//glGenTextures(1, &mTexNormal);
-	//glBindTexture(GL_TEXTURE_2D, mTexNormal);
-	////<Texture params>
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-	//glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D, mTexNormal, 0);
-
-	//glGenTextures(1, &mTexDepth);
-	//glBindTexture(GL_TEXTURE_2D, mTexDepth);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, w, h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-	//glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, mTexDepth, 0);
-
-	//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
-	//
+	makeCurrent();
+	auto drawRectSize = QRect(0, 0, width, height).size();
+	QOpenGLFramebufferObjectFormat format;
+	format.setSamples(16);
+	format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+	m_fbo = new QOpenGLFramebufferObject(drawRectSize, format);
+	m_fbo->bind();
+	m_fbo->addColorAttachment(drawRectSize, GL_TEXTURE_2D);
+	GLenum bufs[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+	glDrawBuffers(2, bufs);
+	m_fbo->release();	
 }
 
-void OpenGLWidget::initializeShaderProgram()
+void OpenGLWidget::initializeSceneShaderProgram()
 {
 	m_program = new QOpenGLShaderProgram;
 
-	initializeShaders();
+	initializeSceneShaders();
 
 	m_program->bindAttributeLocation("in_position", 0);
 	m_program->bindAttributeLocation("in_normal", 1);
@@ -374,34 +273,27 @@ void OpenGLWidget::initializeShaderProgram()
 	m_specularColor = m_program->uniformLocation("specularColor");
 	m_specularExp  = m_program->uniformLocation("specularExp");
 
-	//m_vao.create();
-	//QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
-
-	//m_vbo.create();
-	//m_vbo.bind();
-	//m_vbo.allocate(cubeVertices, sizeof(cubeVertices)/sizeof(cubeVertices[0]));
-
-	//m_nbo.create();
-	//m_nbo.bind();
-	//m_nbo.allocate(normals, sizeof(normals) / sizeof(normals[0]));
-
-	// Store the vertex attribute bindings for the program.
-	//m_program->setAttributeArray(0, cubeVertices, 3);
-	//m_program->setAttributeArray(1, normals, 3);
-	//setupVertexAttribs();
-
-	m_camera.setToIdentity();
-
-	//m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
-	//m_program->setUniformValue(m_ambientColor, QVector3D(m_ka[0], m_ka[1], m_ka[2]));
-	/*m_program->setUniformValue(m_diffuseColor, QVector3D(m_kd[0], m_kd[1], m_kd[2]));
-	m_program->setUniformValue(m_specularColor, QVector3D(m_ks[0], m_ks[1], m_ks[2]));
-	m_program->setUniformValue(m_specularExp, m_specExp);*/
-
-	//m_program->release();
+	m_program->release();
 }
 
-void OpenGLWidget::initializeShaders()
+void OpenGLWidget::initializeColorPickerShaderProgram()
+{
+	m_colorPickerProgram = new QOpenGLShaderProgram;
+
+	initializeColorPickerShaders();
+
+	m_colorPickerProgram->bindAttributeLocation("in_position", 0);
+	m_colorPickerProgram->link();
+
+	m_colorPickerProgram->bind();
+	m_colorPicker_ProjMatrixLoc = m_colorPickerProgram->uniformLocation("projMatrix");
+	m_colorPicker_mvMatrixLoc = m_colorPickerProgram->uniformLocation("mvMatrix");
+	m_colorPicker_objId = m_colorPickerProgram->uniformLocation("objId");
+
+	m_colorPickerProgram->release();
+}
+
+void OpenGLWidget::initializeSceneShaders()
 {
 	QFileInfo vsh(m_vshFile);
 	if (vsh.exists())
@@ -440,22 +332,44 @@ void OpenGLWidget::initializeShaders()
 	}
 }
 
-//void OpenGLWidget::setupVertexAttribs()
-//{
-//	m_vbo.bind();
-//	auto functions = QOpenGLContext::currentContext()->functions();
-//	functions->glEnableVertexAttribArray(0);
-//	//functions->glEnableVertexAttribArray(1);
-//	functions->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-//	//functions->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-//	m_vbo.release();
-//
-//	m_nbo.bind();
-//	//auto functions = QOpenGLContext::currentContext()->functions();
-//	functions->glEnableVertexAttribArray(1);
-//	functions->glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 6 * sizeof(GLfloat), 0);
-//	m_vbo.release();
-//}
+void OpenGLWidget::initializeColorPickerShaders()
+{
+	QFileInfo vsh(m_colorPicker_vshFile);
+	if (vsh.exists())
+	{
+		m_colorPicker_vertexShader = new QOpenGLShader(QOpenGLShader::Vertex);
+		if (m_colorPicker_vertexShader->compileSourceFile(m_colorPicker_vshFile))
+		{
+			m_colorPickerProgram->addShader(m_colorPicker_vertexShader);
+		}
+		else
+		{
+			qWarning() << "Vertex Shader Error" << m_colorPicker_vertexShader->log();
+		}
+	}
+	else
+	{
+		qWarning() << "Vertex Shader source file" << m_colorPicker_vshFile << " not found.";
+	}
+
+	QFileInfo fsh(m_colorPicker_fshFile);
+	if (vsh.exists())
+	{
+		m_colorPicker_fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment);
+		if (m_fragmentShader->compileSourceFile(m_colorPicker_fshFile))
+		{
+			m_colorPickerProgram->addShader(m_colorPicker_fragmentShader);
+		}
+		else
+		{
+			qWarning() << "Fragment Shader Error" << m_colorPicker_fragmentShader->log();
+		}
+	}
+	else
+	{
+		qWarning() << "Fragment Shader source file" << m_colorPicker_fshFile << " not found.";
+	}
+}
 
 QPointF OpenGLWidget::pixelPosToViewPos(const QPointF &pos) const
 {
@@ -491,6 +405,11 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
 
 void OpenGLWidget::mousePressEvent(QMouseEvent* event)
 {
+	if (!hasFocus()) 
+	{
+		setFocus(Qt::MouseFocusReason);
+	}
+
 	m_lastPos = new QPoint(event->pos());
 	
 	if (event->buttons() & Qt::LeftButton)
@@ -498,6 +417,7 @@ void OpenGLWidget::mousePressEvent(QMouseEvent* event)
 		m_trackBall->push(pixelPosToViewPos(event->pos()));
 	}
 
+	update();
 }
 
 void OpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
@@ -520,16 +440,29 @@ void OpenGLWidget::keyPressEvent(QKeyEvent* e)
 	{
 		m_scene->deleteSelectedItem();
 	}
+	else if (e->key() == Qt::Key_Control)
+	{
+		m_manipulationModeFlag = !m_manipulationModeFlag;
+	}
+}
+
+void OpenGLWidget::keyReleaseEvent(QKeyEvent* e)
+{
+	if (e->key() == Qt::Key_Control)
+	{
+		m_manipulationModeFlag = !m_manipulationModeFlag;
+	}
+	update();
 }
 
 void OpenGLWidget::focusInEvent(QFocusEvent* event)
 {
-	//todo impl
+	update();
 }
 
 void OpenGLWidget::focusOutEvent(QFocusEvent* event)
 {
-	//todo impl
+	update();
 }
 
 void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
@@ -544,53 +477,10 @@ void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, G
 	glFrustum(left, right, bottom, top, zNear, zFar);
 }
 
-void OpenGLWidget::paintWithTessellation()
+void OpenGLWidget::paintWithSceneShaderProgram()
 {
-	float tessFactor = 1.0f / (1 + m_tessellation);
-	for (auto x = 0; x <= m_tessellation; x++)
-	{
-		float xOffset = tessFactor * x;
-		for (auto y = 0; y <= m_tessellation; y++)
-		{
-			float yOffset = tessFactor * y;
-			for (auto z = 0; z <= m_tessellation; z++)
-			{
-				float zOffset = tessFactor * z;
 
-				glTranslatef(xOffset, yOffset, zOffset);
-				glScalef(tessFactor, tessFactor, tessFactor);
-				
-				paint();
-
-				glScalef(1 / tessFactor, 1 / tessFactor, 1 / tessFactor);
-				glTranslatef(-xOffset, -yOffset, -zOffset);
-			}
-		}
-	}
-	
-}
-
-void OpenGLWidget::paint()
-{
-	for (auto i = 0; i < 6; i++)
-	{
-		glBegin(GL_QUADS);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, faceColors[i]);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, m_ks);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &m_specExp);
-		glNormal3f(normals[i * 3 + 0], normals[i * 3 + 1], normals[i * 3 + 2]);
-		for (auto j = 0; j < 4; j++)
-		{
-			int index = cubeIndices[i * 4 + j] * 3;
-			glVertex3f(cubeVertices[index + 0], cubeVertices[index + 1], cubeVertices[index + 2]);
-		}
-		glEnd();
-	}
-}
-
-void OpenGLWidget::paintWithShaderProgram()
-{
-	//QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_program->setUniformValue(m_projMatrixLoc, m_proj);
 	m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
 	QMatrix3x3 normalMatrix = m_world.normalMatrix();
@@ -604,25 +494,90 @@ void OpenGLWidget::paintWithShaderProgram()
 	//m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[0][0], faceColors[0][1], faceColors[0][2]));
 	
 	m_cube->draw(m_program);
-	
-	//for (auto i = 0; i < 6; i++)
-	//{
-	//	m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[i][0], faceColors[i][1], faceColors[i][2]));
-	//	//m_program->setUniformValue(m_diffuseColor, QVector3D(faceColors[i][0], faceColors[i][1], faceColors[i][2]));
-	//	/*m_program->enableAttributeArray(0);
-	//	m_program->enableAttributeArray(1);
-	//	glDrawArrays(GL_LINES, 0, sizeof(cubeVertices) / sizeof(cubeVertices[0]));
-	//	m_program->disableAttributeArray(0);
-	//	m_program->disableAttributeArray(1);*/
-	//	glBegin(GL_QUADS);
-	//	glNormal3f(normals[i * 3 + 0], normals[i * 3 + 1], normals[i * 3 + 2]);
-	//	for (auto j = 0; j < 4; j++)
-	//	{
-	//		int index = cubeIndices[i * 4 + j] * 3;
-	//		glVertex3f(cubeVertices[index + 0], cubeVertices[index + 1], cubeVertices[index + 2]);
-	//	}
-	//	glEnd();
-	//}
+}
+
+void OpenGLWidget::paintWithColorPickerProgram()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_colorPickerProgram->setUniformValue(m_colorPicker_ProjMatrixLoc, m_proj);
+	m_colorPickerProgram->setUniformValue(m_colorPicker_mvMatrixLoc, m_camera * m_world);
+	m_colorPickerProgram->setUniformValue(m_colorPicker_objId, m_scene->getSelectedItem()->getId().getIdAsColor());
+
+	m_cube->draw(m_colorPickerProgram);
+}
+
+void OpenGLWidget::paintFocusHighlight()
+{
+	if (hasFocus())
+	{
+		glClearColor(.3, .3, .5, 1.0);
+
+		/*QPainter painter;
+		painter.begin(this);
+		painter.setRenderHint(QPainter::Antialiasing);
+
+
+		painter.setPen(QPen(Qt::red, 12, Qt::SolidLine, Qt::RoundCap));
+		painter.drawLine(0, 0, 0, 200);
+		painter.drawLine(0, 200, 200, 200);
+		painter.drawLine(200, 200, 200, 0);
+		painter.drawLine(200, 0, 0, 0);
+
+		painter.end();*/
+	}
+	else
+	{
+		glClearColor(.2, .2, .2, 1);
+	}
+}
+
+void OpenGLWidget::manipulateScene()
+{
+	if (m_manipulationModeFlag)	//todo move this code to button event handlers to support ctrl swapping
+	{
+		m_world.setToIdentity();
+		m_world.translate(m_dragTranslation->x(), -1 * m_dragTranslation->y(), 0);
+		m_world.rotate(m_dragRotation);
+	}
+	else
+	{
+		m_cameraModel->move(m_dragTranslation);
+		if (!m_cameraModel->isOrthographic())
+		{
+			m_cameraModel->rotate(m_dragRotation);
+		}
+	}
+
+	m_cameraModel->zoom(m_wheelDelta);
+	m_camera = m_cameraModel->GetCameraMatrix();
+}
+
+
+void OpenGLWidget::updateOrthoProjection(int width, int height)
+{
+	float top, bottom, left, right;
+	float aspect = calculateAspectRatio(width, height);
+
+	if (width > height)
+	{
+		top = 1.0f;
+		bottom = -top;
+		right = top * aspect;
+		left = -right;
+	}
+	else
+	{
+		right = 1.0f;
+		left = -right;
+		top = right / aspect;
+		bottom = -top;
+	}
+	m_proj.ortho(left, right, bottom, top, m_zNear, m_zFar);
+}
+
+GLfloat OpenGLWidget::calculateAspectRatio(int width, int height)
+{
+	return GLfloat(width) / (height ? height : 1);
 }
 
 
