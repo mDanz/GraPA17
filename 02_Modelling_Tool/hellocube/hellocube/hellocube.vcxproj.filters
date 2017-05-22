@@ -112,6 +112,18 @@
     <ClCompile Include="objectid.cpp">
       <Filter>Source Files\model</Filter>
     </ClCompile>
+    <ClCompile Include="openglprimitivefactory.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="opengltorus.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="openglcone.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="openglcylinder.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -172,6 +184,15 @@
     </ClInclude>
     <ClInclude Include="objectid.h">
       <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="openglnone.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="openglprimitivefactory.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="openglgeometrytype.h">
+      <Filter>Header Files\geometry</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

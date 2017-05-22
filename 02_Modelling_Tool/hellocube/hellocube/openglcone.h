@@ -5,7 +5,7 @@
 
 class QOpenGLShaderProgram;
 
-class OpenGLCone : OpenGLGeometry
+class OpenGLCone : public OpenGLGeometry
 {
 public:
 	OpenGLCone();

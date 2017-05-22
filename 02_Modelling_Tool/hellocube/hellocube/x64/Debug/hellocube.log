@@ -1,3 +1,10 @@
-﻿  sceneitem.cpp
+﻿  moc_mainwindow.cpp
+  moc_openglwidget.cpp
+  main.cpp
+  mainwindow.cpp
+  openglcube.cpp
+  openglprimitivefactory.cpp
+  openglwidget.cpp
+  Generating Code...
   hellocube.vcxproj -> C:\Users\uaeei\Source\Repos\GRAPA\02_Modelling_Tool\hellocube\x64\Debug\hellocube.exe
   hellocube.vcxproj -> C:\Users\uaeei\Source\Repos\GRAPA\02_Modelling_Tool\hellocube\x64\Debug\hellocube.pdb (Full PDB)

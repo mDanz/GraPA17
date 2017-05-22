@@ -12,7 +12,9 @@
 #include <qfileinfo.h>
 #include "openglcube.h"
 #include "modellingtoolmodel.h"
+#include "openglprimitivefactory.h"
 
+class OpenGLPrimitiveFactory;
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Compatibility
 {
@@ -101,16 +103,18 @@ private:
 	QOpenGLShader* m_fragmentShader;
 	QOpenGLShader* m_colorPicker_vertexShader;
 	QOpenGLShader* m_colorPicker_fragmentShader;
-	
+	OpenGLPrimitiveFactory *m_primitiveFactory;
+
 	OpenGLCube *m_cube;
+
 	void initializeFrameBufferObject(int width, int height);
 	void initializeSceneShaderProgram();
 	void initializeColorPickerShaderProgram();
 	void initializeSceneShaders();
 	void initializeColorPickerShaders();
 	void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
-	void paintWithSceneShaderProgram(QList<SceneItem> *items);
-	void paintWithColorPickerProgram(QList<SceneItem> *items);
+	void paintWithSceneShaderProgram(QList<SceneItem*> *items);
+	void paintWithColorPickerProgram(QList<SceneItem*> *items);
 	void paintFocusHighlight();
 	void manipulateScene();
 	void updateOrthoProjection(int width, int height);

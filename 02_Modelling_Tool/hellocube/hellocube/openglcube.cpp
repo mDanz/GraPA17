@@ -1,5 +1,6 @@
 
 #include "openglcube.h"
+#include "openglwidget.h"
 
 static const float faceColors[6][3]{
 	{ 1, 0, 0 },

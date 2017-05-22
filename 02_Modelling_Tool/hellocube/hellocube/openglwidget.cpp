@@ -43,6 +43,7 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 	, m_fragmentShader(nullptr)
 	, m_colorPicker_vertexShader(nullptr)
 	, m_colorPicker_fragmentShader(nullptr)
+	, m_primitiveFactory(nullptr)
 	, m_cube(nullptr)
 {
 	m_lastPos = new QPoint();
@@ -75,6 +76,7 @@ OpenGLWidget::OpenGLWidget(SceneModel* scene, CameraModel* cameraModel, QWidget*
 	, m_fragmentShader(nullptr)
 	, m_colorPicker_vertexShader(nullptr)
 	, m_colorPicker_fragmentShader(nullptr)
+	, m_primitiveFactory(nullptr)
 	, m_cube(nullptr)
 {
 	m_scene = scene;
@@ -129,6 +131,7 @@ void OpenGLWidget::resetCamera()
 
 void OpenGLWidget::cleanup()
 {
+	delete m_primitiveFactory;
 	delete m_lastPos;
 	delete m_dragTranslation;
 	delete m_trackBall;
@@ -178,6 +181,7 @@ void OpenGLWidget::initializeGL()
 
 	m_camera.setToIdentity();
 
+	m_primitiveFactory = new OpenGLPrimitiveFactory(this);
 	m_cube = new OpenGLCube();
 }
 
@@ -196,7 +200,7 @@ void OpenGLWidget::paintGL()
 	/*m_camera.setToIdentity();
 	m_camera.translate(0, 0, m_wheelDelta - 5);*/
 
-	QList<SceneItem> items; //m_scene->getAllItems();
+	auto items = m_scene->getAllItems();
 
 	manipulateScene();
 
@@ -476,13 +480,10 @@ void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, G
 	glFrustum(left, right, bottom, top, zNear, zFar);
 }
 
-void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem> *items)
+void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_program->setUniformValue(m_projMatrixLoc, m_proj);
-	m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
-	QMatrix3x3 normalMatrix = m_world.normalMatrix();
-	m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
 	m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
 	/*m_program->setUniformValue(m_diffuseColor, QVector3D(m_kd[0], m_kd[1], m_kd[2]));
 	m_program->setUniformValue(m_specularColor, QVector3D(m_ks[0], m_ks[1], m_ks[2]));
@@ -491,39 +492,34 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem> *items)
 	m_program->setUniformValue(m_diffuseColor, QVector3D(.7, 0.0, 0.0));
 	//m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[0][0], faceColors[0][1], faceColors[0][2]));
 	
-	/*for (auto i = 0; i < items->count(); i++)
+	for (auto i = 0; i < items->count(); i++)
 	{
 		auto item = items->at(i);
-		m_world = item.getRigidBodyTransformation()->getWorldMatrix();
+		m_world = item->getRigidBodyTransformation()->getWorldMatrix();
 
 		m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
-		QMatrix3x3 normalMatrix = m_world.normalMatrix();
+		auto normalMatrix = m_world.normalMatrix();
 		m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
 
-		item.getPrimitive().draw(m_program);
-	}*/
-	m_cube->draw(m_program);
+		m_primitiveFactory->createPrimitive(item->getPrimitive())->draw(m_program);
+	}
 }
 
-void OpenGLWidget::paintWithColorPickerProgram(QList<SceneItem> *items)
+void OpenGLWidget::paintWithColorPickerProgram(QList<SceneItem*> *items)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_colorPickerProgram->setUniformValue(m_colorPicker_ProjMatrixLoc, m_proj);
-	m_colorPickerProgram->setUniformValue(m_colorPicker_mvMatrixLoc, m_camera * m_world);
-	m_colorPickerProgram->setUniformValue(m_colorPicker_objId, m_scene->getSelectedItem()->getId().getIdAsColor());
-
-
-	/*for (auto i = 0; i < items->count(); i++)
+	
+	for (auto i = 0; i < items->count(); i++)
 	{
 		auto item = items->at(i);
-		m_world = item.getRigidBodyTransformation()->getWorldMatrix();
+		m_world = item->getRigidBodyTransformation()->getWorldMatrix();
 
 		m_colorPickerProgram->setUniformValue(m_colorPicker_mvMatrixLoc, m_camera * m_world);
-		m_colorPickerProgram->setUniformValue(m_colorPicker_objId, item.getId().getIdAsColor());
+		m_colorPickerProgram->setUniformValue(m_colorPicker_objId, item->getId().getIdAsColor());
 
-		item.getPrimitive().draw(m_colorPickerProgram);
-	}*/
-	m_cube->draw(m_colorPickerProgram);
+		m_primitiveFactory->createPrimitive(item->getPrimitive())->draw(m_colorPickerProgram);
+	}
 }
 
 void OpenGLWidget::paintFocusHighlight()
@@ -555,13 +551,10 @@ void OpenGLWidget::manipulateScene()
 {
 	if (m_manipulationModeFlag)	//todo move this code to button event handlers to support ctrl swapping
 	{
-		/*auto selectedItem = m_scene->getSelectedItem();
+		auto selectedItem = m_scene->getSelectedItem();
 		auto rigidBodyTransform = selectedItem->getRigidBodyTransformation();
 		rigidBodyTransform->move(*m_dragTranslation);
-		rigidBodyTransform->rotate(m_dragRotation);*/
-		m_world.setToIdentity();
-		m_world.translate(m_dragTranslation->x(), -1 * m_dragTranslation->y(), 0);
-		m_world.rotate(m_dragRotation);
+		rigidBodyTransform->rotate(m_dragRotation);
 	}
 	else
 	{

@@ -7,7 +7,9 @@
 #include <QOpenGLVertexArrayObject>
 #include "OpenGLGeometry.h"
 
-class OpenGLCube : OpenGLGeometry
+class OpenGLWidget;
+
+class OpenGLCube : public OpenGLGeometry
 {
 public:
 	OpenGLCube();

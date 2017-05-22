@@ -5,7 +5,7 @@
 
 class QOpenGLShaderProgram;
 
-class OpenGLTorus : OpenGLGeometry
+class OpenGLTorus : public OpenGLGeometry
 {
 public:
 	OpenGLTorus();

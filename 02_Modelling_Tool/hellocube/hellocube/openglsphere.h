@@ -4,7 +4,7 @@
 
 class QOpenGLShaderProgram;
 
-class OpenGLSphere : OpenGLGeometry
+class OpenGLSphere : public OpenGLGeometry
 {
 public:
 	OpenGLSphere();

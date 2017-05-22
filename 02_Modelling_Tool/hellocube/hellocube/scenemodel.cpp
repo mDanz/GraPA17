@@ -123,7 +123,7 @@ void SceneModel::updateSelectedItem(const QModelIndex& current, const QModelInde
 	}
 }
 
-QList<SceneItem> SceneModel::getAllItems() const
+QList<SceneItem*> SceneModel::getAllItems() const
 {
 	return m_root->getAllItems();
 }
@@ -131,8 +131,7 @@ QList<SceneItem> SceneModel::getAllItems() const
 void SceneModel::setupModelData(SceneItem* parent) const
 //todo make this custom
 {
-	parent->appendChild(new SceneItem(ObjectID(12345), QString("Cube 1"), parent));
-	//parent->appendChild(new SceneItem(ObjectID(12345), QString("Cube 1"), OpenGLCube(), RigidBodyTransformation(QVector3D(), QQuaternion()), parent));
+	parent->appendChild(new SceneItem(ObjectID(12345), QString("Cube 1"), OpenGLGeometryType::Cube, RigidBodyTransformation(QVector3D(), QQuaternion()), parent));
 	parent->appendChild(new SceneItem(ObjectID(5678), QString("Cube 2"), parent));
 	parent->appendChild(new SceneItem(ObjectID(90123), QString("Cube 3"), parent));
 }

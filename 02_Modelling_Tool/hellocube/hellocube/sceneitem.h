@@ -4,7 +4,9 @@
 #include "objectid.h"
 #include "OpenGLGeometry.h"
 #include "rigidbodytransformation.h"
+#include "openglgeometrytype.h"
 
+class OpenGLCube;
 class OpenGLGeometry;
 class QModelIndex;
 class QVariant;
@@ -13,6 +15,7 @@ class SceneItem
 {
 public:
 	explicit SceneItem(const ObjectID &id, QString &name, SceneItem *parent = 0);
+	explicit SceneItem(const ObjectID &id, QString &name, OpenGLGeometryType primitiveType, RigidBodyTransformation &rigidBodyTransform, SceneItem *parent = 0);
 	~SceneItem();
 
 	void appendChild(SceneItem *child);
@@ -29,15 +32,15 @@ public:
 	SceneItem* getSelectedItem();
 	void clearChildren() const;
 	const ObjectID getId() const;
-	OpenGLGeometry getPrimitive() const;
-	RigidBodyTransformation* getRigidBodyTransformation() const;
-	QList<SceneItem> getAllItems() const;
+	OpenGLGeometryType getPrimitive() const;
+	RigidBodyTransformation* getRigidBodyTransformation();
+	QList<SceneItem*> getAllItems() const;
 private:
 	QList<SceneItem*> m_children;
 	QString m_name;
 	const ObjectID m_id;
 	SceneItem *m_parent;
-	OpenGLGeometry m_primitive;
-	RigidBodyTransformation* m_rigidBodyTransform;
+	OpenGLGeometryType m_primitiveType;
+	RigidBodyTransformation m_rigidBodyTransform;
 	bool m_isSelected;
 };

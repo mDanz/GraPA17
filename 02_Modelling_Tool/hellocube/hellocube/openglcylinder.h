@@ -4,7 +4,7 @@
 
 class QOpenGLShaderProgram;
 
-class OpenGLCylinder : OpenGLGeometry
+class OpenGLCylinder : public OpenGLGeometry
 {
 public:
 	OpenGLCylinder();

@@ -7,14 +7,21 @@ SceneItem::SceneItem(const ObjectID& id, QString& name, SceneItem* parent)
 	: m_name(name)
 	, m_id(id)
 	, m_parent(parent)
-	, m_rigidBodyTransform(nullptr)
+	, m_primitiveType(OpenGLGeometryType::None)
+	, m_rigidBodyTransform(RigidBodyTransformation(QVector3D(), QQuaternion()))
 	, m_isSelected(false)
 {
 }
 
+SceneItem::SceneItem(const ObjectID& id, QString& name, OpenGLGeometryType primitiveType, RigidBodyTransformation& rigidBodyTransform, SceneItem* parent) 
+	: SceneItem(id, name, parent)
+{
+	m_primitiveType = primitiveType;
+	m_rigidBodyTransform = rigidBodyTransform;
+}
+
 SceneItem::~SceneItem()
 {
-	delete m_rigidBodyTransform;
 	qDeleteAll(m_children);
 }
 
@@ -118,22 +125,23 @@ const ObjectID SceneItem::getId() const
 	return m_id;
 }
 
-OpenGLGeometry SceneItem::getPrimitive() const
+OpenGLGeometryType SceneItem::getPrimitive() const
 {
-	return m_primitive;
+	return m_primitiveType;
 }
 
-RigidBodyTransformation* SceneItem::getRigidBodyTransformation() const
+RigidBodyTransformation* SceneItem::getRigidBodyTransformation()
 {
-	return m_rigidBodyTransform;
+	return &m_rigidBodyTransform;
 }
 
-QList<SceneItem> SceneItem::getAllItems() const
+QList<SceneItem*> SceneItem::getAllItems() const
 {
-	QList<SceneItem> items;
-	items.append(*this);
+	QList<SceneItem*> items;
+	//items.append(this);
 	for (auto i = 0; i < m_children.count(); i++)
 	{
+		items.append(m_children.at(i));
 		items.append(m_children.at(i)->getAllItems());
 	}
 	return items;
