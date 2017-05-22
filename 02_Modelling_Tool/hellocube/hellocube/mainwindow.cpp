@@ -14,6 +14,8 @@
 #include <QSplitter>
 #include <QStackedWidget>
 #include "sceneitem.h"
+#include "objectid.h"
+#include <QUuid>
 
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
@@ -103,8 +105,13 @@ void MainWindow::quadViewModeActivated()
 
 void MainWindow::cubeAdded()
 {
+	QUuid uuid;	//todo fix
+	uuid.createUuid();
+	ObjectID id(uuid.data1);
+
 	auto selectedItem = m_model->getScene()->getSelectedItem();
-	//todo add cube to model using factory class that takes the parent and tesselation value;
+	auto cube = new SceneItem(id, QString("New Cube"), selectedItem); //todo name Cube 1, 2, ...
+	selectedItem->appendChild(cube);
 	//todo use tesselation slider value
 }
 
