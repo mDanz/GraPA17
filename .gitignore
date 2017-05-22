@@ -40,3 +40,11 @@ CMakeLists.txt.user
 01_Assignment_1/hellocube/hellocube/x64/
 *.opendb
 *.db
+*.suo
+*.obj
+*.log
+*.tlog
+*.lastbuildstate
+*.pdb
+*.exe
+*.ilk
