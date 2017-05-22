@@ -178,13 +178,12 @@ void OpenGLWidget::initializeGL()
 
 	m_camera.setToIdentity();
 
-	m_cube = new OpenGLCube(this);
+	m_cube = new OpenGLCube();
 }
 
 void OpenGLWidget::paintGL()
 {
 	//glEnable(GL_NORMALIZE);
-
 
 	//glMatrixMode(GL_MODELVIEW);
 	//glLoadIdentity();
@@ -197,6 +196,7 @@ void OpenGLWidget::paintGL()
 	/*m_camera.setToIdentity();
 	m_camera.translate(0, 0, m_wheelDelta - 5);*/
 
+	QList<SceneItem> items; //m_scene->getAllItems();
 
 	manipulateScene();
 
@@ -205,13 +205,12 @@ void OpenGLWidget::paintGL()
 	m_fbo->bind();
 	m_program->bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	paintWithSceneShaderProgram();
-
+	paintWithSceneShaderProgram(&items);
 	m_program->release();
 
 	m_colorPickerProgram->bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT1);
-	paintWithColorPickerProgram();
+	paintWithColorPickerProgram(&items);
 	m_colorPickerProgram->release();
 	m_fbo->release();
 }
@@ -477,9 +476,8 @@ void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, G
 	glFrustum(left, right, bottom, top, zNear, zFar);
 }
 
-void OpenGLWidget::paintWithSceneShaderProgram()
+void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem> *items)
 {
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_program->setUniformValue(m_projMatrixLoc, m_proj);
 	m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
@@ -493,16 +491,38 @@ void OpenGLWidget::paintWithSceneShaderProgram()
 	m_program->setUniformValue(m_diffuseColor, QVector3D(.7, 0.0, 0.0));
 	//m_program->setUniformValue(m_ambientColor, QVector3D(faceColors[0][0], faceColors[0][1], faceColors[0][2]));
 	
+	/*for (auto i = 0; i < items->count(); i++)
+	{
+		auto item = items->at(i);
+		m_world = item.getRigidBodyTransformation()->getWorldMatrix();
+
+		m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
+		QMatrix3x3 normalMatrix = m_world.normalMatrix();
+		m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
+
+		item.getPrimitive().draw(m_program);
+	}*/
 	m_cube->draw(m_program);
 }
 
-void OpenGLWidget::paintWithColorPickerProgram()
+void OpenGLWidget::paintWithColorPickerProgram(QList<SceneItem> *items)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_colorPickerProgram->setUniformValue(m_colorPicker_ProjMatrixLoc, m_proj);
 	m_colorPickerProgram->setUniformValue(m_colorPicker_mvMatrixLoc, m_camera * m_world);
 	m_colorPickerProgram->setUniformValue(m_colorPicker_objId, m_scene->getSelectedItem()->getId().getIdAsColor());
 
+
+	/*for (auto i = 0; i < items->count(); i++)
+	{
+		auto item = items->at(i);
+		m_world = item.getRigidBodyTransformation()->getWorldMatrix();
+
+		m_colorPickerProgram->setUniformValue(m_colorPicker_mvMatrixLoc, m_camera * m_world);
+		m_colorPickerProgram->setUniformValue(m_colorPicker_objId, item.getId().getIdAsColor());
+
+		item.getPrimitive().draw(m_colorPickerProgram);
+	}*/
 	m_cube->draw(m_colorPickerProgram);
 }
 
@@ -535,6 +555,10 @@ void OpenGLWidget::manipulateScene()
 {
 	if (m_manipulationModeFlag)	//todo move this code to button event handlers to support ctrl swapping
 	{
+		/*auto selectedItem = m_scene->getSelectedItem();
+		auto rigidBodyTransform = selectedItem->getRigidBodyTransformation();
+		rigidBodyTransform->move(*m_dragTranslation);
+		rigidBodyTransform->rotate(m_dragRotation);*/
 		m_world.setToIdentity();
 		m_world.translate(m_dragTranslation->x(), -1 * m_dragTranslation->y(), 0);
 		m_world.rotate(m_dragRotation);
@@ -549,7 +573,7 @@ void OpenGLWidget::manipulateScene()
 	}
 
 	m_cameraModel->zoom(m_wheelDelta);
-	m_camera = m_cameraModel->GetCameraMatrix();
+	m_camera = m_cameraModel->getCameraMatrix();
 }
 
 

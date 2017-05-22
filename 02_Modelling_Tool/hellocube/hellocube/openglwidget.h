@@ -109,8 +109,8 @@ private:
 	void initializeSceneShaders();
 	void initializeColorPickerShaders();
 	void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
-	void paintWithSceneShaderProgram();
-	void paintWithColorPickerProgram();
+	void paintWithSceneShaderProgram(QList<SceneItem> *items);
+	void paintWithColorPickerProgram(QList<SceneItem> *items);
 	void paintFocusHighlight();
 	void manipulateScene();
 	void updateOrthoProjection(int width, int height);

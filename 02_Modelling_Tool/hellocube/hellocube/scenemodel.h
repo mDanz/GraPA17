@@ -1,5 +1,6 @@
 #pragma once
 #include <qabstractitemmodel.h>
+#include "openglgeometry.h"
 
 
 class SceneItem;
@@ -24,6 +25,7 @@ public:
 	SceneItem* getSelectedItem() const;
 	void addItem(SceneItem *geometry) const;
 	void updateSelectedItem(const QModelIndex& current, const QModelIndex& previous) const;
+	QList<SceneItem> getAllItems() const;
 
 private:
 	void setupModelData(SceneItem *parent) const;

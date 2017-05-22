@@ -7,21 +7,23 @@ SceneItem::SceneItem(const ObjectID& id, QString& name, SceneItem* parent)
 	: m_name(name)
 	, m_id(id)
 	, m_parent(parent)
+	, m_rigidBodyTransform(nullptr)
 	, m_isSelected(false)
 {
 }
 
 SceneItem::~SceneItem()
 {
+	delete m_rigidBodyTransform;
 	qDeleteAll(m_children);
 }
 
-void SceneItem::appendChild(SceneItem* child)
+void SceneItem::appendChild(SceneItem *child)
 {
 	m_children.append(child);
 }
 
-void SceneItem::removeChild(SceneItem* child)
+void SceneItem::removeChild(SceneItem *child)
 {
 	m_children.removeOne(child);
 }
@@ -55,7 +57,7 @@ QVariant SceneItem::data(int column) const
 
 QVariant SceneItem::data(const QModelIndex& index, int role) const
 {
-	if (role == Qt::DisplayRole)
+	if (role == Qt::DisplayRole && index.column() == 0)
 	{
 		return m_name;
 	}
@@ -114,4 +116,25 @@ void SceneItem::clearChildren() const
 const ObjectID SceneItem::getId() const
 {
 	return m_id;
+}
+
+OpenGLGeometry SceneItem::getPrimitive() const
+{
+	return m_primitive;
+}
+
+RigidBodyTransformation* SceneItem::getRigidBodyTransformation() const
+{
+	return m_rigidBodyTransform;
+}
+
+QList<SceneItem> SceneItem::getAllItems() const
+{
+	QList<SceneItem> items;
+	items.append(*this);
+	for (auto i = 0; i < m_children.count(); i++)
+	{
+		items.append(m_children.at(i)->getAllItems());
+	}
+	return items;
 }

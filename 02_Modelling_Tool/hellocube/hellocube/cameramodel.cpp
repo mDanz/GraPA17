@@ -15,14 +15,14 @@ CameraModel::~CameraModel()
 {
 }
 
-QMatrix4x4 CameraModel::GetCameraMatrix() const
+QMatrix4x4 CameraModel::getCameraMatrix() const
 {
-	auto matrix = QMatrix4x4();	//todo fix
+	auto matrix = QMatrix4x4();
 	matrix.setToIdentity();
 	matrix.translate(m_position);
-	//matrix.translate(-(m_center - m_position));
+	matrix.translate(-(m_center));
 	matrix.rotate(m_rotation);
-	//matrix.translate(m_center - m_position);
+	matrix.translate(m_center);
 	
 	return matrix;
 }
@@ -39,14 +39,14 @@ void CameraModel::zoom(int m_wheelDelta)
 
 void CameraModel::move(const QVector3D* translation)
 {
-	//todo calculate rotation and position new when center point changes
-	m_center += *translation;
-	m_position += *translation;
+	m_center.setX(translation->x());
+	m_center.setY(-translation->y());
+	m_position.setX(translation->x());
+	m_position.setY(-translation->y());
 }
 
 void CameraModel::rotate(const QQuaternion& rotation)
 {
-	//todo rotate around current center update position and rotation
 	m_rotation = rotation;
 }
 

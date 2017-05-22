@@ -10,13 +10,14 @@
 class OpenGLCube : OpenGLGeometry
 {
 public:
-	OpenGLCube(QObject *parent);
+	OpenGLCube();
+	//explicit OpenGLCube(QObject *parent);
 	virtual ~OpenGLCube();
 
 	virtual void draw(QOpenGLShaderProgram *program) override;
 
 private:
-	void initCubeGeometry(QObject* parent);
+	void initCubeGeometry();
 
 	QOpenGLVertexArrayObject *m_vao;
 	QOpenGLBuffer m_vertexBuf;

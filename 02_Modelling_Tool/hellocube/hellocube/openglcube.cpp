@@ -10,13 +10,22 @@ static const float faceColors[6][3]{
 	{ 0, 1, 0 }
 };
 
-OpenGLCube::OpenGLCube(QObject *parent = nullptr)
+//OpenGLCube::OpenGLCube(QObject *parent = nullptr)
+//	: m_vertexBuf(QOpenGLBuffer::VertexBuffer)
+//	, m_normalBuf(QOpenGLBuffer::VertexBuffer)
+//	, m_indexBuf(QOpenGLBuffer::IndexBuffer)
+//{
+//	initializeOpenGLFunctions();
+//	initCubeGeometry(parent);
+//}
+
+OpenGLCube::OpenGLCube()
 	: m_vertexBuf(QOpenGLBuffer::VertexBuffer)
 	, m_normalBuf(QOpenGLBuffer::VertexBuffer)
 	, m_indexBuf(QOpenGLBuffer::IndexBuffer)
 {
 	initializeOpenGLFunctions();
-	initCubeGeometry(parent);
+	initCubeGeometry();
 }
 
 OpenGLCube::~OpenGLCube()
@@ -44,7 +53,7 @@ void OpenGLCube::draw(QOpenGLShaderProgram* program)
 	glDrawElements(GL_TRIANGLE_STRIP, m_indexBuf.size(), GL_UNSIGNED_SHORT, 0);
 }
 
-void OpenGLCube::initCubeGeometry(QObject *parent)
+void OpenGLCube::initCubeGeometry()
 {
 	/*m_vao = new QOpenGLVertexArrayObject(parent);
 	m_vao->create();

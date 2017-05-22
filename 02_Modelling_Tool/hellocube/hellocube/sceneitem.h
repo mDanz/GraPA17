@@ -2,7 +2,10 @@
 #include <qlist.h>
 #include <QButtonGroup>
 #include "objectid.h"
+#include "OpenGLGeometry.h"
+#include "rigidbodytransformation.h"
 
+class OpenGLGeometry;
 class QModelIndex;
 class QVariant;
 
@@ -13,7 +16,7 @@ public:
 	~SceneItem();
 
 	void appendChild(SceneItem *child);
-	void removeChild(SceneItem* child);
+	void removeChild(SceneItem *child);
 	SceneItem *child(int row) const;
 	int childCount() const;
 	int columnCount() const;
@@ -26,14 +29,15 @@ public:
 	SceneItem* getSelectedItem();
 	void clearChildren() const;
 	const ObjectID getId() const;
-
+	OpenGLGeometry getPrimitive() const;
+	RigidBodyTransformation* getRigidBodyTransformation() const;
+	QList<SceneItem> getAllItems() const;
 private:
 	QList<SceneItem*> m_children;
-	/*RigidBodyTransformation *m_rigidBodyTransform;
-	QVariant *m_primitive;
-	QVariant *m_primitiveName;*/
 	QString m_name;
 	const ObjectID m_id;
 	SceneItem *m_parent;
+	OpenGLGeometry m_primitive;
+	RigidBodyTransformation* m_rigidBodyTransform;
 	bool m_isSelected;
 };

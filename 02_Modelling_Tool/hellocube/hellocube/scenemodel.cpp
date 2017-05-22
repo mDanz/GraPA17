@@ -1,5 +1,6 @@
 #include "scenemodel.h"
 #include "sceneitem.h"
+#include "openglcube.h"
 
 SceneModel::SceneModel()
 {
@@ -75,7 +76,7 @@ int SceneModel::rowCount(const QModelIndex& parent) const
 	}
 
 	auto parentItem = !parent.isValid() ? m_root : static_cast<SceneItem*>(parent.internalPointer());
-	return parentItem->childCount();
+	return parentItem ? parentItem->childCount() : 0;
 }
 
 int SceneModel::columnCount(const QModelIndex& parent) const
@@ -122,10 +123,16 @@ void SceneModel::updateSelectedItem(const QModelIndex& current, const QModelInde
 	}
 }
 
+QList<SceneItem> SceneModel::getAllItems() const
+{
+	return m_root->getAllItems();
+}
+
 void SceneModel::setupModelData(SceneItem* parent) const
 //todo make this custom
 {
 	parent->appendChild(new SceneItem(ObjectID(12345), QString("Cube 1"), parent));
+	//parent->appendChild(new SceneItem(ObjectID(12345), QString("Cube 1"), OpenGLCube(), RigidBodyTransformation(QVector3D(), QQuaternion()), parent));
 	parent->appendChild(new SceneItem(ObjectID(5678), QString("Cube 2"), parent));
 	parent->appendChild(new SceneItem(ObjectID(90123), QString("Cube 3"), parent));
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include <QVector3D>
 #include <QQuaternion>
 
 class CameraModel
@@ -9,15 +8,13 @@ class CameraModel
 public:
 	explicit CameraModel(bool isOrthographic = false, QVector3D position = QVector3D(), QQuaternion rotation = QQuaternion());
 	~CameraModel();
-	QMatrix4x4 GetCameraMatrix() const;
+	QMatrix4x4 getCameraMatrix() const;
 	bool isOrthographic() const;
 	void zoom(int m_wheel_delta);
 	void move(const QVector3D *translation);
 	void rotate(const QQuaternion& rotation);
 	void reset();
 private:
-	QVector3D m_eye;		//todo use look at transformation for matrix generation etc
-	QVector3D m_up;
 	QVector3D m_center;
 	bool m_isOrthographic;
 	QVector3D m_position;

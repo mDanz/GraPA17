@@ -13,6 +13,7 @@
 #include "scenemodel.h"
 #include <QSplitter>
 #include <QStackedWidget>
+#include "sceneitem.h"
 
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
@@ -102,7 +103,9 @@ void MainWindow::quadViewModeActivated()
 
 void MainWindow::cubeAdded()
 {
-	//todo add cube to model; use tesselation slider value
+	auto selectedItem = m_model->getScene()->getSelectedItem();
+	//todo add cube to model using factory class that takes the parent and tesselation value;
+	//todo use tesselation slider value
 }
 
 void MainWindow::sphereAdded()
