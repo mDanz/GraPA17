@@ -25,6 +25,8 @@ public:
 	SceneItem* getSelectedItem() const;
 	void addItem(SceneItem *geometry) const;
 	void updateSelectedItem(const QModelIndex& current, const QModelIndex& previous) const;
+	void updateSelectedItem(int id) const;
+	SceneItem* getItem(int id) const;
 	QList<SceneItem*> getAllItems() const;
 
 private:

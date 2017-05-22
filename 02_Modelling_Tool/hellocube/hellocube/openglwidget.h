@@ -63,7 +63,7 @@ private:
 	const QString m_vshFile = ":/Resources/shaders/phong.vsh";
 	const QString m_fshFile = ":/Resources/shaders/phong.fsh";
 	const QString m_colorPicker_vshFile = ":/Resources/shaders/colorpicker.vsh";
-	const QString m_colorPicker_fshFile = ":/Resources/shaders/colorpickerhong.vsh";
+	const QString m_colorPicker_fshFile = ":/Resources/shaders/colorpicker.fsh";
 
 	bool m_manipulationModeFlag;
 
@@ -103,9 +103,9 @@ private:
 	QOpenGLShader* m_fragmentShader;
 	QOpenGLShader* m_colorPicker_vertexShader;
 	QOpenGLShader* m_colorPicker_fragmentShader;
-	OpenGLPrimitiveFactory *m_primitiveFactory;
+	QImage* m_pickerImage;
 
-	OpenGLCube *m_cube;
+	OpenGLPrimitiveFactory *m_primitiveFactory;
 
 	void initializeFrameBufferObject(int width, int height);
 	void initializeSceneShaderProgram();
@@ -119,4 +119,5 @@ private:
 	void manipulateScene();
 	void updateOrthoProjection(int width, int height);
 	static GLfloat calculateAspectRatio(int width, int height);
+	void processSelection() const;
 };

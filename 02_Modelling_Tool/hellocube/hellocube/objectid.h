@@ -2,20 +2,22 @@
 #include <qcolor.h>
 
 
+class QVector3D;
+
 class ObjectID
 {
 public:
 	explicit ObjectID(int m_id);
 
 	int getId() const;
-	QColor getIdAsColor() const;
-	static int getIdFromColor(QColor* color);
+	QVector3D getIdAsColor() const;
+	static int getIdFromColor(QVector3D color);
 	void setId(int id);
-	void setId(QColor* color);
+	void setId(QVector3D* color);
 
 private:
 	int m_id;
 
-	static int color2Id(QColor* color);
-	static QColor id2Color(int id);
+	static int color2Id(QVector3D* color);
+	static QVector3D id2Color(int id);
 };

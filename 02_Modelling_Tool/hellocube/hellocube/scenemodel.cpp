@@ -123,6 +123,25 @@ void SceneModel::updateSelectedItem(const QModelIndex& current, const QModelInde
 	}
 }
 
+void SceneModel::updateSelectedItem(int id) const
+{
+	auto previousItem = getSelectedItem();
+	if (previousItem)
+	{
+		previousItem->setSelected(false);
+	}
+	auto currentItem = getItem(id);
+	if (currentItem)
+	{
+		currentItem->setSelected(true);
+	}
+}
+
+SceneItem* SceneModel::getItem(int id) const
+{
+	return m_root->getId().getId() == id ? m_root : m_root->getItem(id);
+}
+
 QList<SceneItem*> SceneModel::getAllItems() const
 {
 	return m_root->getAllItems();
@@ -132,7 +151,7 @@ void SceneModel::setupModelData(SceneItem* parent) const
 //todo make this custom
 {
 	parent->appendChild(new SceneItem(ObjectID(12345), QString("Cube 1"), OpenGLGeometryType::Cube, RigidBodyTransformation(QVector3D(), QQuaternion()), parent));
-	parent->appendChild(new SceneItem(ObjectID(12345), QString("Cube 4"), OpenGLGeometryType::Cube, RigidBodyTransformation(QVector3D(1, 1, 1), QQuaternion()), parent));
+	parent->appendChild(new SceneItem(ObjectID(99999999), QString("Cube 4"), OpenGLGeometryType::Cube, RigidBodyTransformation(QVector3D(1, 1, 1), QQuaternion()), parent));
 	parent->appendChild(new SceneItem(ObjectID(5678), QString("Cube 2"), parent));
 	parent->appendChild(new SceneItem(ObjectID(90123), QString("Cube 3"), parent));
 }

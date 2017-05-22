@@ -43,8 +43,8 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 	, m_fragmentShader(nullptr)
 	, m_colorPicker_vertexShader(nullptr)
 	, m_colorPicker_fragmentShader(nullptr)
+	, m_pickerImage(nullptr)
 	, m_primitiveFactory(nullptr)
-	, m_cube(nullptr)
 {
 	m_lastPos = new QPoint();
 	m_dragTranslation = new QVector3D;
@@ -76,8 +76,8 @@ OpenGLWidget::OpenGLWidget(SceneModel* scene, CameraModel* cameraModel, QWidget*
 	, m_fragmentShader(nullptr)
 	, m_colorPicker_vertexShader(nullptr)
 	, m_colorPicker_fragmentShader(nullptr)
+	, m_pickerImage(nullptr)
 	, m_primitiveFactory(nullptr)
-	, m_cube(nullptr)
 {
 	m_scene = scene;
 	m_cameraModel = cameraModel;
@@ -182,24 +182,10 @@ void OpenGLWidget::initializeGL()
 	m_camera.setToIdentity();
 
 	m_primitiveFactory = new OpenGLPrimitiveFactory(this);
-	m_cube = new OpenGLCube();
 }
 
 void OpenGLWidget::paintGL()
 {
-	//glEnable(GL_NORMALIZE);
-
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
-	//glTranslatef(m_dragTranslation[0], -m_dragTranslation[1], m_wheelDelta - 5);	//mouse dragging + zoom
-
-	//auto dragRotation = QMatrix4x4();
-	//dragRotation.rotate(m_dragRotation);
-	//glMultMatrixf(dragRotation.constData());	//mouse rotation
-
-	/*m_camera.setToIdentity();
-	m_camera.translate(0, 0, m_wheelDelta - 5);*/
-
 	auto items = m_scene->getAllItems();
 
 	manipulateScene();
@@ -217,6 +203,12 @@ void OpenGLWidget::paintGL()
 	paintWithColorPickerProgram(&items);
 	m_colorPickerProgram->release();
 	m_fbo->release();
+
+	/*if (m_pickerImage)
+	{
+		delete m_pickerImage;
+	}*/
+	//m_pickerImage = new QImage(m_fbo->toImage(false, 1));
 }
 
 void OpenGLWidget::resizeGL(int width, int height)
@@ -264,7 +256,10 @@ void OpenGLWidget::initializeSceneShaderProgram()
 
 	m_program->bindAttributeLocation("in_position", 0);
 	m_program->bindAttributeLocation("in_normal", 1);
-	m_program->link();
+	if (!m_program->link())
+	{
+		qWarning() << "Linking Error" << m_program->log();
+	}
 
 	m_program->bind();
 	m_projMatrixLoc = m_program->uniformLocation("projMatrix");
@@ -286,7 +281,10 @@ void OpenGLWidget::initializeColorPickerShaderProgram()
 	initializeColorPickerShaders();
 
 	m_colorPickerProgram->bindAttributeLocation("in_position", 0);
-	m_colorPickerProgram->link();
+	if (!m_colorPickerProgram->link())
+	{
+		qWarning() << "Linking Error" << m_colorPickerProgram->log();
+	}
 
 	m_colorPickerProgram->bind();
 	m_colorPicker_ProjMatrixLoc = m_colorPickerProgram->uniformLocation("projMatrix");
@@ -317,7 +315,7 @@ void OpenGLWidget::initializeSceneShaders()
 	}
 
 	QFileInfo fsh(m_fshFile);
-	if (vsh.exists())
+	if (fsh.exists())
 	{
 		m_fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment);
 		if (m_fragmentShader->compileSourceFile(m_fshFile))
@@ -356,10 +354,10 @@ void OpenGLWidget::initializeColorPickerShaders()
 	}
 
 	QFileInfo fsh(m_colorPicker_fshFile);
-	if (vsh.exists())
+	if (fsh.exists())
 	{
 		m_colorPicker_fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment);
-		if (m_fragmentShader->compileSourceFile(m_colorPicker_fshFile))
+		if (m_colorPicker_fragmentShader->compileSourceFile(m_colorPicker_fshFile))
 		{
 			m_colorPickerProgram->addShader(m_colorPicker_fragmentShader);
 		}
@@ -414,11 +412,13 @@ void OpenGLWidget::mousePressEvent(QMouseEvent* event)
 	}
 
 	m_lastPos = new QPoint(event->pos());
-	
+
 	if (event->buttons() & Qt::LeftButton)
 	{
 		m_trackBall->push(pixelPosToViewPos(event->pos()));
 	}
+
+	//processSelection(); //todo fix processing
 
 	update();
 }
@@ -483,6 +483,8 @@ void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, G
 void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(1, 1, 1, 1);
+	
 	m_program->setUniformValue(m_projMatrixLoc, m_proj);
 	m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
 	/*m_program->setUniformValue(m_diffuseColor, QVector3D(m_kd[0], m_kd[1], m_kd[2]));
@@ -516,7 +518,8 @@ void OpenGLWidget::paintWithColorPickerProgram(QList<SceneItem*> *items)
 		m_world = item->getRigidBodyTransformation()->getWorldMatrix();
 
 		m_colorPickerProgram->setUniformValue(m_colorPicker_mvMatrixLoc, m_camera * m_world);
-		m_colorPickerProgram->setUniformValue(m_colorPicker_objId, item->getId().getIdAsColor());
+		auto color = item->getId().getIdAsColor();
+		m_colorPickerProgram->setUniformValue(m_colorPicker_objId, color);
 
 		m_primitiveFactory->createPrimitive(item->getPrimitive())->draw(m_colorPickerProgram);
 	}
@@ -597,6 +600,13 @@ GLfloat OpenGLWidget::calculateAspectRatio(int width, int height)
 	return GLfloat(width) / (height ? height : 1);
 }
 
+void OpenGLWidget::processSelection() const
+{
+	auto color = m_pickerImage->pixelColor(*m_lastPos);
+	QVector3D colorVec(float(color.red()) / 255.0f, float(color.green()) / 255.0f, float(color.blue()) / 255.0f);
+	auto id = ObjectID::getIdFromColor(colorVec);
+	m_scene->updateSelectedItem(id);
+}
 
 
 

@@ -34,7 +34,10 @@ public:
 	const ObjectID getId() const;
 	OpenGLGeometryType getPrimitive() const;
 	RigidBodyTransformation* getRigidBodyTransformation();
+	SceneItem* getItem(int id);
 	QList<SceneItem*> getAllItems() const;
+
+
 private:
 	QList<SceneItem*> m_children;
 	QString m_name;

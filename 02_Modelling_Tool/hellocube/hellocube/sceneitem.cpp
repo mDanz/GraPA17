@@ -135,10 +135,26 @@ RigidBodyTransformation* SceneItem::getRigidBodyTransformation()
 	return &m_rigidBodyTransform;
 }
 
+SceneItem* SceneItem::getItem(int id)
+{
+	if (m_id.getId() == id)
+	{
+		return this;
+	}
+	for (auto i = 0; i < m_children.count(); i++)
+	{
+		if (auto item = m_children.at(i)->getItem(id))
+		{
+			return item;
+		}
+	}
+	return nullptr;
+
+}
+
 QList<SceneItem*> SceneItem::getAllItems() const
 {
 	QList<SceneItem*> items;
-	//items.append(this);
 	for (auto i = 0; i < m_children.count(); i++)
 	{
 		items.append(m_children.at(i));
