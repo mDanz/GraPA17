@@ -1,0 +1,35 @@
+#include "scenemodel.h"
+#include "sceneitem.h"
+
+SceneModel::SceneModel(const QString& data, QObject* parent)
+	: QAbstractItemModel(parent)
+{
+	QList<QVariant> rootData;
+	rootData << "Title" << "Summary";
+	m_root = new SceneItem(rootData);
+	setupModelData(data.split(QString("\n")), m_root);
+}
+
+SceneModel::~SceneModel()
+{
+	delete m_root;
+}
+
+QModelIndex SceneModel::index(int row, int column, const QModelIndex& parent) const
+{
+	if (!hasIndex(row, column, parent))
+		return QModelIndex();
+
+	SceneItem *parentItem;
+
+	if (!parentItem.isValid())
+		parentItem = m_root;
+	else
+		parentItem = static_cast<SceneItem*>(parentItem.internalPointer());
+
+	SceneItem *child = parentItem->child(row);
+	if (child)
+		return createIndex(row, column, child);
+	else
+		return QModelIndex();
+}
