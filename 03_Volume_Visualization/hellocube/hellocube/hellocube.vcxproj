@@ -111,6 +111,8 @@
     <ClCompile Include="sceneitem.cpp" />
     <ClCompile Include="scenemodel.cpp" />
     <ClCompile Include="trackball.cpp" />
+    <ClCompile Include="volumemodel.cpp" />
+    <ClCompile Include="volumemodelfactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -153,6 +155,8 @@
     <ClInclude Include="rigidbodytransformation.h" />
     <ClInclude Include="scenecomponent.h" />
     <ClInclude Include="sceneitem.h" />
+    <ClInclude Include="volumemodel.h" />
+    <ClInclude Include="volumemodelfactory.h" />
     <CustomBuild Include="scenemodel.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing scenemodel.h...</Message>

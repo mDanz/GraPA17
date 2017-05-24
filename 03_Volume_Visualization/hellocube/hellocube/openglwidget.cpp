@@ -87,6 +87,12 @@ OpenGLWidget::OpenGLWidget(SceneModel* scene, CameraModel* cameraModel, QWidget*
 	m_trackBall = new TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::TrackMode::Sphere);
 }
 
+OpenGLWidget::OpenGLWidget(VolumeModel* volume, CameraModel* cameraModel, QWidget* parent)
+	: OpenGLWidget(parent)
+{
+
+}
+
 OpenGLWidget::~OpenGLWidget()
 {
 	cleanup();

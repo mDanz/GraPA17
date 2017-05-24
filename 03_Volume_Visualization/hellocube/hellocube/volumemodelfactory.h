@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <qfile.h>
 
 
 class QString;
@@ -10,8 +11,7 @@ class VolumeModelFactory
 {
 public:
 	static VolumeModel* createFromFile(const QString& fileName);
-
 private:
-	static std::vector<unsigned char> readFile(const QString& fileName);
+	static void fillVolumeModel(const QString& fileName, VolumeModel &model);
 };
 

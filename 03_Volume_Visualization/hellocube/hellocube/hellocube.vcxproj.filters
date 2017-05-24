@@ -124,6 +124,12 @@
     <ClCompile Include="openglcylinder.cpp">
       <Filter>Source Files\geometry</Filter>
     </ClCompile>
+    <ClCompile Include="volumemodelfactory.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
+    <ClCompile Include="volumemodel.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -193,6 +199,12 @@
     </ClInclude>
     <ClInclude Include="openglgeometrytype.h">
       <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="volumemodel.h">
+      <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="volumemodelfactory.h">
+      <Filter>Header Files\model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
