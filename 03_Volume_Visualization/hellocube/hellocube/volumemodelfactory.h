@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <qfile.h>
+#include <QOpenGLFunctions_4_4_Compatibility>
 
 
 class QString;
@@ -18,6 +19,8 @@ private:
 	static float readFloat(QFile &file);
 	static void fillDimensions(VolumeModel &model, QFile &file);
 	static void fillAspects(VolumeModel &model, QFile &file);
-	static void fillTexture(VolumeModel &model, QFile &file);
+	static void fillData(VolumeModel& model, QFile& file);
+	static void fillTexture(VolumeModel &model);
+	static void generateTexture(VolumeModel& model, QOpenGLFunctions_4_4_Compatibility* glFunc);
 };
 

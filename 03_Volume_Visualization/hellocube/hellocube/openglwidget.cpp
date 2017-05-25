@@ -11,6 +11,7 @@
 #include <QFileInfo>
 #include "cameramodel.h"
 #include "sceneitem.h"
+#include "openglhelper.h"
 
 #define highp
 #define mediump
@@ -90,7 +91,11 @@ OpenGLWidget::OpenGLWidget(SceneModel* scene, CameraModel* cameraModel, QWidget*
 OpenGLWidget::OpenGLWidget(VolumeModel* volume, CameraModel* cameraModel, QWidget* parent)
 	: OpenGLWidget(parent)
 {
-
+	m_cameraModel = cameraModel;
+	m_lastPos = new QPoint();
+	m_dragTranslation = new QVector3D;
+	m_dragRotation = QQuaternion();
+	m_trackBall = new TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::TrackMode::Sphere);
 }
 
 OpenGLWidget::~OpenGLWidget()
@@ -174,6 +179,8 @@ void OpenGLWidget::initializeGL()
 	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLWidget::cleanup);
 
 	initializeOpenGLFunctions();
+	OpenGLHelper::initializeGLFunc(context());
+
 	glClearColor(.2, .2, .2, 1);
 	glEnable(GL_LIGHTING);
 	glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
@@ -192,7 +199,7 @@ void OpenGLWidget::initializeGL()
 
 void OpenGLWidget::paintGL()
 {
-	auto items = m_scene->getAllItems();
+	//auto items = m_scene->getAllItems();
 
 	manipulateScene();
 
@@ -201,12 +208,12 @@ void OpenGLWidget::paintGL()
 	m_fbo->bind();
 	m_program->bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT1);
-	paintWithSceneShaderProgram(&items);
+	//paintWithSceneShaderProgram(&items);
 	m_program->release();
 
 	m_colorPickerProgram->bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	paintWithColorPickerProgram(&items);
+	//paintWithColorPickerProgram(&items);
 	m_colorPickerProgram->release();
 	m_fbo->release();
 

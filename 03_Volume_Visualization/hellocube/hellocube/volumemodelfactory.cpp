@@ -3,6 +3,7 @@
 #include <fstream>
 #include <QOpenGLTexture>
 #include "volumemodel.h"
+#include "openglhelper.h"
 
 VolumeModel* VolumeModelFactory::createFromFile(const QString& fileName)
 {
@@ -15,11 +16,24 @@ VolumeModel* VolumeModelFactory::createFromFile(const QString& fileName)
 void VolumeModelFactory::fillVolumeModel(const QString& fileName, VolumeModel &model)
 {
 	QFile file(fileName);
-	if (!file.open(QIODevice::ReadOnly)) { return; }
+	if (!file.exists()) {
+		qWarning() << "File '" << fileName << "'' does not exist!";
+		return;
+	}
+
+	if (!file.open(QIODevice::ReadOnly)) {
+		qWarning() << "Could not open file '" << fileName << "'' !";
+		return;
+	}
 
 	fillDimensions(model, file);
 	fillAspects(model, file);
-	fillTexture(model, file);
+	fillData(model, file);
+	fillTexture(model);
+
+	qInfo() << "volume data errors: " << OpenGLHelper::Error();
+
+	//emit dataChanged(); todo emit data change adn catch somewhere
 }
 
 void VolumeModelFactory::skipByte(QFile &file)
@@ -71,21 +85,83 @@ void VolumeModelFactory::fillAspects(VolumeModel &model, QFile &file)
 	model.setAspects(xAspect, yAspect, zAspect);
 }
 
-void VolumeModelFactory::fillTexture(VolumeModel &model, QFile &file)
+void VolumeModelFactory::fillData(VolumeModel& model, QFile& file)
 {
 	int headerSize = 24;
 	int dataSize = file.size() - headerSize;
 	auto data = new char[dataSize];
 	file.read(data, dataSize);
-
-	unsigned char* byteData;
-	byteData = reinterpret_cast<unsigned char*>(data);
+	model.setData(reinterpret_cast<unsigned char*>(data));
 	data = nullptr;
+}
 
-	auto texture = new QOpenGLTexture(QOpenGLTexture::Target3D);
-	texture->setData(QOpenGLTexture::PixelFormat::Alpha, QOpenGLTexture::PixelType::UInt8, byteData);
-	texture->allocateStorage();
-		
-	delete[] byteData;
-	model.setTexture(texture);
+void VolumeModelFactory::fillTexture(VolumeModel &model)
+{
+	auto glFunc = OpenGLHelper::getGLFunc();
+	generateTexture(model, glFunc);
+	glFunc->glBindTexture(GL_TEXTURE_3D, model.getTextureName());
+
+	// set up wrapping, filtering and pixel alignment
+	glFunc->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glFunc->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glFunc->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glFunc->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glFunc->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFunc->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	auto dataType = model.getScalarType();
+
+	//// fix the byte order to big endian and find max and min values todo fix byteorder
+	//auto d = model.getData();
+	//auto scalarByteSize = model.getScalarByteSize();
+	//int domain = pow(256, scalarByteSize);
+	//int tmp, l, r, maxV = 0, minV = domain, v;
+
+	//for (int i = 0; i < model.getDataSize(); i += scalarByteSize) {
+	//	for (int n = 0; n < (scalarByteSize + 1) / 2; n++) {
+	//		l = i + n;
+	//		r = i + scalarByteSize - 1 - n;
+	//		tmp = volumeData[l];
+	//		volumeData[l] = volumeData[r];
+	//		volumeData[r] = tmp;
+	//	}
+
+	//	// determine current Value
+	//	v = 0;
+	//	for (int b = scalarByteSize - 1; b >= 0; b--)
+	//		v = (v << 8) | static_cast<int>(d[i + b]);
+
+	//	if (v > maxV)
+	//		maxV = v;
+	//	if (v < minV)
+	//		minV = v;
+	//}
+	//// normalize the max and min intensity values
+	//properties.minValue = minV / (float)domain;
+	//properties.maxValue = maxV / (float)domain;
+	//qInfo() << "Intensity values between " << properties.minValue << "and" << properties.maxValue;
+
+	glFunc->glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, model.getDimensions()->x(), model.getDimensions()->y(), model.getDimensions()->z(), 0, GL_RED, dataType, model.getData());
+	glFunc->glBindTexture(GL_TEXTURE_3D, model.getTextureName());
+}
+
+
+void VolumeModelFactory::generateTexture(VolumeModel& model, QOpenGLFunctions_4_4_Compatibility* glFunc)
+{
+	glFunc->glActiveTexture(GL_TEXTURE0);
+	if (model.getTextureName() == GL_INVALID_VALUE)
+	{
+		GLuint texName;
+		glFunc->glGenTextures(1, &texName);
+		model.setTextureName(texName);
+	}
+
+	if (model.getTextureName() == GL_INVALID_VALUE)
+	{
+		qInfo() << "Texture name invalid!";
+	}
+	else
+	{
+		qInfo() << "Volume texture" << model.getTextureName() << "created.";
+	}
 }

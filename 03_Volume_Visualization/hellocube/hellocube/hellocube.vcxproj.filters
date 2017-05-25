@@ -130,6 +130,12 @@
     <ClCompile Include="volumemodel.cpp">
       <Filter>Source Files\model</Filter>
     </ClCompile>
+    <ClCompile Include="openglvolume.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="openglhelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -205,6 +211,12 @@
     </ClInclude>
     <ClInclude Include="volumemodelfactory.h">
       <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="openglvolume.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="openglhelper.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

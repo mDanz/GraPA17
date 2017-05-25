@@ -102,9 +102,11 @@
     <ClCompile Include="openglcone.cpp" />
     <ClCompile Include="openglcube.cpp" />
     <ClCompile Include="openglcylinder.cpp" />
+    <ClCompile Include="openglhelper.cpp" />
     <ClCompile Include="openglprimitivefactory.cpp" />
     <ClCompile Include="openglsphere.cpp" />
     <ClCompile Include="opengltorus.cpp" />
+    <ClCompile Include="openglvolume.cpp" />
     <ClCompile Include="openglwidget.cpp" />
     <ClCompile Include="rigidbodytransformation.cpp" />
     <ClCompile Include="scenecomponent.cpp" />
@@ -148,10 +150,12 @@
     <ClInclude Include="openglcylinder.h" />
     <ClInclude Include="openglgeometry.h" />
     <ClInclude Include="openglgeometrytype.h" />
+    <ClInclude Include="openglhelper.h" />
     <ClInclude Include="openglnone.h" />
     <ClInclude Include="openglprimitivefactory.h" />
     <ClInclude Include="openglsphere.h" />
     <ClInclude Include="opengltorus.h" />
+    <ClInclude Include="openglvolume.h" />
     <ClInclude Include="rigidbodytransformation.h" />
     <ClInclude Include="scenecomponent.h" />
     <ClInclude Include="sceneitem.h" />

@@ -27,7 +27,7 @@ MainWindow::MainWindow(QMainWindow *parent)
 	setWindowTitle("Hello Cube");
 
 	initializeModel();
-	//initializeViewportLayouts();
+	initializeViewportLayouts();
 	initializeActions();
 	initializeMenuBar();
 	initializeToolBar();
@@ -164,10 +164,10 @@ void MainWindow::initializeActionConnections()
 {
 	connect(m_exitAction, SIGNAL(triggered()), this, SLOT(close()));
 	connect(m_aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
-	//connect(m_resetCameraAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(resetCamera()));//todo uncomment
+	connect(m_resetCameraAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(resetCamera()));//todo uncomment
 
-	//connect(m_cameraModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedCameraMode()));
-	//connect(m_objManipulationModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedObjManipulationMode()));
+	connect(m_cameraModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedCameraMode()));
+	connect(m_objManipulationModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedObjManipulationMode()));
 	connect(m_singleViewAction, SIGNAL(triggered()), this, SLOT(singleViewModeActivated()));
 	connect(m_dualViewAction, SIGNAL(triggered()), this, SLOT(dualViewModeActivated()));
 	connect(m_quadViewAction, SIGNAL(triggered()), this, SLOT(quadViewModeActivated()));

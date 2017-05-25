@@ -1,0 +1,11 @@
+
+#include "openglhelper.h"
+
+QOpenGLFunctions_4_4_Compatibility* OpenGLHelper::getGLFunc()
+{
+	return m_glFunc;
+}
+
+QString OpenGLHelper::Error()
+{
+}
