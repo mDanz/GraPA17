@@ -5,6 +5,7 @@
 #include "openglwidget.h"
 #include "scenemodel.h"
 
+class SceneController;
 class ViewPortWidget;
 
 class MainWindow : public QMainWindow
@@ -16,19 +17,37 @@ public:
 	~MainWindow();
 
 public slots:
-	void showAboutBox();
-	void volumeAdded();
-
-	void selectedObjectChanged(const QModelIndex &current, const QModelIndex &previous) const;
+	void showAboutBox() const;
 
 private:
-	SceneModel *m_model;
+	void initializeModel();
+	void initializeActions();
+	void initializeInteractionModeActionGroup();
+	void initializeViewModeActionGroup();
+	void initializeGeometryActions();
+	void initializeController();
+	void initializeActionConnections() const;
+	void initializeMenuBar();
+	void initializeFileMenu();
+	void initializeInteractionModeMenu();
+	void initializeViewModeMenu();
+	void initializeGeometryMenu();
+	void initializeAboutMenu();
+	void initializeToolBar();
+	void initializeGeneralToolBar();
+	void initializeGeometryToolBar();
+	void initializeStatusBar();
+	void initializeDockWidgets();
+	void initializeViewportWidget();
+	void initializeOutliner();
+	QSlider* createSlider();
+
+	SceneModel *m_scene;
 
     Ui::MainWindowClass m_ui;
 	ViewPortWidget *m_viewPortWidget;
 
 	QMenuBar *m_menuBar;
-
 	QMenu *m_fileMenu;
 	QMenu *m_interactionModeMenu;
 	QMenu *m_viewModeMenu;
@@ -44,7 +63,6 @@ private:
 
 	QActionGroup *m_interactionModeActionGroup;
 	QActionGroup *m_viewModeActionGroup;
-
 	QAction *m_exitAction;
 	QAction *m_aboutAction;
 	QAction *m_resetCameraAction;
@@ -53,29 +71,15 @@ private:
 	QAction *m_singleViewAction;
 	QAction *m_dualViewAction;
 	QAction *m_quadViewAction;
+	QAction *m_addSphereAction;
+	QAction *m_addCylinderAction;
+	QAction *m_addConeAction;
+	QAction *m_addTorusAction;
+	QAction *m_addCubeAction;
 	QAction *m_addVolumeAction;
 
-	//QSlider *m_tesselationSlider;
+	QSlider *m_tessellationSlider;
 	QTreeView *m_outlinerTreeView;
 
-	void initializeModel();
-	void initializeActions();
-	void initializeInteractionModeActionGroup();
-	void initializeViewModeActionGroup();
-	void initializeGeometryActions();
-	void initializeActionConnections();
-	void initializeMenuBar();
-	void initializeFileMenu();
-	void initializeInteractionModeMenu();
-	void initializeViewModeMenu();
-	void initializeGeometryMenu();
-	void initializeAboutMenu();
-	void initializeToolBar();
-	void initializeGeneralToolBar();
-	void initializeGeometryToolBar();
-	void initializeStatusBar();
-	void initializeDockWidgets();
-	void initializeViewportWidget();
-	void initializeOutliner();
-	//QSlider* createSlider();
+	SceneController *m_sceneController;
 };

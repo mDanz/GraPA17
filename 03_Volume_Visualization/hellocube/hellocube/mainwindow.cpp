@@ -11,16 +11,14 @@
 #include <QTreeView>
 #include <QFileSystemModel>
 #include "scenemodel.h"
-#include <QSplitter>
-#include <QStackedWidget>
 #include "sceneitem.h"
-#include "objectid.h"
 #include <QUuid>
 #include <QFileDialog>
 #include "volumemodelfactory.h"
 #include "viewportwidget.h"
 #include "viewportmodel.h"
 #include "sceneitemmodel.h"
+#include "scenecontroller.h"
 
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
@@ -36,12 +34,13 @@ MainWindow::MainWindow(QMainWindow *parent)
 	initializeToolBar();
 	initializeStatusBar();
 	initializeDockWidgets();
+	initializeController();
 	initializeActionConnections();
 }
 
 MainWindow::~MainWindow()
 {
-	delete m_model;
+	delete m_scene;
 	delete m_viewPortWidget;
 	delete m_interactionModeActionGroup;
 	delete m_viewModeActionGroup;
@@ -64,22 +63,9 @@ void MainWindow::showAboutBox() const
 	msgBox.exec();
 }
 
-void MainWindow::volumeAdded()
-{
-	auto fileName = QFileDialog::getOpenFileName(this, tr("Load Volume Data"), "./", tr("Raw Files (*.raw)"));
-	//m_model->setVolume(VolumeModelFactory::createFromFile(fileName)); //todo fix volume to tree adding
-}
-
-void MainWindow::selectedItemChanged(const QModelIndex& current, const QModelIndex& previous) const
-{
-	m_model->selectItem(static_cast<SceneItem*>(current.internalPointer()));
-	// auto name = m_model->getScene()->getSelectedItem()->getName();//todo fix name display
-	// m_ui.statusBar->messageChanged(name);
-}
-
 void MainWindow::initializeModel()
 {
-	m_model = new SceneModel();
+	m_scene = new SceneModel();
 }
 
 void MainWindow::initializeActions()
@@ -144,24 +130,47 @@ void MainWindow::initializeViewModeActionGroup()
 
 void MainWindow::initializeGeometryActions()
 {
-	m_addVolumeAction = new QAction("Add &Volume", this);
-	m_addVolumeAction->setIcon(QIcon(":/Resources/img/sphere.png"));
+	m_addSphereAction = new QAction("&Sphere", this);
+	m_addCylinderAction = new QAction("&Cylinder", this);
+	m_addConeAction = new QAction("&Cone", this);
+	m_addTorusAction = new QAction("&Torus", this);
+	m_addCubeAction = new QAction("&Cube", this);
+	m_addVolumeAction = new QAction("&Volume", this);
+
+	m_addSphereAction->setIcon(QIcon(":/Resources/img/sphere.png"));
+	m_addCylinderAction->setIcon(QIcon(":/Resources/img/cylinder.png"));
+	m_addConeAction->setIcon(QIcon(":/Resources/img/cone.png"));
+	m_addTorusAction->setIcon(QIcon(":/Resources/img/torus.png"));
+	m_addCubeAction->setIcon(QIcon(":/Resources/img/box.png"));
+	m_addVolumeAction->setIcon(QIcon(":/Resources/img/sphere.png")); //todo correct icon for volume
 }
 
-void MainWindow::initializeActionConnections()
+void MainWindow::initializeController()
+{
+	m_sceneController = SceneController::getController();
+	m_sceneController->setModelView(m_scene, m_viewPortWidget);
+}
+
+void MainWindow::initializeActionConnections() const
 {
 	connect(m_exitAction, SIGNAL(triggered()), this, SLOT(close()));
 	connect(m_aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
 	//connect(m_resetCameraAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(resetCamera()));//todo uncomment
 
 	//todo fix connections push to controller
-	//connect(m_cameraModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedCameraMode()));
-	//connect(m_objManipulationModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedObjManipulationMode()));
 	connect(m_singleViewAction, SIGNAL(triggered()), m_viewPortWidget, SLOT(singleViewActivated()));
 	connect(m_dualViewAction, SIGNAL(triggered()), m_viewPortWidget, SLOT(dualViewctivated()));
 	connect(m_quadViewAction, SIGNAL(triggered()), m_viewPortWidget, SLOT(quadViewActivated()));
 
-	connect(m_addVolumeAction, SIGNAL(triggered()), this, SLOT(volumeAdded()));
+	connect(m_cameraModeAction, SIGNAL(triggered()), m_sceneController, SLOT(cameraModeSelected()));
+	connect(m_objManipulationModeAction, SIGNAL(triggered()), m_sceneController, SLOT(objectModeSelected()));
+	connect(m_addCubeAction, SIGNAL(triggered()), m_sceneController, SLOT(cubeAdded()));
+	connect(m_addSphereAction, SIGNAL(triggered()), m_sceneController, SLOT(sphereAdded()));
+	connect(m_addCylinderAction, SIGNAL(triggered()), m_sceneController, SLOT(cylinderAdded()));
+	connect(m_addConeAction, SIGNAL(triggered()), m_sceneController, SLOT(coneAdded()));
+	connect(m_addTorusAction, SIGNAL(triggered()), m_sceneController, SLOT(torusAdded()));
+	connect(m_addVolumeAction, SIGNAL(triggered()), m_sceneController, SLOT(volumeAdded()));
+	connect(m_tessellationSlider, SIGNAL(valueChanged(int)), m_sceneController, SLOT(setTessellation(int)));
 }
 
 void MainWindow::initializeMenuBar()
@@ -171,7 +180,7 @@ void MainWindow::initializeMenuBar()
 	initializeFileMenu();
 	initializeInteractionModeMenu();
 	initializeViewModeMenu();
-	//initializeGeometryMenu();
+	initializeGeometryMenu();
 	initializeAboutMenu();
 
 	setMenuBar(m_menuBar);
@@ -207,6 +216,11 @@ void MainWindow::initializeViewModeMenu()
 void MainWindow::initializeGeometryMenu()
 {
 	m_geometryMenu = new QMenu("&Geometry");
+	m_geometryMenu->addAction(m_addCubeAction);
+	m_geometryMenu->addAction(m_addSphereAction);
+	m_geometryMenu->addAction(m_addCylinderAction);
+	m_geometryMenu->addAction(m_addConeAction);
+	m_geometryMenu->addAction(m_addTorusAction);
 	m_geometryMenu->addAction(m_addVolumeAction);
 
 	m_menuBar->addMenu(m_geometryMenu);
@@ -241,8 +255,8 @@ void MainWindow::initializeGeneralToolBar()
 
 	m_generalToolBar->addAction(m_resetCameraAction);
 
-	//m_tesselationSlider = createSlider();
-	//m_generalToolBar->addWidget(m_tesselationSlider);
+	m_tessellationSlider = createSlider();
+	m_generalToolBar->addWidget(m_tessellationSlider);
 
 	addToolBar(m_generalToolBar);
 }
@@ -250,6 +264,11 @@ void MainWindow::initializeGeneralToolBar()
 void MainWindow::initializeGeometryToolBar()
 {
 	m_geometryToolBar = new QToolBar("Geometry", this);
+	m_geometryToolBar->addAction(m_addCubeAction);
+	m_geometryToolBar->addAction(m_addSphereAction);
+	m_geometryToolBar->addAction(m_addCylinderAction);
+	m_geometryToolBar->addAction(m_addConeAction);
+	m_geometryToolBar->addAction(m_addTorusAction);
 	m_geometryToolBar->addAction(m_addVolumeAction);
 
 	addToolBar(m_geometryToolBar);
@@ -269,7 +288,7 @@ void MainWindow::initializeDockWidgets()
 void MainWindow::initializeViewportWidget()
 { 
 	m_viewPortWidget = new ViewPortWidget(this);
-	m_viewPortWidget->setModel(new ViewPortModel(m_model));
+	m_viewPortWidget->setModel(new ViewPortModel(m_scene));
 	setCentralWidget(m_viewPortWidget);
 }
 
@@ -278,7 +297,7 @@ void MainWindow::initializeOutliner()
 	m_outlinerDock = new QDockWidget("Outliner", this);
 
 	m_outlinerTreeView = new QTreeView(m_outlinerDock);
-	m_outlinerTreeView->setModel(new SceneItemModel(m_model->getRoot()));
+	m_outlinerTreeView->setModel(new SceneItemModel(m_scene->getRoot()));
 	
 	m_outlinerDock->setWidget(m_outlinerTreeView);
 
@@ -286,14 +305,14 @@ void MainWindow::initializeOutliner()
 	addDockWidget(Qt::LeftDockWidgetArea, m_outlinerDock);
 }
 
-//QSlider* MainWindow::createSlider()
-//{
-//	auto slider = new QSlider(Qt::Horizontal);
-//	slider->setRange(0, 6);
-//	slider->setSingleStep(1);
-//	slider->setTickPosition(QSlider::TicksRight);
-//	slider->setValue(0);
-//	//slider->setSizePolicy(QSizePolicy(QSizePolicy::Policy::Maximum, QSizePolicy::Policy::Ignored));
-//	return slider;
-//}
+QSlider* MainWindow::createSlider()
+{
+	auto slider = new QSlider(Qt::Horizontal, this);
+	slider->setRange(0, 6);
+	slider->setSingleStep(1);
+	slider->setTickPosition(QSlider::TicksRight);
+	slider->setValue(0);
+	//slider->setSizePolicy(QSizePolicy(QSizePolicy::Policy::Maximum, QSizePolicy::Policy::Ignored));
+	return slider;
+}
 

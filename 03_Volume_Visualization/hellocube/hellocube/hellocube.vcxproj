@@ -71,6 +71,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cameramodel.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_geometrycreationcontroller.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_mainwindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -164,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="cameramodel.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
+    <CustomBuild Include="geometrycreationcontroller.h" />
     <ClInclude Include="modellingtoolmodel.h" />
     <ClInclude Include="objectid.h" />
     <ClInclude Include="openglcone.h" />

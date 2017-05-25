@@ -35,7 +35,7 @@ void OpenGLVolume::draw(QOpenGLShaderProgram* program)
 
 void OpenGLVolume::initVolumeGeometry()
 {
-	//unsigned char* chRGBABuffer = new unsigned char[m_model->getDimensions()->z()*m_model->getDimensions()->y()*m_model->getDimensions()->x() * 4];
+	//unsigned char* chRGBABuffer = new unsigned char[m_model->getDimensions()->z()*m_scene->getDimensions()->y()*m_scene->getDimensions()->x() * 4];
 
 
 	//glGenTextures(1, (GLuint*)&mu3DTex);
@@ -55,7 +55,7 @@ void OpenGLVolume::initVolumeGeometry()
 	// Usually for raw data, the alpha value
 	// will be constructed by a threshold value given by the user
 
-	//for (int nIndx = 0; nIndx < m_model->getDimensions()->z()*m_model->getDimensions()->y()*m_model->getDimensions()->x(); ++nIndx)
+	//for (int nIndx = 0; nIndx < m_model->getDimensions()->z()*m_scene->getDimensions()->y()*m_scene->getDimensions()->x(); ++nIndx)
 	//{
 	//	chRGBABuffer[nIndx * 4] = m_model->getData()[nIndx];
 	//	chRGBABuffer[nIndx * 4 + 1] = m_model->getData()[nIndx];

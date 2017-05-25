@@ -1,15 +1,17 @@
 #pragma once
 #include <QVector3D>
 #include <QOpenGLFunctions_4_4_Compatibility>
+#include "sceneitem.h"
 
 
 class QVector3D;
 class QOpenGLTexture;
 
-class VolumeModel
+class VolumeModel : public SceneItem
 {
 public:
 	VolumeModel();
+	explicit VolumeModel(OpenGLGeometryType primitiveType, RigidBodyTransformation &rigidBodyTransform, SceneItem *parent = 0);
 	~VolumeModel();
 
 	void setDimensions(float x, float y, float z);
