@@ -22,9 +22,12 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Compat
 
 public:
 	explicit OpenGLWidget(QWidget *parent = 0);
-	explicit OpenGLWidget(SceneModel *scene, CameraModel *cameraModel, QWidget *parent = 0);
-	explicit OpenGLWidget(VolumeModel *volume, CameraModel *cameraModel, QWidget *parent = 0);
+	//explicit OpenGLWidget(SceneModel *scene, CameraModel *cameraModel, QWidget *parent = 0);
 	~OpenGLWidget();
+
+	void setModel(SceneModel *scene, CameraModel* camera);
+	void select();
+	void deselect();
 
 	QSize minimumSizeHint() const override;
 	QSize sizeHint() const override;
@@ -67,6 +70,7 @@ private:
 	const QString m_colorPicker_fshFile = ":/Resources/shaders/colorpicker.fsh";
 
 	bool m_manipulationModeFlag;
+	bool m_isSelected;
 
 	QOpenGLVertexArrayObject m_vao;
 	QOpenGLBuffer m_vbo;

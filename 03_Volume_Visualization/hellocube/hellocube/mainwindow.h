@@ -56,7 +56,7 @@ private:
 
 	QStatusBar *m_statusBar;
 
-	//QDockWidget *m_outlinerDock;
+	QDockWidget *m_outlinerDock;
 
 	QActionGroup *m_interactionModeActionGroup;
 	QActionGroup *m_viewModeActionGroup;
@@ -73,7 +73,7 @@ private:
 
 	//QSlider *m_tesselationSlider;
 
-	//QTreeView *m_outlinerTreeView;
+	QTreeView *m_outlinerTreeView;
 
 	void initializeModel();
 	void initializeActions();
@@ -93,6 +93,6 @@ private:
 	void initializeStatusBar();
 	void initializeDockWidgets();
 	void initializeViewportLayouts();
-	//void initializeOutliner();
+	void initializeOutliner();
 	//QSlider* createSlider();
 };

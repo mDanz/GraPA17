@@ -1,20 +1,18 @@
 #pragma once
 #include "scenemodel.h"
-#include "volumemodel.h"
+#include "cameramodel.h"
 
 
-class CameraModel;
-
-class ModellingToolModel
+class ViewPortModel
 {
 public:
-	ModellingToolModel();
-	~ModellingToolModel();
+	explicit ViewPortModel(SceneModel *scene);
+	~ViewPortModel();
+
 	SceneModel* getScene() const;
 	CameraModel* getCamera(int number) const;
 
 private:
 	SceneModel *m_scene;
 	CameraModel *m_cameras[4];
-
 };

@@ -13,14 +13,12 @@
 #include "sceneitem.h"
 #include "openglhelper.h"
 
-#define highp
-#define mediump
-#define lowp
 # define M_PI           3.14159265358979323846
 
 OpenGLWidget::OpenGLWidget(QWidget* parent)
-	: QOpenGLWidget(parent), QOpenGLFunctions_4_4_Compatibility()
+	: QOpenGLWidget(parent)
 	, m_manipulationModeFlag(false)
+	, m_isSelected(false)
 	, m_program(nullptr)
 	, m_colorPickerProgram(nullptr)
 	, m_fbo(nullptr)
@@ -53,54 +51,60 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 	m_trackBall = new TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::TrackMode::Sphere);
 }
 
-OpenGLWidget::OpenGLWidget(SceneModel* scene, CameraModel* cameraModel, QWidget* parent)
-	: QOpenGLWidget(parent), QOpenGLFunctions_4_4_Compatibility()
-	, m_manipulationModeFlag(false)
-	, m_program(nullptr)
-	, m_colorPickerProgram(nullptr)
-	, m_fbo(nullptr)
-	, m_projMatrixLoc(0)
-	, m_mvMatrixLoc(0)
-	, m_normalMatrixLoc(0)
-	, m_lightPosLoc(0)
-	, m_ambientColor(0)
-	, m_diffuseColor(0)
-	, m_specularColor(0)
-	, m_specularExp(0)
-	, m_colorPicker_ProjMatrixLoc(0)
-	, m_colorPicker_mvMatrixLoc(0)
-	, m_colorPicker_objId(0)
-	, m_tessellation(0)
-	, m_wheelDelta(0)
-	, m_isTessellationEnabled(false)
-	, m_vertexShader(nullptr)
-	, m_fragmentShader(nullptr)
-	, m_colorPicker_vertexShader(nullptr)
-	, m_colorPicker_fragmentShader(nullptr)
-	, m_pickerImage(nullptr)
-	, m_primitiveFactory(nullptr)
-{
-	m_scene = scene;
-	m_cameraModel = cameraModel;
-	m_lastPos = new QPoint();
-	m_dragTranslation = new QVector3D;
-	m_dragRotation = QQuaternion();
-	m_trackBall = new TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::TrackMode::Sphere);
-}
-
-OpenGLWidget::OpenGLWidget(VolumeModel* volume, CameraModel* cameraModel, QWidget* parent)
-	: OpenGLWidget(parent)
-{
-	m_cameraModel = cameraModel;
-	m_lastPos = new QPoint();
-	m_dragTranslation = new QVector3D;
-	m_dragRotation = QQuaternion();
-	m_trackBall = new TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::TrackMode::Sphere);
-}
+//OpenGLWidget::OpenGLWidget(SceneModel* scene, CameraModel* cameraModel, QWidget* parent)
+//	: QOpenGLWidget(parent)
+//	, m_manipulationModeFlag(false)
+//	, m_program(nullptr)
+//	, m_colorPickerProgram(nullptr)
+//	, m_fbo(nullptr)
+//	, m_projMatrixLoc(0)
+//	, m_mvMatrixLoc(0)
+//	, m_normalMatrixLoc(0)
+//	, m_lightPosLoc(0)
+//	, m_ambientColor(0)
+//	, m_diffuseColor(0)
+//	, m_specularColor(0)
+//	, m_specularExp(0)
+//	, m_colorPicker_ProjMatrixLoc(0)
+//	, m_colorPicker_mvMatrixLoc(0)
+//	, m_colorPicker_objId(0)
+//	, m_tessellation(0)
+//	, m_wheelDelta(0)
+//	, m_isTessellationEnabled(false)
+//	, m_vertexShader(nullptr)
+//	, m_fragmentShader(nullptr)
+//	, m_colorPicker_vertexShader(nullptr)
+//	, m_colorPicker_fragmentShader(nullptr)
+//	, m_pickerImage(nullptr)
+//	, m_primitiveFactory(nullptr)
+//{
+//	m_scene = scene;
+//	m_cameraModel = cameraModel;
+//	m_lastPos = new QPoint();
+//	m_dragTranslation = new QVector3D;
+//	m_dragRotation = QQuaternion();
+//	m_trackBall = new TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::TrackMode::Sphere);
+//}
 
 OpenGLWidget::~OpenGLWidget()
 {
 	cleanup();
+}
+
+void OpenGLWidget::setModel(SceneModel* scene, CameraModel* camera)
+{
+	m_scene = scene;
+	m_cameraModel = camera;
+}
+
+void OpenGLWidget::select()
+{
+	m_isSelected = true;
+}
+
+void OpenGLWidget::deselect()
+{
+	m_isSelected = false;
 }
 
 QSize OpenGLWidget::minimumSizeHint() const
@@ -199,7 +203,7 @@ void OpenGLWidget::initializeGL()
 
 void OpenGLWidget::paintGL()
 {
-	//auto items = m_scene->getAllItems();
+	auto items = m_scene->getAllItems();
 
 	manipulateScene();
 
@@ -208,12 +212,12 @@ void OpenGLWidget::paintGL()
 	m_fbo->bind();
 	m_program->bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT1);
-	//paintWithSceneShaderProgram(&items);
+	paintWithSceneShaderProgram(&items);
 	m_program->release();
 
 	m_colorPickerProgram->bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	//paintWithColorPickerProgram(&items);
+	paintWithColorPickerProgram(&items);
 	m_colorPickerProgram->release();
 	m_fbo->release();
 

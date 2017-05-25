@@ -84,7 +84,7 @@ void MainWindow::volumeAdded()
 
 void MainWindow::selectedObjectChanged(const QModelIndex& current, const QModelIndex& previous) const
 {
-	// m_model->getScene()->updateSelectedItem(current, previous);
+	m_model->getScene()->updateSelectedItem(current, previous);
 	// auto name = m_model->getScene()->getSelectedItem()->getName();//todo fix
 	// m_ui.statusBar->messageChanged(name);
 }
@@ -274,19 +274,19 @@ void MainWindow::initializeStatusBar()
 
 void MainWindow::initializeDockWidgets()
 {
-	//initializeOutliner();
+	initializeOutliner();
 }
 
 void MainWindow::initializeViewportLayouts()
 { 
 	//todo correct rotations for cameras
-	m_singlePerspectiveView = new OpenGLWidget(m_model->getVolume(), m_model->getCamera(0), this);
-	m_perspectiveGLWidgetDual = new OpenGLWidget(m_model->getVolume(), m_model->getCamera(0), this);
-	m_perspectiveGLWidgetQuad = new OpenGLWidget(m_model->getVolume(), m_model->getCamera(0), this);
-	m_frontGLWidgetDual = new OpenGLWidget(m_model->getVolume(), m_model->getCamera(1), this);
-	m_frontGLWidgetQuad = new OpenGLWidget(m_model->getVolume(), m_model->getCamera(1), this);
-	m_leftGLWidgetQuad = new OpenGLWidget(m_model->getVolume(), m_model->getCamera(2), this);
-	m_topGLWidgetQuad = new OpenGLWidget(m_model->getVolume(), m_model->getCamera(3), this);
+	m_singlePerspectiveView = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
+	m_perspectiveGLWidgetDual = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
+	m_perspectiveGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
+	m_frontGLWidgetDual = new OpenGLWidget(m_model->getScene(), m_model->getCamera(1), this);
+	m_frontGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(1), this);
+	m_leftGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(2), this);
+	m_topGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(3), this);
 
 	m_dualViewSplitter = new QSplitter(this);
 	m_dualViewSplitter->addWidget(m_perspectiveGLWidgetDual);
@@ -315,18 +315,18 @@ void MainWindow::initializeViewportLayouts()
 	m_currentGLWidget->setFocus();
 }
 
-//void MainWindow::initializeOutliner()
-//{
-//	m_outlinerDock = new QDockWidget(this);
-//
-//	m_outlinerTreeView = new QTreeView(m_outlinerDock);
-//	m_outlinerTreeView->setModel(m_model->getScene());
-//
-//	m_outlinerDock->setWidget(m_outlinerTreeView);
-//	m_outlinerDock->setWindowTitle("Outliner");
-//
-//	addDockWidget(Qt::LeftDockWidgetArea, m_outlinerDock);
-//}
+void MainWindow::initializeOutliner()
+{
+	m_outlinerDock = new QDockWidget(this);
+
+	m_outlinerTreeView = new QTreeView(m_outlinerDock);
+	m_outlinerTreeView->setModel(m_model->getScene());
+
+	m_outlinerDock->setWidget(m_outlinerTreeView);
+	m_outlinerDock->setWindowTitle("Outliner");
+
+	addDockWidget(Qt::LeftDockWidgetArea, m_outlinerDock);
+}
 
 //QSlider* MainWindow::createSlider()
 //{
