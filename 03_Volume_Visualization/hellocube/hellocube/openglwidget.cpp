@@ -520,7 +520,7 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 		auto normalMatrix = m_world.normalMatrix();
 		m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
 
-		m_primitiveFactory->createPrimitive(item->getPrimitive())->draw(m_program);
+		m_primitiveFactory->createPrimitive(item->getPrimitiveType())->draw(m_program);
 	}
 }
 
@@ -535,10 +535,10 @@ void OpenGLWidget::paintWithColorPickerProgram(QList<SceneItem*> *items)
 		m_world = item->getRigidBodyTransformation()->getWorldMatrix();
 
 		m_colorPickerProgram->setUniformValue(m_colorPicker_mvMatrixLoc, m_camera * m_world);
-		auto color = item->getId().getIdAsColor();
+		auto color = item->getId()->getIdAsColor();
 		m_colorPickerProgram->setUniformValue(m_colorPicker_objId, color);
 
-		m_primitiveFactory->createPrimitive(item->getPrimitive())->draw(m_colorPickerProgram);
+		m_primitiveFactory->createPrimitive(item->getPrimitiveType())->draw(m_colorPickerProgram);
 	}
 }
 
@@ -622,7 +622,8 @@ void OpenGLWidget::processSelection() const
 	auto color = m_pickerImage->pixelColor(*m_lastPos);
 	QVector3D colorVec(float(color.red()) / 255.0f, float(color.green()) / 255.0f, float(color.blue()) / 255.0f);
 	auto id = ObjectID::getIdFromColor(colorVec);
-	m_scene->updateSelectedItem(id);
+	auto item = m_scene->getItem(id);
+	m_scene->selectItem(item);
 }
 
 

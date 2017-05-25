@@ -1,11 +1,12 @@
 #pragma once
-#include <qabstractitemmodel.h>
-#include "openglgeometry.h"
+#include <QObject>
+#include "openglgeometrytype.h"
 
 
+class RigidBodyTransformation;
 class SceneItem;
 
-class SceneModel : public QAbstractItemModel
+class SceneModel : public QObject
 {
 	Q_OBJECT
 
@@ -13,24 +14,25 @@ public:
 	SceneModel();
 	~SceneModel();
 
-	QVariant data(const QModelIndex &index, int role) const override;
-	Qt::ItemFlags flags(const QModelIndex &index) const override;
-	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-	QModelIndex parent(const QModelIndex &index) const override;
-	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-	
-	void deleteSelectedItem() const;
-	SceneItem* getSelectedItem() const;
-	void addItem(SceneItem *geometry) const;
-	void updateSelectedItem(const QModelIndex& current, const QModelIndex& previous) const;
-	void updateSelectedItem(int id) const;
+	SceneItem* getRoot() const;
+
+	void addItem(OpenGLGeometryType primitiveType, RigidBodyTransformation &rigidBodyTransform, SceneItem *parent = nullptr);
+	void selectItem(SceneItem *item);
 	SceneItem* getItem(int id) const;
 	QList<SceneItem*> getAllItems() const;
+	SceneItem* getSelectedItem() const;
+
+	void update();
+
+public slots:
+	void deleteSelectedItem();
+	///void changeMode(int i); // todo volume rendering mode
 
 private:
-	void setupModelData(SceneItem *parent) const;
-
 	SceneItem *m_root;
+	SceneItem *m_selectedItem;
+
+signals:
+	void sceneChanged();
+	void objectSelected(QString name);
 };

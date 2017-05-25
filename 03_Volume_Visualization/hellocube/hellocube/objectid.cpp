@@ -1,6 +1,13 @@
 #include "objectid.h"
 #include <QVector3D>
 
+int ObjectID::s_nextId = 0;
+
+ObjectID* ObjectID::createID()
+{
+	return new ObjectID(s_nextId++);
+}
+
 ObjectID::ObjectID(int m_id)
 : m_id(m_id)
 {

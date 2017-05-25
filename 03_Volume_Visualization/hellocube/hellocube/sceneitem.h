@@ -11,40 +11,59 @@ class OpenGLGeometry;
 class QModelIndex;
 class QVariant;
 
-class SceneItem
+class SceneItem : public QObject
 {
+	Q_OBJECT
+
 public:
-	explicit SceneItem(const ObjectID &id, QString &name, SceneItem *parent = 0);
-	explicit SceneItem(const ObjectID &id, QString &name, OpenGLGeometryType primitiveType, RigidBodyTransformation &rigidBodyTransform, SceneItem *parent = 0);
+
+	explicit SceneItem(SceneItem *parent = 0);
+	explicit SceneItem(OpenGLGeometryType primitiveType, RigidBodyTransformation &rigidBodyTransform, SceneItem *parent = 0);
 	~SceneItem();
 
+	void setParent(SceneItem *parent);
+	SceneItem* getParent() const;
+
+	int getChildRow(); 
+	int getChildCount() const;
+	QList<SceneItem*> getChildren() const;
+	SceneItem* getChild(int row) const;
 	void appendChild(SceneItem *child);
 	void removeChild(SceneItem *child);
-	SceneItem *child(int row) const;
-	int childCount() const;
-	int columnCount() const;
-	QVariant data(int column) const;
-	QVariant data(const QModelIndex& index, int role) const;
-	int row() const;
-	SceneItem *parent();
-	bool isSelected();
-	void setSelected(bool status);
-	SceneItem* getSelectedItem();
-	void clearChildren() const;
-	const ObjectID getId() const;
-	QString getName() const;
-	OpenGLGeometryType getPrimitive() const;
-	RigidBodyTransformation* getRigidBodyTransformation();
+
+	const ObjectID* getId() const;
 	SceneItem* getItem(int id);
 	QList<SceneItem*> getAllItems() const;
 
+	QString getName() const;
+	void setName(QString name);
+
+	RigidBodyTransformation* getRigidBodyTransformation();
+
+	OpenGLGeometryType getPrimitiveType() const;
+
+	//QVariant data(int column) const;
+	//QVariant data(const QModelIndex& index, int role) const;
+	//int row() const;
+	//void clearChildren() const;
+
 
 private:
-	QList<SceneItem*> m_children;
-	QString m_name;
-	const ObjectID m_id;
+	QString createName();
+
+	static int s_cubeID;
+	static int s_sphereID;
+	static int s_cylinderID; 
+	static int s_coneID;
+	static int s_torusID;
+	static int s_objectID;
+	static int s_volumeID;
+
 	SceneItem *m_parent;
+	QList<SceneItem*> m_children;
+
+	QString m_name;
+	ObjectID* m_id;
 	OpenGLGeometryType m_primitiveType;
 	RigidBodyTransformation m_rigidBodyTransform;
-	bool m_isSelected;
 };

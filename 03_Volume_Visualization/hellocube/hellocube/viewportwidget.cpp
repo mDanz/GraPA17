@@ -3,7 +3,8 @@
 #include "openglwidget.h"
 #include "viewportmodel.h"
 
-ViewPortWidget::ViewPortWidget()
+ViewPortWidget::ViewPortWidget(QWidget *parent) 
+	: QWidget(parent)
 {
 	m_layout = new QVBoxLayout(this);
 
@@ -55,6 +56,21 @@ void ViewPortWidget::update() const
 		m_topWidget->update();
 		m_leftWidget->update();
 	}
+}
+
+void ViewPortWidget::singleViewActivated()
+{
+	switchToView(SINGLE_VIEW);
+}
+
+void ViewPortWidget::dualViewActivated()
+{
+	switchToView(DUAL_VIEW);
+}
+
+void ViewPortWidget::quadViewActivated()
+{
+	switchToView(QUAD_VIEW);
 }
 
 void ViewPortWidget::selectPerspective()

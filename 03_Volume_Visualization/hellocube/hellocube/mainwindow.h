@@ -3,10 +3,9 @@
 #include <QActionGroup>
 #include "ui_mainwindow.h"
 #include "openglwidget.h"
-#include <QSplitter>
-#include <QStackedWidget>
 #include "scenemodel.h"
-#include "modellingtoolmodel.h"
+
+class ViewPortWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -18,30 +17,15 @@ public:
 
 public slots:
 	void showAboutBox();
-	void singleViewModeActivated();
-	void dualViewModeActivated();
-	void quadViewModeActivated();
 	void volumeAdded();
 
 	void selectedObjectChanged(const QModelIndex &current, const QModelIndex &previous) const;
 
 private:
-	ModellingToolModel *m_model;
+	SceneModel *m_model;
 
     Ui::MainWindowClass m_ui;
-	QStackedWidget *m_stackedWidget;
-	QSplitter *m_dualViewSplitter;
-	QSplitter *m_quadViewSplitter;
-	QSplitter *m_topRowSplitter;
-	QSplitter *m_bottomRowSplitter;
-	OpenGLWidget *m_currentGLWidget;
-	OpenGLWidget *m_singlePerspectiveView;
-	OpenGLWidget *m_perspectiveGLWidgetDual;
-	OpenGLWidget *m_perspectiveGLWidgetQuad;
-	OpenGLWidget *m_frontGLWidgetDual;
-	OpenGLWidget *m_frontGLWidgetQuad;
-	OpenGLWidget *m_leftGLWidgetQuad;
-	OpenGLWidget *m_topGLWidgetQuad;
+	ViewPortWidget *m_viewPortWidget;
 
 	QMenuBar *m_menuBar;
 
@@ -72,7 +56,6 @@ private:
 	QAction *m_addVolumeAction;
 
 	//QSlider *m_tesselationSlider;
-
 	QTreeView *m_outlinerTreeView;
 
 	void initializeModel();
@@ -92,7 +75,7 @@ private:
 	void initializeGeometryToolBar();
 	void initializeStatusBar();
 	void initializeDockWidgets();
-	void initializeViewportLayouts();
+	void initializeViewportWidget();
 	void initializeOutliner();
 	//QSlider* createSlider();
 };

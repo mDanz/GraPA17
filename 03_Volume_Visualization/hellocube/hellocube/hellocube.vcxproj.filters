@@ -67,12 +67,6 @@
     <ClCompile Include="trackball.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_scenemodel.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_scenemodel.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_mainwindow.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -98,9 +92,6 @@
       <Filter>Source Files\model</Filter>
     </ClCompile>
     <ClCompile Include="sceneitem.cpp">
-      <Filter>Source Files\model</Filter>
-    </ClCompile>
-    <ClCompile Include="scenemodel.cpp">
       <Filter>Source Files\model</Filter>
     </ClCompile>
     <ClCompile Include="openglcube.cpp">
@@ -136,6 +127,42 @@
     <ClCompile Include="openglhelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_viewportwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_viewportwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="viewportmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="viewportwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_sceneitemmodel.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_sceneitemmodel.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="sceneitemmodel.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_sceneitem.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_sceneitem.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_scenemodel.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_scenemodel.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="scenemodel.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -149,6 +176,15 @@
     </CustomBuild>
     <CustomBuild Include="openglwidget.h">
       <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="viewportwidget.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="sceneitemmodel.h">
+      <Filter>Header Files\model</Filter>
+    </CustomBuild>
+    <CustomBuild Include="sceneitem.h">
+      <Filter>Header Files\model</Filter>
     </CustomBuild>
     <CustomBuild Include="scenemodel.h">
       <Filter>Header Files\model</Filter>
@@ -188,9 +224,6 @@
     <ClInclude Include="scenecomponent.h">
       <Filter>Header Files\model</Filter>
     </ClInclude>
-    <ClInclude Include="sceneitem.h">
-      <Filter>Header Files\model</Filter>
-    </ClInclude>
     <ClInclude Include="rigidbodytransformation.h">
       <Filter>Header Files\model</Filter>
     </ClInclude>
@@ -217,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="openglhelper.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="viewportmodel.h">
+      <Filter>Header Files\model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

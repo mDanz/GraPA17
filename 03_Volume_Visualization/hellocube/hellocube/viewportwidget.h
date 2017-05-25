@@ -1,5 +1,4 @@
 #pragma once
-#include <QWidget>
 #include <QSplitter>
 #include <QVBoxLayout>
 
@@ -7,12 +6,12 @@
 class OpenGLWidget;
 class ViewPortModel;
 
-class ViewPortWidget : QWidget
+class ViewPortWidget : public QWidget
 {
 	Q_OBJECT;
 
 public:
-	ViewPortWidget();
+	explicit ViewPortWidget(QWidget *parent = nullptr);
 	~ViewPortWidget();
 
 	void setModel(ViewPortModel *model) const;
@@ -23,9 +22,9 @@ public slots:
 	void update() const;
 	//void homePosition();
 
-	//void singleView();
-	//void dualView();
-	//void quadView();
+	void singleViewActivated();
+	void dualViewActivated();
+	void quadViewActivated();
 
 	void selectPerspective();
 	void selectFront();

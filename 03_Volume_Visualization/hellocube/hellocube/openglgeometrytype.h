@@ -8,5 +8,7 @@ enum OpenGLGeometryType
 	Sphere,
 	Cylinder,
 	Cone,
-	Torus
+	Torus,
+	Volume,
+	Object
 };

@@ -18,6 +18,9 @@
 #include <QUuid>
 #include <QFileDialog>
 #include "volumemodelfactory.h"
+#include "viewportwidget.h"
+#include "viewportmodel.h"
+#include "sceneitemmodel.h"
 
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
@@ -27,7 +30,7 @@ MainWindow::MainWindow(QMainWindow *parent)
 	setWindowTitle("Hello Cube");
 
 	initializeModel();
-	initializeViewportLayouts();
+	initializeViewportWidget();
 	initializeActions();
 	initializeMenuBar();
 	initializeToolBar();
@@ -39,7 +42,7 @@ MainWindow::MainWindow(QMainWindow *parent)
 MainWindow::~MainWindow()
 {
 	delete m_model;
-	delete m_stackedWidget;
+	delete m_viewPortWidget;
 	delete m_interactionModeActionGroup;
 	delete m_viewModeActionGroup;
 	delete m_exitAction;
@@ -53,7 +56,7 @@ MainWindow::~MainWindow()
 	delete m_addVolumeAction;
 }
 
-void MainWindow::showAboutBox()
+void MainWindow::showAboutBox() const
 {
 	QMessageBox msgBox;
 	msgBox.setWindowTitle("About Hello Cube!");
@@ -61,37 +64,22 @@ void MainWindow::showAboutBox()
 	msgBox.exec();
 }
 
-void MainWindow::singleViewModeActivated()
-{
-	m_stackedWidget->setCurrentWidget(m_singlePerspectiveView);
-}
-
-void MainWindow::dualViewModeActivated()
-{
-	m_stackedWidget->setCurrentWidget(m_dualViewSplitter);
-}
-
-void MainWindow::quadViewModeActivated()
-{
-	m_stackedWidget->setCurrentWidget(m_quadViewSplitter);
-}
-
 void MainWindow::volumeAdded()
 {
 	auto fileName = QFileDialog::getOpenFileName(this, tr("Load Volume Data"), "./", tr("Raw Files (*.raw)"));
-	m_model->setVolume(VolumeModelFactory::createFromFile(fileName));
+	//m_model->setVolume(VolumeModelFactory::createFromFile(fileName)); //todo fix volume to tree adding
 }
 
-void MainWindow::selectedObjectChanged(const QModelIndex& current, const QModelIndex& previous) const
+void MainWindow::selectedItemChanged(const QModelIndex& current, const QModelIndex& previous) const
 {
-	m_model->getScene()->updateSelectedItem(current, previous);
-	// auto name = m_model->getScene()->getSelectedItem()->getName();//todo fix
+	m_model->selectItem(static_cast<SceneItem*>(current.internalPointer()));
+	// auto name = m_model->getScene()->getSelectedItem()->getName();//todo fix name display
 	// m_ui.statusBar->messageChanged(name);
 }
 
 void MainWindow::initializeModel()
 {
-	m_model = new ModellingToolModel();
+	m_model = new SceneModel();
 }
 
 void MainWindow::initializeActions()
@@ -164,13 +152,14 @@ void MainWindow::initializeActionConnections()
 {
 	connect(m_exitAction, SIGNAL(triggered()), this, SLOT(close()));
 	connect(m_aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
-	connect(m_resetCameraAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(resetCamera()));//todo uncomment
+	//connect(m_resetCameraAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(resetCamera()));//todo uncomment
 
-	connect(m_cameraModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedCameraMode()));
-	connect(m_objManipulationModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedObjManipulationMode()));
-	connect(m_singleViewAction, SIGNAL(triggered()), this, SLOT(singleViewModeActivated()));
-	connect(m_dualViewAction, SIGNAL(triggered()), this, SLOT(dualViewModeActivated()));
-	connect(m_quadViewAction, SIGNAL(triggered()), this, SLOT(quadViewModeActivated()));
+	//todo fix connections push to controller
+	//connect(m_cameraModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedCameraMode()));
+	//connect(m_objManipulationModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedObjManipulationMode()));
+	connect(m_singleViewAction, SIGNAL(triggered()), m_viewPortWidget, SLOT(singleViewActivated()));
+	connect(m_dualViewAction, SIGNAL(triggered()), m_viewPortWidget, SLOT(dualViewctivated()));
+	connect(m_quadViewAction, SIGNAL(triggered()), m_viewPortWidget, SLOT(quadViewActivated()));
 
 	connect(m_addVolumeAction, SIGNAL(triggered()), this, SLOT(volumeAdded()));
 }
@@ -277,54 +266,23 @@ void MainWindow::initializeDockWidgets()
 	initializeOutliner();
 }
 
-void MainWindow::initializeViewportLayouts()
+void MainWindow::initializeViewportWidget()
 { 
-	//todo correct rotations for cameras
-	m_singlePerspectiveView = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
-	m_perspectiveGLWidgetDual = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
-	m_perspectiveGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
-	m_frontGLWidgetDual = new OpenGLWidget(m_model->getScene(), m_model->getCamera(1), this);
-	m_frontGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(1), this);
-	m_leftGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(2), this);
-	m_topGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(3), this);
-
-	m_dualViewSplitter = new QSplitter(this);
-	m_dualViewSplitter->addWidget(m_perspectiveGLWidgetDual);
-	m_dualViewSplitter->addWidget(m_frontGLWidgetDual);
-
-	m_topRowSplitter = new QSplitter(this);
-	m_topRowSplitter->addWidget(m_perspectiveGLWidgetQuad);
-	m_topRowSplitter->addWidget(m_frontGLWidgetQuad);
-
-	m_bottomRowSplitter = new QSplitter(this);
-	m_bottomRowSplitter->addWidget(m_leftGLWidgetQuad);
-	m_bottomRowSplitter->addWidget(m_topGLWidgetQuad);
-
-	m_quadViewSplitter = new QSplitter(this);
-	m_quadViewSplitter->addWidget(m_topRowSplitter);
-	m_quadViewSplitter->addWidget(m_bottomRowSplitter);
-	m_quadViewSplitter->setOrientation(Qt::Vertical);
-
-	m_stackedWidget = new QStackedWidget;
-	m_stackedWidget->addWidget(m_singlePerspectiveView);
-	m_stackedWidget->addWidget(m_dualViewSplitter);
-	m_stackedWidget->addWidget(m_quadViewSplitter);
-
-	setCentralWidget(m_stackedWidget);
-	m_currentGLWidget = m_singlePerspectiveView; //todo make selection correct
-	m_currentGLWidget->setFocus();
+	m_viewPortWidget = new ViewPortWidget(this);
+	m_viewPortWidget->setModel(new ViewPortModel(m_model));
+	setCentralWidget(m_viewPortWidget);
 }
 
 void MainWindow::initializeOutliner()
 {
-	m_outlinerDock = new QDockWidget(this);
+	m_outlinerDock = new QDockWidget("Outliner", this);
 
 	m_outlinerTreeView = new QTreeView(m_outlinerDock);
-	m_outlinerTreeView->setModel(m_model->getScene());
-
+	m_outlinerTreeView->setModel(new SceneItemModel(m_model->getRoot()));
+	
 	m_outlinerDock->setWidget(m_outlinerTreeView);
-	m_outlinerDock->setWindowTitle("Outliner");
 
+	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(changeSelection(QModelIndex, QModelIndex)));
 	addDockWidget(Qt::LeftDockWidgetArea, m_outlinerDock);
 }
 
