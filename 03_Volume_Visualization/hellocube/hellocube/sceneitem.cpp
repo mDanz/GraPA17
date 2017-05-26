@@ -14,17 +14,21 @@ int SceneItem::s_volumeID = 0;
 SceneItem::SceneItem(SceneItem* parent)
 	: m_parent(parent)
 	, m_primitiveType(OpenGLGeometryType::None)
-	, m_rigidBodyTransform(RigidBodyTransformation(QVector3D(), QQuaternion()))
+	, m_rigidBodyTransform(new RigidBodyTransformation(QVector3D(), QQuaternion()))
 {
 	m_name = createName();
 	m_id = ObjectID::createID();
+	//todo make transform with parent matrix
 }
 
-SceneItem::SceneItem(OpenGLGeometryType primitiveType, RigidBodyTransformation& rigidBodyTransform, SceneItem* parent)
+SceneItem::SceneItem(OpenGLGeometryType primitiveType, RigidBodyTransformation* rigidBodyTransform, SceneItem* parent)
 	: SceneItem(parent)
 {
 	m_primitiveType = primitiveType;
-	m_rigidBodyTransform = rigidBodyTransform;
+	if (rigidBodyTransform)
+	{
+		m_rigidBodyTransform = rigidBodyTransform;
+	}
 }
 
 SceneItem::~SceneItem()
@@ -32,11 +36,12 @@ SceneItem::~SceneItem()
 	delete m_id;
 	qDeleteAll(m_children);
 	m_parent->removeChild(this);
+	delete m_rigidBodyTransform;
 }
 
 void SceneItem::setParent(SceneItem* parent)
 {
-	m_parent = parent;
+	m_parent = parent;//todo make transformation with parent transform
 }
 
 void SceneItem::appendChild(SceneItem *child)
@@ -182,9 +187,14 @@ QString SceneItem::createName()
 	}
 }
 
-RigidBodyTransformation* SceneItem::getRigidBodyTransformation()
+RigidBodyTransformation* SceneItem::getRigidBodyTransformation() const
 {
-	return &m_rigidBodyTransform;
+	return m_rigidBodyTransform;
+}
+
+void SceneItem::setRigidBodyTransform(RigidBodyTransformation* rigidBodyTransformation)
+{
+	m_rigidBodyTransform = rigidBodyTransformation;
 }
 
 SceneItem* SceneItem::getItem(int id)

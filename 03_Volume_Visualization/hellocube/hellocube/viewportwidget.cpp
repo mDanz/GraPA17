@@ -5,6 +5,7 @@
 
 ViewPortWidget::ViewPortWidget(QWidget *parent) 
 	: QWidget(parent)
+	, m_model(nullptr)
 {
 	m_layout = new QVBoxLayout(this);
 
@@ -31,17 +32,23 @@ ViewPortWidget::~ViewPortWidget()
 	delete m_layout;
 }
 
-void ViewPortWidget::setModel(ViewPortModel* model) const
+void ViewPortWidget::setModel(ViewPortModel* model)
 {
-	m_perspectiveWidget->setModel(model->getScene(), model->getCamera(0));
-	m_frontWidget->setModel(model->getScene(), model->getCamera(1));
-	m_leftWidget->setModel(model->getScene(), model->getCamera(2));
-	m_topWidget->setModel(model->getScene(), model->getCamera(3));
+	m_model = model;
+	m_perspectiveWidget->setModel(m_model->getScene(), m_model->getCamera(0));
+	m_frontWidget->setModel(m_model->getScene(), m_model->getCamera(1));
+	m_leftWidget->setModel(m_model->getScene(), m_model->getCamera(2));
+	m_topWidget->setModel(m_model->getScene(), m_model->getCamera(3));
 }
 
 OpenGLWidget* ViewPortWidget::getCurrentWidget() const
 {
 	return m_currentWidget;
+}
+
+CameraModel* ViewPortWidget::getCurrentCamera() const
+{
+	return m_model->getCurrentCamera();
 }
 
 void ViewPortWidget::update() const
@@ -181,7 +188,11 @@ void ViewPortWidget::select(OpenGLWidget* widget)
 	m_leftWidget->deselect();
 
 	m_currentWidget = widget;
-	widget->select();
+	m_currentWidget->select();
+	if (m_model) 
+	{
+		m_model->setCurrentCamera(m_currentWidget->getCamera());
+	}
 
 	update();
 }

@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 
 
+class CameraModel;
 class OpenGLWidget;
 class ViewPortModel;
 
@@ -14,9 +15,10 @@ public:
 	explicit ViewPortWidget(QWidget *parent = nullptr);
 	~ViewPortWidget();
 
-	void setModel(ViewPortModel *model) const;
+	void setModel(ViewPortModel *model);
 
 	OpenGLWidget* getCurrentWidget() const;
+	CameraModel* getCurrentCamera() const;
 
 public slots:
 	void update() const;
@@ -46,6 +48,8 @@ private:
 	void hideWidgets(ViewPortLayout currentType) const;
 	void showWidgets(ViewPortLayout currentType) const;
 	void select(OpenGLWidget *widget);
+
+	ViewPortModel *m_model;
 
 	QVBoxLayout *m_layout;
 	QSplitter *m_quadView;

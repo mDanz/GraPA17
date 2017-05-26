@@ -97,6 +97,11 @@ void OpenGLWidget::setModel(SceneModel* scene, CameraModel* camera)
 	m_cameraModel = camera;
 }
 
+CameraModel* OpenGLWidget::getCamera() const
+{
+	return m_cameraModel;
+}
+
 void OpenGLWidget::select()
 {
 	m_isSelected = true;

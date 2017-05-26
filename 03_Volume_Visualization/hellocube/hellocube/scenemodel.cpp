@@ -18,7 +18,7 @@ SceneItem* SceneModel::getRoot() const
 	return m_root;
 }
 
-void SceneModel::addItem(OpenGLGeometryType primitiveType, RigidBodyTransformation& rigidBodyTransform, SceneItem* parent)
+void SceneModel::addItem(OpenGLGeometryType primitiveType, RigidBodyTransformation* rigidBodyTransform, SceneItem* parent)
 {
 	if (!parent)
 	{
@@ -29,6 +29,19 @@ void SceneModel::addItem(OpenGLGeometryType primitiveType, RigidBodyTransformati
 	//data.translation = QVector3D(pMat * QVector4D(data.translation, 1));
 
 	auto item = new SceneItem(primitiveType, rigidBodyTransform, parent);
+	parent->appendChild(item);
+
+	selectItem(item);
+	update();
+}
+
+void SceneModel::addItem(SceneItem *item, SceneItem *parent)
+{
+	if (!parent)
+	{
+		parent = m_root;
+	}
+	item->setParent(parent);
 	parent->appendChild(item);
 
 	selectItem(item);

@@ -5,7 +5,11 @@
 #include <QFileSystemModel>
 #include "trackball.h"
 #include "volumemodelfactory.h"
+#include "volumemodel.h"
 #include "rigidbodytransformation.h"
+#include "cameramodel.h"
+
+SceneController* SceneController::s_controller;
 
 SceneController::~SceneController()
 {
@@ -17,9 +21,9 @@ SceneController* SceneController::getController()
 	return s_controller ? s_controller : new SceneController();
 }
 
-void SceneController::setModelView(SceneModel* scene, ViewPortWidget* view)
+void SceneController::setModelView(SceneModel* scene, ViewPortWidget* viewPortWidget)
 {
-	m_viewPortWidget = view;
+	m_viewPortWidget = viewPortWidget;
 	m_scene = scene;
 }
 
@@ -45,33 +49,33 @@ void SceneController::selectedItemChanged(const QModelIndex& current, const QMod
 	// m_ui.statusBar->messageChanged(name);
 }
 
-void SceneController::cubeAdded()
+void SceneController::cubeAdded() const
 {
-	addObject(OpenGLGeometryType::Cube);
+	addItem(OpenGLGeometryType::Cube);
 }
 
-void SceneController::sphereAdded()
+void SceneController::sphereAdded() const
 {
-	addObject(OpenGLGeometryType::Sphere);
+	addItem(OpenGLGeometryType::Sphere);
 }
 
-void SceneController::cylinderAdded()
+void SceneController::cylinderAdded() const
 {
-	addObject(OpenGLGeometryType::Cylinder);
+	addItem(OpenGLGeometryType::Cylinder);
 }
 
-void SceneController::coneAdded()
+void SceneController::coneAdded() const
 {
-	addObject(OpenGLGeometryType::Cone);
+	addItem(OpenGLGeometryType::Cone);
 }
 
-void SceneController::torusAdded()
+void SceneController::torusAdded() const
 {
-	addObject(OpenGLGeometryType::Torus);
+	addItem(OpenGLGeometryType::Torus);
 }
-void SceneController::volumeAdded()
+void SceneController::volumeAdded() const
 {
-	addObject(OpenGLGeometryType::Volume);
+	addItem(OpenGLGeometryType::Volume);
 }
 
 SceneController::SceneController()
@@ -84,23 +88,23 @@ SceneController::SceneController()
 	m_trackball = new TrackBall(TrackBall::Sphere);
 }
 
-void SceneController::addObject(OpenGLGeometryType type)
+void SceneController::addItem(OpenGLGeometryType type) const
 {
 	auto parent = m_scene->getSelectedItem();
+	auto position = m_viewPortWidget->getCurrentCamera()->getPointOfInterest();
+	auto rigidBodyTransform = new RigidBodyTransformation(*position, QQuaternion());//todo tesselation
 
-	if(type == OpenGLGeometryType::Volume)
+	if (type == OpenGLGeometryType::Volume)
 	{
 		auto fileName = QFileDialog::getOpenFileName(m_viewPortWidget, tr("Load Volume Data"), "./", tr("Raw Files (*.raw)"));
 		auto volume = VolumeModelFactory::createFromFile(fileName);
-	}//todo fix this
-
-	m_scene->addItem(type, new RigidBodyTransformation(), parent);
-
-	//auto selectedItem = m_scene->getSelectedItem();
-	//auto cube = new SceneItem(selectedItem); //todo fix init
-	//selectedItem->appendChild(cube);
-	//todo use tesselation slider value
-
+		volume->setRigidBodyTransform(rigidBodyTransform);
+		m_scene->addItem(volume, parent);
+	}
+	else
+	{
+		m_scene->addItem(type, rigidBodyTransform, parent);
+	}
 	
 	//m_scene->setVolume(VolumeModelFactory::createFromFile(fileName)); //todo fix volume to tree adding
 }

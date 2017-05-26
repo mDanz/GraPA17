@@ -10,8 +10,7 @@ class QOpenGLTexture;
 class VolumeModel : public SceneItem
 {
 public:
-	VolumeModel();
-	explicit VolumeModel(OpenGLGeometryType primitiveType, RigidBodyTransformation &rigidBodyTransform, SceneItem *parent = 0);
+	explicit VolumeModel(RigidBodyTransformation *rigidBodyTransform = nullptr, SceneItem *parent = nullptr);
 	~VolumeModel();
 
 	void setDimensions(float x, float y, float z);

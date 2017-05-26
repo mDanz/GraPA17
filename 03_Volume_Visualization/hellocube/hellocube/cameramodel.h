@@ -13,6 +13,7 @@ public:
 	void zoom(int m_wheel_delta);
 	void move(const QVector3D *translation);
 	void rotate(const QQuaternion& rotation);
+	QVector3D* getPointOfInterest();
 	void reset();
 private:
 	QVector3D m_center;

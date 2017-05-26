@@ -50,6 +50,11 @@ void CameraModel::rotate(const QQuaternion& rotation)
 	m_rotation = rotation;
 }
 
+QVector3D* CameraModel::getPointOfInterest()
+{
+	return &m_center;
+}
+
 void CameraModel::reset()
 {
 	m_position = m_defaultPosition;

@@ -26,6 +26,8 @@ public:
 	~OpenGLWidget();
 
 	void setModel(SceneModel *scene, CameraModel* camera);
+	CameraModel* getCamera() const;
+
 	void select();
 	void deselect();
 

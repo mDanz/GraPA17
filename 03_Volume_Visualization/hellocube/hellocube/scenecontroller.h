@@ -17,7 +17,7 @@ public:
 	~SceneController();
 	static SceneController* getController();
 
-	void setModelView(SceneModel *scene, ViewPortWidget *view);
+	void setModelView(SceneModel *scene, ViewPortWidget *viewPortWidget);
 
 	void setName(SceneItem *item, QString name);
 
@@ -33,16 +33,16 @@ public slots:
 
 	void selectedItemChanged(const QModelIndex &current, const QModelIndex &previous) const;
 
-	void cubeAdded();
-	void sphereAdded();
-	void cylinderAdded();
-	void coneAdded();
-	void torusAdded();
-	void volumeAdded();
+	void cubeAdded() const;
+	void sphereAdded() const;
+	void cylinderAdded() const;
+	void coneAdded() const;
+	void torusAdded() const;
+	void volumeAdded() const;
 
 private:
 	SceneController();
-	void addObject(OpenGLGeometryType type);
+	void addItem(OpenGLGeometryType type) const;
 
 	bool m_isInCameraMode;
 	int m_tessellation;

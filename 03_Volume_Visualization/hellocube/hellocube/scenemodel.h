@@ -16,7 +16,8 @@ public:
 
 	SceneItem* getRoot() const;
 
-	void addItem(OpenGLGeometryType primitiveType, RigidBodyTransformation &rigidBodyTransform, SceneItem *parent = nullptr);
+	void addItem(OpenGLGeometryType primitiveType, RigidBodyTransformation *rigidBodyTransform = nullptr, SceneItem *parent = nullptr);
+	void addItem(SceneItem *item, SceneItem *parent = nullptr);
 	void selectItem(SceneItem *item);
 	SceneItem* getItem(int id) const;
 	QList<SceneItem*> getAllItems() const;

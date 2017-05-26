@@ -2,16 +2,8 @@
 #include "openglhelper.h"
 #include <QOpenGLTexture>
 
-VolumeModel::VolumeModel()
-	: m_data(nullptr) 
-{
-	m_dimensions = new QVector3D;
-	m_aspects = new QVector3D;
-	m_textureName = GL_INVALID_VALUE;
-}
-
-VolumeModel::VolumeModel(OpenGLGeometryType primitiveType, RigidBodyTransformation& rigidBodyTransform, SceneItem* parent)
-	: SceneItem(primitiveType, rigidBodyTransform, parent)
+VolumeModel::VolumeModel(RigidBodyTransformation* rigidBodyTransform, SceneItem* parent)
+	: SceneItem(OpenGLGeometryType::Volume, rigidBodyTransform, parent)
 	, m_data(nullptr)
 {
 	m_dimensions = new QVector3D;

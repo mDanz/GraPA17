@@ -18,7 +18,7 @@ class SceneItem : public QObject
 public:
 
 	explicit SceneItem(SceneItem *parent = 0);
-	explicit SceneItem(OpenGLGeometryType primitiveType, RigidBodyTransformation &rigidBodyTransform, SceneItem *parent = 0);
+	explicit SceneItem(OpenGLGeometryType primitiveType, RigidBodyTransformation *rigidBodyTransform = nullptr, SceneItem *parent = nullptr);
 	~SceneItem();
 
 	void setParent(SceneItem *parent);
@@ -38,7 +38,8 @@ public:
 	QString getName() const;
 	void setName(QString name);
 
-	RigidBodyTransformation* getRigidBodyTransformation();
+	RigidBodyTransformation* getRigidBodyTransformation() const;
+	void setRigidBodyTransform(RigidBodyTransformation* rigid_body_transformation);
 
 	OpenGLGeometryType getPrimitiveType() const;
 
@@ -65,5 +66,5 @@ private:
 	QString m_name;
 	ObjectID* m_id;
 	OpenGLGeometryType m_primitiveType;
-	RigidBodyTransformation m_rigidBodyTransform;
+	RigidBodyTransformation *m_rigidBodyTransform;
 };
