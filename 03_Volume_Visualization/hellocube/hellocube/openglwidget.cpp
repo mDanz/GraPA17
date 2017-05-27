@@ -409,18 +409,18 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
 
 	if (event->buttons() & Qt::LeftButton)
 	{
-		m_trackBall->move(pixelPosToViewPos(event->pos()), m_trackBall->rotation().conjugate());
-		m_dragRotation = m_trackBall->rotation();
+		m_trackBall->move(pixelPosToViewPos(event->pos()), m_trackBall->getRotation().conjugate());
+		m_dragRotation = m_trackBall->getRotation();
 	}
 	else if (event->buttons() & Qt::RightButton)
 	{
-		m_trackBall->release(pixelPosToViewPos(event->pos()), m_trackBall->rotation().conjugate());
+		m_trackBall->release(pixelPosToViewPos(event->pos()), m_trackBall->getRotation().conjugate());
 		m_dragTranslation->setX(dx * m_damping);
 		m_dragTranslation->setY(dy * m_damping);
 	}
 	else
 	{
-		m_trackBall->release(pixelPosToViewPos(event->pos()), m_trackBall->rotation().conjugate());
+		m_trackBall->release(pixelPosToViewPos(event->pos()), m_trackBall->getRotation().conjugate());
 	}
 
 	update();
@@ -449,7 +449,7 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
-		m_trackBall->release(pixelPosToViewPos(event->pos()), m_trackBall->rotation().conjugate());
+		m_trackBall->release(pixelPosToViewPos(event->pos()), m_trackBall->getRotation().conjugate());
 	}
 }
 

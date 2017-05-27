@@ -12,8 +12,8 @@ public:
 		Plane,
 		Sphere,
 	};
-	
-	TrackBall(TrackMode mode = Sphere);
+
+	explicit TrackBall(TrackMode mode = Sphere);
 	TrackBall(float angularVelocity, const QVector3D &axis, TrackMode mode = Sphere);
 
 	TrackMode getMode() const;
@@ -21,7 +21,10 @@ public:
 	void push(const QPointF &pos);
 	void move(const QPointF &pos, const QQuaternion &transformation);
 	void release(const QPointF &pos, const QQuaternion &transformation);
-	QQuaternion rotation() const;
+	
+	QQuaternion getRotation() const;
+	void reset();
+
 private:
 	QQuaternion m_rotation;
 	QVector3D m_axis;
@@ -35,6 +38,6 @@ private:
 
 	void calculatePlaneMove(const QPointF &pos, const QQuaternion &transformation, const int msecs);
 	void calculateSphereMove(const QPointF &pos, const QQuaternion &transformation, const int msecs);
-	void calculate3DPos(QVector3D &pos3D);
+	void calculate3DPos(QVector3D &pos3D) const;
 };
 

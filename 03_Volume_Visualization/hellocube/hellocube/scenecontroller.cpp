@@ -27,6 +27,12 @@ void SceneController::setModelView(SceneModel* scene, ViewPortWidget* viewPortWi
 	m_scene = scene;
 }
 
+void SceneController::resetCamera() const
+{
+	m_viewPortWidget->getCurrentCamera()->reset();
+	m_viewPortWidget->update();
+}
+
 void SceneController::cameraModeSelected()
 {
 	m_isInCameraMode = true;
@@ -40,6 +46,21 @@ void SceneController::objectModeSelected()
 void SceneController::setTessellation(int t)
 {
 	m_tessellation = t;
+}
+
+void SceneController::singleViewActivated() const
+{
+	m_viewPortWidget->singleViewActivated();
+}
+
+void SceneController::dualViewActivated() const
+{
+	m_viewPortWidget->dualViewActivated();
+}
+
+void SceneController::quadViewActivated() const
+{
+	m_viewPortWidget->quadViewActivated();
 }
 
 void SceneController::selectedItemChanged(const QModelIndex& current, const QModelIndex& previous) const

@@ -27,9 +27,14 @@ public:
 	void wheel(OpenGLWidget* widget, float delta, Qt::KeyboardModifiers mods);
 
 public slots:
+	void resetCamera() const;
 	void cameraModeSelected();
 	void objectModeSelected();
 	void setTessellation(int t);
+
+	void singleViewActivated() const;
+	void dualViewActivated() const;
+	void quadViewActivated() const;
 
 	void selectedItemChanged(const QModelIndex &current, const QModelIndex &previous) const;
 

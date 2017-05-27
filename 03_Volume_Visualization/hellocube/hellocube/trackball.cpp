@@ -34,7 +34,7 @@ TrackBall::TrackMode TrackBall::getMode() const
 
 void TrackBall::push(const QPointF& pos)
 {
-	m_rotation = rotation();
+	m_rotation = getRotation();
 	m_pressed = true;
 	m_lastTime = QTime::currentTime();
 	m_lastPos = pos;
@@ -75,7 +75,7 @@ void TrackBall::release(const QPointF &pos, const QQuaternion &transformation)
 	m_pressed = false;
 }
 
-QQuaternion TrackBall::rotation() const
+QQuaternion TrackBall::getRotation() const
 {
 	if (m_paused || m_pressed)
 	{
@@ -85,6 +85,12 @@ QQuaternion TrackBall::rotation() const
 	auto currentTime = QTime::currentTime();
 	auto angle = m_angularVelocity * m_lastTime.msecsTo(currentTime);
 	return QQuaternion::fromAxisAndAngle(m_axis, angle) * m_rotation;
+}
+
+void TrackBall::reset()
+{
+	m_rotation = QQuaternion();
+	m_axis = QVector3D(0, 1, 0);
 }
 
 void TrackBall::calculatePlaneMove(const QPointF &pos, const QQuaternion &transformation, const int msecs)
@@ -112,7 +118,7 @@ void TrackBall::calculateSphereMove(const QPointF &pos, const QQuaternion &trans
 	m_rotation = QQuaternion::fromAxisAndAngle(m_axis, angle) * m_rotation;
 }
 
-void TrackBall::calculate3DPos(QVector3D &pos3D)
+void TrackBall::calculate3DPos(QVector3D &pos3D) const
 {
 
 	float sqrZ = 1 - QVector3D::dotProduct(pos3D, pos3D);

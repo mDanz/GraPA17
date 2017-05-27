@@ -11,7 +11,6 @@
 #include <QTreeView>
 #include <QFileSystemModel>
 #include "scenemodel.h"
-#include "sceneitem.h"
 #include <QUuid>
 #include <QFileDialog>
 #include "volumemodelfactory.h"
@@ -30,11 +29,11 @@ MainWindow::MainWindow(QMainWindow *parent)
 	initializeModel();
 	initializeViewportWidget();
 	initializeActions();
+	initializeController();
 	initializeMenuBar();
 	initializeToolBar();
 	initializeStatusBar();
 	initializeDockWidgets();
-	initializeController();
 	initializeActionConnections();
 }
 
@@ -155,12 +154,11 @@ void MainWindow::initializeActionConnections() const
 {
 	connect(m_exitAction, SIGNAL(triggered()), this, SLOT(close()));
 	connect(m_aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
-	//connect(m_resetCameraAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(resetCamera()));//todo uncomment
+	connect(m_resetCameraAction, SIGNAL(triggered()), m_sceneController, SLOT(resetCamera()));
 
-	//todo fix connections push to controller
-	connect(m_singleViewAction, SIGNAL(triggered()), m_viewPortWidget, SLOT(singleViewActivated()));
-	connect(m_dualViewAction, SIGNAL(triggered()), m_viewPortWidget, SLOT(dualViewctivated()));
-	connect(m_quadViewAction, SIGNAL(triggered()), m_viewPortWidget, SLOT(quadViewActivated()));
+	connect(m_singleViewAction, SIGNAL(triggered()), m_sceneController, SLOT(singleViewActivated()));
+	connect(m_dualViewAction, SIGNAL(triggered()), m_sceneController, SLOT(dualViewctivated()));
+	connect(m_quadViewAction, SIGNAL(triggered()), m_sceneController, SLOT(quadViewActivated()));
 
 	connect(m_cameraModeAction, SIGNAL(triggered()), m_sceneController, SLOT(cameraModeSelected()));
 	connect(m_objManipulationModeAction, SIGNAL(triggered()), m_sceneController, SLOT(objectModeSelected()));
@@ -274,7 +272,7 @@ void MainWindow::initializeGeometryToolBar()
 	addToolBar(m_geometryToolBar);
 }
 
-void MainWindow::initializeStatusBar()
+void MainWindow::initializeStatusBar() const
 {
 	auto label = new QLabel("<none>");
     m_ui.statusBar->addWidget(label); //had to use m_ui otherwise statusBar would be at top of screen.
