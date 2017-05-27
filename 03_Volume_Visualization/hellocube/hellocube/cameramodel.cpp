@@ -34,20 +34,21 @@ bool CameraModel::isOrthographic() const
 
 void CameraModel::zoom(int m_wheelDelta)
 {
-	m_position.setZ(m_wheelDelta + m_position.z());
+	m_position.setZ(m_wheelDelta * m_damping + m_position.z());
 }
 
 void CameraModel::move(const QVector3D* translation)
 {
-	m_center.setX(translation->x());
-	m_center.setY(-translation->y());
-	m_position.setX(translation->x());
-	m_position.setY(-translation->y());
+	m_center.setX(translation->x() * m_damping);
+	m_center.setY(-translation->y() * m_damping);
+	m_position.setX(translation->x() * m_damping);
+	m_position.setY(-translation->y() * m_damping);
 }
 
 void CameraModel::rotate(const QQuaternion& rotation)
 {
-	m_rotation = rotation;
+	m_rotation = QQuaternion(-rotation.scalar(), m_rotation * rotation.vector()) * m_rotation;
+	//m_rotation += rotation;
 }
 
 QVector3D* CameraModel::getPointOfInterest()

@@ -12,10 +12,10 @@ RigidBodyTransformation::~RigidBodyTransformation()
 {
 }
 
-void RigidBodyTransformation::move(QVector3D& translation)
+void RigidBodyTransformation::move(QVector3D *translation)
 {
-	m_translation.setX(translation.x());
-	m_translation.setY(-translation.y());
+	m_translation.setX(translation->x());
+	m_translation.setY(-translation->y());
 }
 
 void RigidBodyTransformation::rotate(const QQuaternion& rotation)

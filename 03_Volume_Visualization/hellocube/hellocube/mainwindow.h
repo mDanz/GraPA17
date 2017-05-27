@@ -4,6 +4,7 @@
 #include "ui_mainwindow.h"
 #include "openglwidget.h"
 #include "scenemodel.h"
+#include "sceneitemmodel.h"
 
 class SceneController;
 class ViewPortWidget;
@@ -40,9 +41,11 @@ private:
 	void initializeDockWidgets();
 	void initializeViewportWidget();
 	void initializeOutliner();
+	void reinitializeOutlinerModel();
 	QSlider* createSlider();
 
 	SceneModel *m_scene;
+	SceneItemModel *m_outlinerModel;
 
     Ui::MainWindowClass m_ui;
 	ViewPortWidget *m_viewPortWidget;
@@ -82,4 +85,7 @@ private:
 	QTreeView *m_outlinerTreeView;
 
 	SceneController *m_sceneController;
+
+private slots:
+	void updateOutliner();
 };

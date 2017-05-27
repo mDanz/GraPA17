@@ -16,6 +16,8 @@ public:
 	QVector3D* getPointOfInterest();
 	void reset();
 private:
+	const float m_damping = 0.01f;
+
 	QVector3D m_center;
 	bool m_isOrthographic;
 	QVector3D m_position;

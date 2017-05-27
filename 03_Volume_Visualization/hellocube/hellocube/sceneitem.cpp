@@ -35,8 +35,9 @@ SceneItem::~SceneItem()
 {
 	delete m_id;
 	qDeleteAll(m_children);
-	m_parent->removeChild(this);
 	delete m_rigidBodyTransform;
+
+	m_parent->removeChild(this);
 }
 
 void SceneItem::setParent(SceneItem* parent)
@@ -163,7 +164,7 @@ OpenGLGeometryType SceneItem::getPrimitiveType() const
 	return m_primitiveType;
 }
 
-QString SceneItem::createName()
+QString SceneItem::createName() const
 {
 	switch (m_primitiveType)
 	{

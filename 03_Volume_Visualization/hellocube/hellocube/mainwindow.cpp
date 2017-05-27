@@ -21,6 +21,7 @@
 
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
+	, m_outlinerModel(nullptr)
 {
     m_ui.setupUi(this);
 
@@ -40,6 +41,7 @@ MainWindow::MainWindow(QMainWindow *parent)
 MainWindow::~MainWindow()
 {
 	delete m_scene;
+	delete m_outlinerModel;
 	delete m_viewPortWidget;
 	delete m_interactionModeActionGroup;
 	delete m_viewModeActionGroup;
@@ -65,6 +67,7 @@ void MainWindow::showAboutBox() const
 void MainWindow::initializeModel()
 {
 	m_scene = new SceneModel();
+	reinitializeOutlinerModel();
 }
 
 void MainWindow::initializeActions()
@@ -157,7 +160,7 @@ void MainWindow::initializeActionConnections() const
 	connect(m_resetCameraAction, SIGNAL(triggered()), m_sceneController, SLOT(resetCamera()));
 
 	connect(m_singleViewAction, SIGNAL(triggered()), m_sceneController, SLOT(singleViewActivated()));
-	connect(m_dualViewAction, SIGNAL(triggered()), m_sceneController, SLOT(dualViewctivated()));
+	connect(m_dualViewAction, SIGNAL(triggered()), m_sceneController, SLOT(dualViewActivated()));
 	connect(m_quadViewAction, SIGNAL(triggered()), m_sceneController, SLOT(quadViewActivated()));
 
 	connect(m_cameraModeAction, SIGNAL(triggered()), m_sceneController, SLOT(cameraModeSelected()));
@@ -169,6 +172,9 @@ void MainWindow::initializeActionConnections() const
 	connect(m_addTorusAction, SIGNAL(triggered()), m_sceneController, SLOT(torusAdded()));
 	connect(m_addVolumeAction, SIGNAL(triggered()), m_sceneController, SLOT(volumeAdded()));
 	connect(m_tessellationSlider, SIGNAL(valueChanged(int)), m_sceneController, SLOT(setTessellation(int)));
+
+	connect(m_scene, SIGNAL(sceneChanged()), this, SLOT(updateOutliner()));
+	connect(m_scene, SIGNAL(sceneChanged()), m_viewPortWidget, SLOT(update()));
 }
 
 void MainWindow::initializeMenuBar()
@@ -294,13 +300,29 @@ void MainWindow::initializeOutliner()
 {
 	m_outlinerDock = new QDockWidget("Outliner", this);
 
-	m_outlinerTreeView = new QTreeView(m_outlinerDock);
-	m_outlinerTreeView->setModel(new SceneItemModel(m_scene->getRoot()));
-	
-	m_outlinerDock->setWidget(m_outlinerTreeView);
+	reinitializeOutlinerModel();
 
-	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(changeSelection(QModelIndex, QModelIndex)));
+	m_outlinerDock->setWidget(m_outlinerTreeView);
 	addDockWidget(Qt::LeftDockWidgetArea, m_outlinerDock);
+}
+
+void MainWindow::updateOutliner()
+{
+	reinitializeOutlinerModel();
+	m_outlinerTreeView->expandAll();
+}
+
+void MainWindow::reinitializeOutlinerModel()
+{
+	if (m_outlinerModel != nullptr)
+	{
+		delete m_outlinerModel;
+	}
+
+	m_outlinerTreeView = new QTreeView(m_outlinerDock);
+	m_outlinerModel = new SceneItemModel(m_scene->getRoot());
+	m_outlinerTreeView->setModel(m_outlinerModel);
+	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(changeSelection(QModelIndex, QModelIndex)));
 }
 
 QSlider* MainWindow::createSlider()
@@ -313,4 +335,3 @@ QSlider* MainWindow::createSlider()
 	//slider->setSizePolicy(QSizePolicy(QSizePolicy::Policy::Maximum, QSizePolicy::Policy::Ignored));
 	return slider;
 }
-

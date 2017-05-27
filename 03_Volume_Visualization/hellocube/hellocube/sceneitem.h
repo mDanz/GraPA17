@@ -50,7 +50,7 @@ public:
 
 
 private:
-	QString createName();
+	QString createName() const;
 
 	static int s_cubeID;
 	static int s_sphereID;

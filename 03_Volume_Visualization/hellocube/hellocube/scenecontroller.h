@@ -21,10 +21,10 @@ public:
 
 	void setName(SceneItem *item, QString name);
 
-	void click(OpenGLWidget* widget, QPointF screenPos, QPointF worldPos);
-	void release(OpenGLWidget* widget, QPointF screenPos, QPointF worldPos);
-	void move(OpenGLWidget* widget, QLineF screenDelta, QLineF worldDelta, bool leftBtn, Qt::KeyboardModifiers mods);
-	void wheel(OpenGLWidget* widget, float delta, Qt::KeyboardModifiers mods);
+	void mousePressed(QPointF screenPos, QPointF mousePos, QMouseEvent* event);
+	void mouseReleased(QPointF screenPos, int idUnderMouse, QMouseEvent *event);
+	void mouseMoved(QPointF screenPos, QPointF mousePos, QMouseEvent* event);
+	void wheelMoved(int wheelDelta) const;
 
 public slots:
 	void resetCamera() const;
@@ -48,11 +48,14 @@ public slots:
 private:
 	SceneController();
 	void addItem(OpenGLGeometryType type) const;
+	void manipulateCamera(QPointF screenPos, QVector3D* delta, QMouseEvent* event) const;
+	void manipulateSelectedItem(QPointF screenPos, QVector3D* delta, QMouseEvent* event) const;
 
 	bool m_isInCameraMode;
 	int m_tessellation;
-	TrackBall *m_trackball;
-	bool simpleClick;
+	TrackBall *m_trackBall;
+	QPointF *m_lastPos;
+	bool m_singleClick;
 
 	SceneModel *m_scene;
 	ViewPortWidget* m_viewPortWidget;

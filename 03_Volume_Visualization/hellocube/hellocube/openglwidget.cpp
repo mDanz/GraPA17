@@ -12,6 +12,7 @@
 #include "cameramodel.h"
 #include "sceneitem.h"
 #include "openglhelper.h"
+#include "scenecontroller.h"
 
 # define M_PI           3.14159265358979323846
 
@@ -35,20 +36,20 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 	, m_colorPicker_objId(0)
 	, m_cameraModel(nullptr)
 	, m_scene(nullptr)
-	, m_tessellation(0)
-	, m_wheelDelta(0)
-	, m_isTessellationEnabled(false)
-	, m_vertexShader(nullptr)
-	, m_fragmentShader(nullptr)
-	, m_colorPicker_vertexShader(nullptr)
-	, m_colorPicker_fragmentShader(nullptr)
-	, m_pickerImage(nullptr)
+	//, m_tessellation(0)
+	//, m_wheelDelta(0)
+	//, m_isTessellationEnabled(false)
+	//, m_vertexShader(nullptr)
+	//, m_fragmentShader(nullptr)
+	//, m_colorPicker_vertexShader(nullptr)
+	//, m_colorPicker_fragmentShader(nullptr)
+	//, m_pickerImage(nullptr)
 	, m_primitiveFactory(nullptr)
 {
-	m_lastPos = new QPoint();
-	m_dragTranslation = new QVector3D;
-	m_dragRotation = QQuaternion();
-	m_trackBall = new TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::TrackMode::Sphere);
+	//m_lastPos = new QPoint();
+	//m_dragTranslation = new QVector3D;
+	//m_dragRotation = QQuaternion();
+	//m_trackBall = new TrackBall(0.0f, QVector3D(0, 1, 0), TrackBall::TrackMode::Sphere);
 }
 
 //OpenGLWidget::OpenGLWidget(SceneModel* scene, CameraModel* cameraModel, QWidget* parent)
@@ -122,48 +123,45 @@ QSize OpenGLWidget::sizeHint() const
 	return QSize(800, 400);
 }
 
+//
+//void OpenGLWidget::setTesselation(int t)
+//{
+//	m_tessellation = t;
+//	update();
+//}
 
-void OpenGLWidget::setTesselation(int t)
-{
-	m_tessellation = t;
-	update();
-}
-
-void OpenGLWidget::resetCamera()
-{
-	m_cameraModel->reset();
-	if (m_cameraModel->isOrthographic()) 
-	{
-		updateOrthoProjection(width(), height());
-	}
-
-	m_wheelDelta = 0;
-	m_dragTranslation = new QVector3D;
-	m_lastPos = new QPoint();
-	m_dragRotation = QQuaternion();
-	m_trackBall = new TrackBall(m_trackBall->getMode());
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	update();
-}
+//void OpenGLWidget::resetCamera()
+//{
+//	m_cameraModel->reset();
+//	if (m_cameraModel->isOrthographic()) 
+//	{
+//		updateOrthoProjection(width(), height());
+//	}
+//
+//	m_wheelDelta = 0;
+//	m_dragTranslation = new QVector3D;
+//	m_lastPos = new QPoint();
+//	m_dragRotation = QQuaternion();
+//	m_trackBall = new TrackBall(m_trackBall->getMode());
+//
+//	glMatrixMode(GL_MODELVIEW);
+//	glLoadIdentity();
+//
+//	update();
+//}
 
 void OpenGLWidget::cleanup()
 {
 	delete m_primitiveFactory;
-	delete m_lastPos;
-	delete m_dragTranslation;
-	delete m_trackBall;
-	delete m_vertexShader;
-	delete m_fragmentShader;
-	delete m_colorPicker_fragmentShader;
-	delete m_colorPicker_vertexShader;
+	//delete m_lastPos;
+	//delete m_dragTranslation;
+	//delete m_trackBall;
+	//delete m_vertexShader;
+	//delete m_fragmentShader;
+	//delete m_colorPicker_fragmentShader;
+	//delete m_colorPicker_vertexShader;
 
 	makeCurrent();
-	m_vbo.destroy();
-	m_nbo.destroy();
-	m_vao.destroy();
 	delete m_program;
 	m_program = nullptr;
 	delete m_colorPickerProgram;
@@ -184,7 +182,7 @@ void OpenGLWidget::selectedObjManipulationMode()
 
 void OpenGLWidget::initializeGL()
 {
-	m_isTessellationEnabled = true;
+	//m_isTessellationEnabled = true;
 	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLWidget::cleanup);
 
 	initializeOpenGLFunctions();
@@ -201,8 +199,6 @@ void OpenGLWidget::initializeGL()
 	initializeSceneShaderProgram();
 	initializeColorPickerShaderProgram();
 
-	m_camera.setToIdentity();
-
 	m_primitiveFactory = new OpenGLPrimitiveFactory(this);
 }
 
@@ -210,7 +206,7 @@ void OpenGLWidget::paintGL()
 {
 	auto items = m_scene->getAllItems();
 
-	manipulateScene();
+	//manipulateScene();
 
 	paintFocusHighlight();
 
@@ -313,9 +309,9 @@ void OpenGLWidget::initializeColorPickerShaderProgram()
 }
 
 
-QPointF OpenGLWidget::pixelPosToViewPos(const QPointF &pos) const
+QPointF OpenGLWidget::pixelPosToScreenPos(const QPointF &pos) const
 {
-
+	//todo maybe fix needed
 	auto x = 2.0 * float(pos.x()) / width() - 1.0;
 	auto y = 1.0 - 2.0 * float(pos.y()) / height();
 	return QPointF(x, y);
@@ -323,58 +319,58 @@ QPointF OpenGLWidget::pixelPosToViewPos(const QPointF &pos) const
 
 void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
 {
-	auto dx = event->x() - m_lastPos->x();
+	auto mousePos = event->pos();
+	auto screenPos = pixelPosToScreenPos(mousePos);
+	SceneController::getController()->mouseMoved(screenPos, mousePos, event);
+
+	/*auto dx = event->x() - m_lastPos->x();
 	auto dy = event->y() - m_lastPos->y();
 
 	if (event->buttons() & Qt::LeftButton)
 	{
-		m_trackBall->move(pixelPosToViewPos(event->pos()), m_trackBall->getRotation().conjugate());
+		m_trackBall->move(pixelPosToScreenPos(event->pos()), m_trackBall->getRotation().conjugate());
 		m_dragRotation = m_trackBall->getRotation();
 	}
 	else if (event->buttons() & Qt::RightButton)
 	{
-		m_trackBall->release(pixelPosToViewPos(event->pos()), m_trackBall->getRotation().conjugate());
+		m_trackBall->release(pixelPosToScreenPos(event->pos()), m_trackBall->getRotation().conjugate());
 		m_dragTranslation->setX(dx * m_damping);
 		m_dragTranslation->setY(dy * m_damping);
 	}
 	else
 	{
-		m_trackBall->release(pixelPosToViewPos(event->pos()), m_trackBall->getRotation().conjugate());
-	}
+		m_trackBall->release(pixelPosToScreenPos(event->pos()), m_trackBall->getRotation().conjugate());
+	}*/
 
 	update();
 }
 
 void OpenGLWidget::mousePressEvent(QMouseEvent* event)
 {
-	if (!hasFocus()) 
+	if (!hasFocus()) //todo fix focus
 	{
 		setFocus(Qt::MouseFocusReason);
 	}
 
-	m_lastPos = new QPoint(event->pos());
-
-	if (event->buttons() & Qt::LeftButton)
-	{
-		m_trackBall->push(pixelPosToViewPos(event->pos()));
-	}
+	auto mousePos = event->pos();
+	auto screenPos = pixelPosToScreenPos(mousePos);
+	SceneController::getController()->mousePressed(screenPos, mousePos, event);
 
 	//processSelection(); //todo fix processing
 
-	update();
+	emit clickedInside();
 }
 
 void OpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
 {
-	if (event->button() == Qt::LeftButton)
-	{
-		m_trackBall->release(pixelPosToViewPos(event->pos()), m_trackBall->getRotation().conjugate());
-	}
+	auto idUnderMouse = getIdFromScreen(event->pos());
+	auto screenPos = pixelPosToScreenPos(event->pos());
+	SceneController::getController()->mouseReleased(screenPos, idUnderMouse, event);
 }
 
 void OpenGLWidget::wheelEvent(QWheelEvent* event)
 {
-	m_wheelDelta += event->delta() * m_damping;
+	SceneController::getController()->wheelMoved(event->delta());
 	update();
 }
 
@@ -440,7 +436,7 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 		auto item = items->at(i);
 		m_world = item->getRigidBodyTransformation()->getWorldMatrix();
 
-		m_program->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
+		m_program->setUniformValue(m_mvMatrixLoc, m_cameraModel->getCameraMatrix() * m_world);
 		auto normalMatrix = m_world.normalMatrix();
 		m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
 
@@ -458,7 +454,7 @@ void OpenGLWidget::paintWithColorPickerProgram(QList<SceneItem*> *items)
 		auto item = items->at(i);
 		m_world = item->getRigidBodyTransformation()->getWorldMatrix();
 
-		m_colorPickerProgram->setUniformValue(m_colorPicker_mvMatrixLoc, m_camera * m_world);
+		m_colorPickerProgram->setUniformValue(m_colorPicker_mvMatrixLoc, m_cameraModel->getCameraMatrix() * m_world);
 		auto color = item->getId()->getIdAsColor();
 		m_colorPickerProgram->setUniformValue(m_colorPicker_objId, color);
 
@@ -491,27 +487,27 @@ void OpenGLWidget::paintFocusHighlight()
 	}
 }
 
-void OpenGLWidget::manipulateScene()
-{
-	if (m_manipulationModeFlag)	//todo move this code to button event handlers to support ctrl swapping
-	{
-		auto selectedItem = m_scene->getSelectedItem();
-		auto rigidBodyTransform = selectedItem->getRigidBodyTransformation();
-		rigidBodyTransform->move(*m_dragTranslation);
-		rigidBodyTransform->rotate(m_dragRotation);
-	}
-	else
-	{
-		m_cameraModel->move(m_dragTranslation);
-		if (!m_cameraModel->isOrthographic())
-		{
-			m_cameraModel->rotate(m_dragRotation);
-		}
-	}
-
-	m_cameraModel->zoom(m_wheelDelta);
-	m_camera = m_cameraModel->getCameraMatrix();
-}
+//void OpenGLWidget::manipulateScene()
+//{
+//	if (m_manipulationModeFlag)	//todo move this code to button event handlers to support ctrl swapping
+//	{
+//		auto selectedItem = m_scene->getSelectedItem();
+//		auto rigidBodyTransform = selectedItem->getRigidBodyTransformation();
+//		rigidBodyTransform->move(*m_dragTranslation);
+//		rigidBodyTransform->rotate(m_dragRotation);
+//	}
+//	else
+//	{
+//		m_cameraModel->move(m_dragTranslation);
+//		if (!m_cameraModel->isOrthographic())
+//		{
+//			m_cameraModel->rotate(m_dragRotation);
+//		}
+//	}
+//
+//	m_cameraModel->zoom(m_wheelDelta);
+//	m_camera = m_cameraModel->getCameraMatrix();
+//}
 
 
 void OpenGLWidget::updateOrthoProjection(int width, int height)
@@ -541,15 +537,26 @@ GLfloat OpenGLWidget::calculateAspectRatio(int width, int height)
 	return GLfloat(width) / (height ? height : 1);
 }
 
-void OpenGLWidget::processSelection() const
-{
-	auto color = m_pickerImage->pixelColor(*m_lastPos);
-	QVector3D colorVec(float(color.red()) / 255.0f, float(color.green()) / 255.0f, float(color.blue()) / 255.0f);
-	auto id = ObjectID::getIdFromColor(colorVec);
-	auto item = m_scene->getItem(id);
-	m_scene->selectItem(item);
-}
+//void OpenGLWidget::processSelection() const
+//{
+//	auto color = m_pickerImage->pixelColor(*m_lastPos);
+//	QVector3D colorVec(float(color.red()) / 255.0f, float(color.green()) / 255.0f, float(color.blue()) / 255.0f);
+//	auto id = ObjectID::getIdFromColor(colorVec);
+//	auto item = m_scene->getItem(id);
+//	m_scene->selectItem(item);
+//}
 
+int OpenGLWidget::getIdFromScreen(QPoint pos)
+{
+	m_fbo->bind();
+	glReadBuffer(GL_COLOR_ATTACHMENT1);
+	float pixel[4];
+	glReadPixels(pos.x(), pos.y(), 1, 1, GL_RGBA, GL_FLOAT, pixel);
+	float idUnderMouse = ObjectID::getIdFromColor(QVector3D(pixel[0] / 255.0f, pixel[1] / 255.0f, pixel[2] / 255.0f));
+	m_fbo->release();
+
+	return idUnderMouse;
+}
 
 
 

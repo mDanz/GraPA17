@@ -71,7 +71,7 @@ void TrackBall::move(const QPointF& pos, const QQuaternion& transformation)
 
 void TrackBall::release(const QPointF &pos, const QQuaternion &transformation)
 {
-	move(pos, transformation);
+	move(pos, transformation); //todo can be removed maybe
 	m_pressed = false;
 }
 
