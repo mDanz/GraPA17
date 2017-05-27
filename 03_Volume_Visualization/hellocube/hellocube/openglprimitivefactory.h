@@ -9,7 +9,7 @@ public:
 	explicit OpenGLPrimitiveFactory(OpenGLWidget *parent);
 	~OpenGLPrimitiveFactory();
 
-	OpenGLGeometry* createPrimitive(OpenGLGeometryType primitiveType);
+	OpenGLGeometry* renderPrimitive(OpenGLGeometryType primitiveType);
 
 private:
 	OpenGLWidget *m_parent;

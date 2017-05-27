@@ -17,7 +17,7 @@
         <file>Resources/img/view-dual.png</file>
         <file>Resources/img/viewports.png</file>
         <file>Resources/img/view-single.png</file>
-        <file>Resources/shaders/colorpicker.fsh</file>
-        <file>Resources/shaders/colorpicker.vsh</file>
+        <file>Resources/shaders/highlight.fsh</file>
+        <file>Resources/shaders/highlight.vsh</file>
     </qresource>
 </RCC>

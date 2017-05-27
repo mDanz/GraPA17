@@ -175,6 +175,8 @@ void MainWindow::initializeActionConnections() const
 
 	connect(m_scene, SIGNAL(sceneChanged()), this, SLOT(updateOutliner()));
 	connect(m_scene, SIGNAL(sceneChanged()), m_viewPortWidget, SLOT(update()));
+
+	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), m_sceneController, SLOT(selectedItemChanged(QModelIndex, QModelIndex)));
 }
 
 void MainWindow::initializeMenuBar()
@@ -322,7 +324,6 @@ void MainWindow::reinitializeOutlinerModel()
 	m_outlinerTreeView = new QTreeView(m_outlinerDock);
 	m_outlinerModel = new SceneItemModel(m_scene->getRoot());
 	m_outlinerTreeView->setModel(m_outlinerModel);
-	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(changeSelection(QModelIndex, QModelIndex)));
 }
 
 QSlider* MainWindow::createSlider()
