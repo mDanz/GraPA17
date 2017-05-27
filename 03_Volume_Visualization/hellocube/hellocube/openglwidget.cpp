@@ -216,12 +216,12 @@ void OpenGLWidget::paintGL()
 
 	m_fbo->bind();
 	m_program->bind();
-	glDrawBuffer(GL_COLOR_ATTACHMENT1);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	paintWithSceneShaderProgram(&items);
 	m_program->release();
 
 	m_colorPickerProgram->bind();
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	glDrawBuffer(GL_COLOR_ATTACHMENT1);
 	paintWithColorPickerProgram(&items);
 	m_colorPickerProgram->release();
 	m_fbo->release();
@@ -272,10 +272,10 @@ void OpenGLWidget::initializeFrameBufferObject(int width, int height)
 
 void OpenGLWidget::initializeSceneShaderProgram()
 {
-	m_program = new QOpenGLShaderProgram;
+	//m_program = new QOpenGLShaderProgram;
+	//initializeSceneShaders();
 
-	initializeSceneShaders();
-
+	m_program = OpenGLHelper::createShaderProgam(m_vshFile, m_fshFile);
 	m_program->bindAttributeLocation("in_position", 0);
 	m_program->bindAttributeLocation("in_normal", 1);
 	if (!m_program->link())
@@ -298,10 +298,10 @@ void OpenGLWidget::initializeSceneShaderProgram()
 
 void OpenGLWidget::initializeColorPickerShaderProgram()
 {
-	m_colorPickerProgram = new QOpenGLShaderProgram;
+	//m_colorPickerProgram = new QOpenGLShaderProgram;
+	//initializeColorPickerShaders();
 
-	initializeColorPickerShaders();
-
+	m_colorPickerProgram = OpenGLHelper::createShaderProgam(m_colorPicker_vshFile, m_colorPicker_fshFile);
 	m_colorPickerProgram->bindAttributeLocation("in_position", 0);
 	if (!m_colorPickerProgram->link())
 	{
@@ -316,83 +316,83 @@ void OpenGLWidget::initializeColorPickerShaderProgram()
 	m_colorPickerProgram->release();
 }
 
-void OpenGLWidget::initializeSceneShaders()
-{
-	QFileInfo vsh(m_vshFile);
-	if (vsh.exists())
-	{
-		m_vertexShader = new QOpenGLShader(QOpenGLShader::Vertex);
-		if (m_vertexShader->compileSourceFile(m_vshFile))
-		{
-			m_program->addShader(m_vertexShader);
-		}
-		else
-		{
-			qWarning() << "Vertex Shader Error" << m_vertexShader->log();
-		}
-	}
-	else
-	{
-		qWarning() << "Vertex Shader source file" << m_vshFile << " not found.";
-	}
+//void OpenGLWidget::initializeSceneShaders()
+//{
+//	QFileInfo vsh(m_vshFile);
+//	if (vsh.exists())
+//	{
+//		m_vertexShader = new QOpenGLShader(QOpenGLShader::Vertex);
+//		if (m_vertexShader->compileSourceFile(m_vshFile))
+//		{
+//			m_program->addShader(m_vertexShader);
+//		}
+//		else
+//		{
+//			qWarning() << "Vertex Shader Error" << m_vertexShader->log();
+//		}
+//	}
+//	else
+//	{
+//		qWarning() << "Vertex Shader source file" << m_vshFile << " not found.";
+//	}
+//
+//	QFileInfo fsh(m_fshFile);
+//	if (fsh.exists())
+//	{
+//		m_fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment);
+//		if (m_fragmentShader->compileSourceFile(m_fshFile))
+//		{
+//			m_program->addShader(m_fragmentShader);
+//		}
+//		else
+//		{
+//			qWarning() << "Fragment Shader Error" << m_fragmentShader->log();
+//		}
+//	}
+//	else
+//	{
+//		qWarning() << "Fragment Shader source file" << m_fshFile << " not found.";
+//	}
+//}
 
-	QFileInfo fsh(m_fshFile);
-	if (fsh.exists())
-	{
-		m_fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment);
-		if (m_fragmentShader->compileSourceFile(m_fshFile))
-		{
-			m_program->addShader(m_fragmentShader);
-		}
-		else
-		{
-			qWarning() << "Fragment Shader Error" << m_fragmentShader->log();
-		}
-	}
-	else
-	{
-		qWarning() << "Fragment Shader source file" << m_fshFile << " not found.";
-	}
-}
-
-void OpenGLWidget::initializeColorPickerShaders()
-{
-	QFileInfo vsh(m_colorPicker_vshFile);
-	if (vsh.exists())
-	{
-		m_colorPicker_vertexShader = new QOpenGLShader(QOpenGLShader::Vertex);
-		if (m_colorPicker_vertexShader->compileSourceFile(m_colorPicker_vshFile))
-		{
-			m_colorPickerProgram->addShader(m_colorPicker_vertexShader);
-		}
-		else
-		{
-			qWarning() << "Vertex Shader Error" << m_colorPicker_vertexShader->log();
-		}
-	}
-	else
-	{
-		qWarning() << "Vertex Shader source file" << m_colorPicker_vshFile << " not found.";
-	}
-
-	QFileInfo fsh(m_colorPicker_fshFile);
-	if (fsh.exists())
-	{
-		m_colorPicker_fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment);
-		if (m_colorPicker_fragmentShader->compileSourceFile(m_colorPicker_fshFile))
-		{
-			m_colorPickerProgram->addShader(m_colorPicker_fragmentShader);
-		}
-		else
-		{
-			qWarning() << "Fragment Shader Error" << m_colorPicker_fragmentShader->log();
-		}
-	}
-	else
-	{
-		qWarning() << "Fragment Shader source file" << m_colorPicker_fshFile << " not found.";
-	}
-}
+//void OpenGLWidget::initializeColorPickerShaders()
+//{
+//	QFileInfo vsh(m_colorPicker_vshFile);
+//	if (vsh.exists())
+//	{
+//		m_colorPicker_vertexShader = new QOpenGLShader(QOpenGLShader::Vertex);
+//		if (m_colorPicker_vertexShader->compileSourceFile(m_colorPicker_vshFile))
+//		{
+//			m_colorPickerProgram->addShader(m_colorPicker_vertexShader);
+//		}
+//		else
+//		{
+//			qWarning() << "Vertex Shader Error" << m_colorPicker_vertexShader->log();
+//		}
+//	}
+//	else
+//	{
+//		qWarning() << "Vertex Shader source file" << m_colorPicker_vshFile << " not found.";
+//	}
+//
+//	QFileInfo fsh(m_colorPicker_fshFile);
+//	if (fsh.exists())
+//	{
+//		m_colorPicker_fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment);
+//		if (m_colorPicker_fragmentShader->compileSourceFile(m_colorPicker_fshFile))
+//		{
+//			m_colorPickerProgram->addShader(m_colorPicker_fragmentShader);
+//		}
+//		else
+//		{
+//			qWarning() << "Fragment Shader Error" << m_colorPicker_fragmentShader->log();
+//		}
+//	}
+//	else
+//	{
+//		qWarning() << "Fragment Shader source file" << m_colorPicker_fshFile << " not found.";
+//	}
+//}
 
 QPointF OpenGLWidget::pixelPosToViewPos(const QPointF &pos) const
 {

@@ -1,5 +1,6 @@
 
 #include "openglhelper.h"
+#include <QFileInfo>
 
 QOpenGLFunctions_4_4_Compatibility* OpenGLHelper::m_glFunc = nullptr;
 
@@ -17,6 +18,23 @@ QString OpenGLHelper::Error()
 		err = m_glFunc->glGetError();
 	}
 	return message;
+}
+
+QOpenGLShaderProgram* OpenGLHelper::createShaderProgam(QString vshFile, QString fshFile)
+{
+	auto program = new QOpenGLShaderProgram;
+	QOpenGLShader* vertexShader;
+	QOpenGLShader* fragmentShader;
+
+	addNewShader(vshFile, QOpenGLShader::Vertex, *program);
+	addNewShader(fshFile, QOpenGLShader::Fragment, *program);
+
+	if (!program->link()) 
+	{
+		qCritical() << "Linking program failed:" << program->log() << "\n";
+	}
+
+	return program;
 }
 
 void OpenGLHelper::initializeGLFunc(QOpenGLContext *context)
@@ -53,5 +71,26 @@ QString OpenGLHelper::getErrorName(GLenum err)
 		return "GL_INVALID_FRAMEBUFFER_OPERATION";
 	default:
 		return {};
+	}
+}
+
+void OpenGLHelper::addNewShader(QString fileName, QOpenGLShader::ShaderType type, QOpenGLShaderProgram &program)
+{
+	QFileInfo file(fileName);
+	if (file.exists())
+	{
+		auto shader = new QOpenGLShader(type);
+		if (shader->compileSourceFile(fileName))
+		{
+			program.addShader(shader);
+		}
+		else
+		{
+			qCritical() << "Vertex Shader Error" << shader->log();
+		}
+	}
+	else
+	{
+		qCritical() << "Vertex Shader source file" << fileName << " not found.";
 	}
 }

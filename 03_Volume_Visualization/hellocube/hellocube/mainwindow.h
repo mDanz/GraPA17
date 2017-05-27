@@ -36,7 +36,7 @@ private:
 	void initializeToolBar();
 	void initializeGeneralToolBar();
 	void initializeGeometryToolBar();
-	void initializeStatusBar();
+	void initializeStatusBar() const;
 	void initializeDockWidgets();
 	void initializeViewportWidget();
 	void initializeOutliner();

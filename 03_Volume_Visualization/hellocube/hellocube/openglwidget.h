@@ -117,8 +117,8 @@ private:
 	void initializeFrameBufferObject(int width, int height);
 	void initializeSceneShaderProgram();
 	void initializeColorPickerShaderProgram();
-	void initializeSceneShaders();
-	void initializeColorPickerShaders();
+	//void initializeSceneShaders();
+	//void initializeColorPickerShaders();
 	void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 	void paintWithSceneShaderProgram(QList<SceneItem*> *items);
 	void paintWithColorPickerProgram(QList<SceneItem*> *items);
