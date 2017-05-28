@@ -8,9 +8,10 @@
 class OpenGLVolume : public OpenGLGeometry
 {
 public:
-	explicit OpenGLVolume(VolumeModel *model);
+	explicit OpenGLVolume();
 	~OpenGLVolume();
 
+	void setModel(VolumeModel *model);
 	virtual void draw(QOpenGLShaderProgram *program) override;
 private:
 

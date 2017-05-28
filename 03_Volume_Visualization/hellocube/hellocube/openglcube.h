@@ -21,7 +21,6 @@ public:
 private:
 	void initCubeGeometry();
 
-	QOpenGLVertexArrayObject *m_vao;
 	QOpenGLBuffer m_vertexBuf;
 	QOpenGLBuffer m_normalBuf;
 	QOpenGLBuffer m_indexBuf;

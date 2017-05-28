@@ -3,28 +3,69 @@
 #include <QMatrix4x4>
 
 CameraModel::CameraModel(bool isOrthographic, QVector3D position, QQuaternion rotation)
+	: m_projectionMatrix(nullptr)
+	, m_cameraMatrix(nullptr)
 {
 	m_isOrthographic = isOrthographic;
 	m_position = position;
 	m_defaultPosition = position;
 	m_rotation = rotation;
 	m_defaultRotation = rotation;
+	setProjection(m_isOrthographic, 45.0f, 0.01f, 1000.f);
 }
 
 CameraModel::~CameraModel()
 {
+	delete m_cameraMatrix;
+	delete m_projectionMatrix;
 }
 
-QMatrix4x4 CameraModel::getCameraMatrix() const
+QMatrix4x4* CameraModel::getCameraMatrix()
 {
-	auto matrix = QMatrix4x4();
-	matrix.setToIdentity();
-	matrix.translate(m_position);
-	matrix.translate(-(m_center));
-	matrix.rotate(m_rotation);
-	matrix.translate(m_center);
+	if (!m_cameraMatrix)
+	{
+		m_cameraMatrix = new QMatrix4x4();
+	}
+	m_cameraMatrix->setToIdentity();
+	m_cameraMatrix->translate(m_position);
+	m_cameraMatrix->translate(-(m_center));
+	m_cameraMatrix->rotate(m_rotation);
+	m_cameraMatrix->translate(m_center);
 	
-	return matrix;
+	return m_cameraMatrix;
+}
+
+void CameraModel::setProjection(bool isOrthographic, float fov, float zNear, float zFar)
+{
+	m_isOrthographic = isOrthographic;
+	m_fov = fov;
+	m_zNear = zNear;
+	m_zFar = zFar;
+}
+
+void CameraModel::resizeViewPort(int width, int height)
+{
+	m_aspect = float(width) / (height ? height : 1);
+}
+
+QMatrix4x4* CameraModel::getProjectionMatrix()
+{
+	if (!m_projectionMatrix)
+	{
+		m_projectionMatrix = new QMatrix4x4();
+	}
+
+	m_projectionMatrix->setToIdentity();
+	if(!isOrthographic())
+	{
+		m_projectionMatrix->perspective(m_fov, m_aspect, m_zNear, m_zFar);
+	}
+	else
+	{
+		updateOrthoProjection();
+	}
+
+	return m_projectionMatrix;
 }
 
 bool CameraModel::isOrthographic() const
@@ -60,4 +101,25 @@ void CameraModel::reset()
 {
 	m_position = m_defaultPosition;
 	m_rotation = m_defaultRotation;
+}
+
+void CameraModel::updateOrthoProjection()
+{
+	float top, bottom, left, right;
+
+	if (m_aspect > 1.0)
+	{
+		top = 1.0f;
+		bottom = -top;
+		right = top * m_aspect;
+		left = -right;
+	}
+	else
+	{
+		right = 1.0f;
+		left = -right;
+		top = right / m_aspect;
+		bottom = -top;
+	}
+	m_projectionMatrix->ortho(left, right, bottom, top, m_zNear, m_zFar);
 }

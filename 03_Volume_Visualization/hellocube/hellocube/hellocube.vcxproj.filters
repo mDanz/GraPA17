@@ -88,9 +88,6 @@
     <ClCompile Include="cameramodel.cpp">
       <Filter>Source Files\model</Filter>
     </ClCompile>
-    <ClCompile Include="modellingtoolmodel.cpp">
-      <Filter>Source Files\model</Filter>
-    </ClCompile>
     <ClCompile Include="rigidbodytransformation.cpp">
       <Filter>Source Files\model</Filter>
     </ClCompile>
@@ -237,9 +234,6 @@
       <Filter>Header Files\geometry</Filter>
     </ClInclude>
     <ClInclude Include="cameramodel.h">
-      <Filter>Header Files\model</Filter>
-    </ClInclude>
-    <ClInclude Include="modellingtoolmodel.h">
       <Filter>Header Files\model</Filter>
     </ClInclude>
     <ClInclude Include="rigidbodytransformation.h">

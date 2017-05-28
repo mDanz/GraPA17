@@ -6,13 +6,7 @@
 #include "opengltorus.h"
 #include "openglcylinder.h"
 #include "openglnone.h"
-
-class OpenGLNone;
-class OpenGLCube;
-class OpenGLSphere;
-class OpenGLCylinder;
-class OpenGLCone;
-class OpenGLTorus;
+#include "openglvolume.h"
 
 OpenGLPrimitiveFactory::OpenGLPrimitiveFactory(OpenGLWidget* parent)
 	: m_parent(parent) 
@@ -23,11 +17,12 @@ OpenGLPrimitiveFactory::OpenGLPrimitiveFactory(OpenGLWidget* parent)
 	m_primitives[3] = new OpenGLCylinder();
 	m_primitives[4] = new OpenGLCone();
 	m_primitives[5] = new OpenGLTorus();
+	m_primitives[6] = new OpenGLVolume();
 }
 
 OpenGLPrimitiveFactory::~OpenGLPrimitiveFactory()
 {
-	//delete[] m_primitives;
+	delete[] m_primitives;
 }
 
 OpenGLGeometry* OpenGLPrimitiveFactory::renderPrimitive(OpenGLPrimitiveType primitiveType)
@@ -46,6 +41,8 @@ OpenGLGeometry* OpenGLPrimitiveFactory::renderPrimitive(OpenGLPrimitiveType prim
 		return m_primitives[4];
 	case Torus:
 		return m_primitives[5];
+	case Volume:
+		return m_primitives[6];
 	default: 
 		return nullptr;
 	}

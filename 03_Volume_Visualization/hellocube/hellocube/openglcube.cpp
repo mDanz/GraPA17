@@ -31,7 +31,6 @@ OpenGLCube::OpenGLCube()
 
 OpenGLCube::~OpenGLCube()
 {
-	//m_vao->destroy();
 	m_vertexBuf.destroy();
 	m_normalBuf.destroy();
 	m_indexBuf.destroy();
@@ -56,10 +55,6 @@ void OpenGLCube::draw(QOpenGLShaderProgram* program)
 
 void OpenGLCube::initCubeGeometry()
 {
-	/*m_vao = new QOpenGLVertexArrayObject(parent);
-	m_vao->create();
-	m_vao->bind();*/
-
 	m_vertexBuf.create();
 	m_normalBuf.create();
 	m_indexBuf.create();

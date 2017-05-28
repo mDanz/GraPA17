@@ -25,7 +25,7 @@ void main() {
        float specAngle = clamp(dot(R, V), 0.0, 1.0);
        specular = pow(specAngle, specularExp);
     }
-    gl_FragData[0] = vec4(ambientColor + lambertian*diffuseColor + specular*specularColor, 1.0);
+    gl_FragData[0] = vec4(ambientColor, 1.0)// + lambertian*diffuseColor + specular*specularColor, 1.0);
 
 
 	gl_FragData[1] = vec4(idColor, 1.0);

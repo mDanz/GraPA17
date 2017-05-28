@@ -2,18 +2,15 @@
 
 #include <QtGui/QWindow>
 #include <QOpenGLWidget>
-#include <QOpenGLShaderProgram>
-#include <QOpenGLBuffer>
-#include <QOpenGLVertexArrayObject>
 #include <QtGui/QOpenGLFunctions_4_4_Compatibility>
 #include <QOpenGLFramebufferObject>
 
-#include "trackball.h"
 #include <qfileinfo.h>
-#include "openglcube.h"
-#include "modellingtoolmodel.h"
 #include "openglprimitivefactory.h"
+#include "cameramodel.h"
+#include "sceneitem.h"
 
+class SceneModel;
 class OpenGLPrimitiveFactory;
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Compatibility
@@ -77,9 +74,6 @@ private:
 	int getIdFromScreen(QPoint pos);
 
 	const GLfloat m_lightPos[4] = { 0.5f, 0.0f, 0.2f, 1.0f };
-	const GLdouble m_zNear = 0.01f;
-	const GLdouble m_zFar = 1000.0f;
-	const GLdouble m_fov = 45.0f;
 	const float m_damping = 0.01f;
 	const GLfloat m_ka[3] = { .7f, 0.0f, 0.0f };
 	const GLfloat m_kd[3] = { .5f, .5f, .5f };

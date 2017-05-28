@@ -3,8 +3,8 @@
 #include "openglhelper.h"
 #include <QOpenGLTexture>
 
-OpenGLVolume::OpenGLVolume(VolumeModel* model)
-	: m_model(model) 
+OpenGLVolume::OpenGLVolume()
+	: m_model(nullptr) 
 {
 	m_glFunc = OpenGLHelper::getGLFunc();
 	initVolumeGeometry();
@@ -12,7 +12,15 @@ OpenGLVolume::OpenGLVolume(VolumeModel* model)
 
 OpenGLVolume::~OpenGLVolume()
 {
-	delete m_model;
+	if (m_model) 
+	{
+		delete m_model;
+	}
+}
+
+void OpenGLVolume::setModel(VolumeModel* model)
+{
+	m_model = model;
 }
 
 void OpenGLVolume::draw(QOpenGLShaderProgram* program)

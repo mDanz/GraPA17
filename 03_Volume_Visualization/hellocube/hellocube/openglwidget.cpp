@@ -5,7 +5,6 @@
 #include <QtGui/QOpenGLPaintDevice>
 #include <QtGui/QPainter>
 #include <QWheelEvent>
-#include <QQuaternion>
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
 #include <QFileInfo>
@@ -13,6 +12,7 @@
 #include "sceneitem.h"
 #include "openglhelper.h"
 #include "scenecontroller.h"
+#include "scenemodel.h"
 
 # define M_PI           3.14159265358979323846
 
@@ -183,7 +183,6 @@ void OpenGLWidget::cleanup()
 
 void OpenGLWidget::initializeGL()
 {
-	//m_isTessellationEnabled = true;
 	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLWidget::cleanup);
 
 	initializeOpenGLFunctions();
@@ -207,7 +206,7 @@ void OpenGLWidget::initializeGL()
 	glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
 	glEnable(GL_LIGHT0);
 
-	m_primitiveFactory = new OpenGLPrimitiveFactory(this);
+	m_primitiveFactory = new OpenGLPrimitiveFactory();
 }
 
 void OpenGLWidget::paintGL()
@@ -226,16 +225,7 @@ void OpenGLWidget::resizeGL(int width, int height)
 {
 	glViewport(0, 0, width, height);
 
-	m_proj.setToIdentity();//todo refactor this move it to cameramodel
-
-	if (m_cameraModel->isOrthographic())
-	{
-		updateOrthoProjection(width, height);
-	}
-	else
-	{
-		m_proj.perspective(m_fov, calculateAspectRatio(width, height), m_zNear, m_zFar);
-	}
+	m_cameraModel->resizeViewPort(width, height);
 	
 	delete m_fbo;
 	initializeFrameBufferObject(width, height);
@@ -338,16 +328,9 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
 
 void OpenGLWidget::mousePressEvent(QMouseEvent* event)
 {
-	//if (!hasFocus()) //todo fix focus
-	//{
-	//	setFocus(Qt::MouseFocusReason);
-	//}
-
 	auto mousePos = event->pos();
 	auto screenPos = pixelPosToScreenPos(mousePos);
 	SceneController::getController()->mousePressed(screenPos, mousePos, event);
-
-	//processSelection(); //todo fix processing
 
 	emit clickedInside();
 }
@@ -365,37 +348,6 @@ void OpenGLWidget::wheelEvent(QWheelEvent* event)
 	update();
 }
 
-//void OpenGLWidget::keyPressEvent(QKeyEvent* e)
-//{
-//	if (e->key() == Qt::Key_Delete)
-//	{
-//		m_scene->deleteSelectedItem();
-//	}
-//	else if (e->key() == Qt::Key_Control)
-//	{
-//		m_manipulationModeFlag = !m_manipulationModeFlag;
-//	}
-//}
-//
-//void OpenGLWidget::keyReleaseEvent(QKeyEvent* e)
-//{
-//	if (e->key() == Qt::Key_Control)
-//	{
-//		m_manipulationModeFlag = !m_manipulationModeFlag;
-//	}
-//	update();
-//}
-//
-//void OpenGLWidget::focusInEvent(QFocusEvent* event)
-//{
-//	update();
-//}
-//
-//void OpenGLWidget::focusOutEvent(QFocusEvent* event)
-//{
-//	update();
-//}
-
 void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
 {
 	GLdouble left, right, bottom, top;
@@ -410,13 +362,13 @@ void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, G
 
 void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 {
-	glClearColor(.3f, .3f, .3f, .3f);
+	glClearColor(.0f, .0f, .0f, .0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	OpenGLHelper::getGLFunc()->glDrawBuffers(2, buffers);
 	m_program->bind();
-	m_program->setUniformValue(m_projMatrixLoc, m_proj);//todo use cameramodel projectionmatrix
+	m_program->setUniformValue(m_projMatrixLoc, *m_cameraModel->getProjectionMatrix());//todo use cameramodel projectionmatrix
 	m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
 	m_program->setUniformValue(m_ambientColor, QVector3D(m_ka[0], m_ka[1], m_ka[2])); //todo use variable
 	m_program->setUniformValue(m_diffuseColor, QVector3D(m_kd[0], m_kd[1], m_kd[2]));
@@ -430,7 +382,7 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 		m_world = item->getRigidBodyTransformation()->getWorldMatrix();
 
 		m_program->setUniformValue(m_idColor, item->getId()->getIdAsColor());
-		m_program->setUniformValue(m_mvMatrixLoc, m_cameraModel->getCameraMatrix() * m_world);
+		m_program->setUniformValue(m_mvMatrixLoc, *m_cameraModel->getCameraMatrix() * m_world);
 		auto normalMatrix = m_world.normalMatrix();
 		m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
 
@@ -511,33 +463,28 @@ void OpenGLWidget::paintWithHighlightShaderProgram(QList<SceneItem*> *items)
 //	m_camera = m_cameraModel->getCameraMatrix();
 //}
 
-
-void OpenGLWidget::updateOrthoProjection(int width, int height)
-{
-	float top, bottom, left, right;
-	float aspect = calculateAspectRatio(width, height);
-
-	if (width > height)
-	{
-		top = 1.0f;
-		bottom = -top;
-		right = top * aspect;
-		left = -right;
-	}
-	else
-	{
-		right = 1.0f;
-		left = -right;
-		top = right / aspect;
-		bottom = -top;
-	}
-	m_proj.ortho(left, right, bottom, top, m_zNear, m_zFar);
-}
-
-GLfloat OpenGLWidget::calculateAspectRatio(int width, int height)
-{
-	return GLfloat(width) / (height ? height : 1);
-}
+//
+//void OpenGLWidget::updateOrthoProjection(int width, int height)
+//{
+//	float top, bottom, left, right;
+//	float aspect = calculateAspectRatio(width, height);
+//
+//	if (width > height)
+//	{
+//		top = 1.0f;
+//		bottom = -top;
+//		right = top * aspect;
+//		left = -right;
+//	}
+//	else
+//	{
+//		right = 1.0f;
+//		left = -right;
+//		top = right / aspect;
+//		bottom = -top;
+//	}
+//	m_proj.ortho(left, right, bottom, top, m_zNear, m_zFar);
+//}
 
 //void OpenGLWidget::processSelection() const
 //{

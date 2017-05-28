@@ -1,18 +1,20 @@
 #pragma once
 
-#include "openglwidget.h"
+#include "openglgeometry.h"
 #include "openglprimitivetype.h"
+
+class OpenGLWidget;
 
 class OpenGLPrimitiveFactory
 {
 public:
-	explicit OpenGLPrimitiveFactory(OpenGLWidget *parent);
+	explicit OpenGLPrimitiveFactory(OpenGLWidget *parent = nullptr);
 	~OpenGLPrimitiveFactory();
 
 	OpenGLGeometry* renderPrimitive(OpenGLPrimitiveType primitiveType);
 
 private:
 	OpenGLWidget *m_parent;
-	OpenGLGeometry* m_primitives[6];
+	OpenGLGeometry *m_primitives[7];
 };
 
