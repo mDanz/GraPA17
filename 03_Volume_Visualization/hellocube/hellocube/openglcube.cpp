@@ -19,7 +19,7 @@ OpenGLCube::OpenGLCube()
 	, m_indexBuf(QOpenGLBuffer::IndexBuffer)
 {
 	initializeOpenGLFunctions();
-	initCubeGeometry();
+	//initCubeGeometry();
 }
 
 OpenGLCube::~OpenGLCube()
@@ -50,7 +50,7 @@ void OpenGLCube::draw(QOpenGLShaderProgram* program)
 
 void OpenGLCube::renderCube(int tesselation) 
 {
-	auto glFunc = OpenGLHelper::getGLFunc();
+	auto glFunc = OpenGLHelper::getGLFunc(); //todo refactor this
 	glFunc->glBegin(GL_QUADS);
 		// front
 		renderPlane(QVector3D(0, 0, 1), tesselation, glFunc);

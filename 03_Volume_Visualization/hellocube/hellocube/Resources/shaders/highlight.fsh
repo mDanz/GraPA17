@@ -1,7 +1,7 @@
 
 varying vec2 uv;
 
-uniform vec3 highlightColor;
+uniform vec4 highlightColor;
 uniform sampler2D sceneTex;
 uniform sampler2D pickTex;
 uniform vec4 selectedID;
@@ -29,16 +29,17 @@ bool isOnWindowBorder()
 
 void main(void)
 {
+    //gl_FragColor = highlightColor;
     if(isSelectedWidget && isOnWindowBorder()) 
 	{
-        gl_FragColor = vec4(highlightColor, 1.f);
+        gl_FragColor = highlightColor;
     }
     else
 	{
         vec4 color = texture2D(pickTex, uv);
         if(color.a > 0.0f && color == selectedID && isBorder()) 
 		{
-            gl_FragColor = vec4(highlightColor, 1.f);
+            gl_FragColor = vec4(1.f, 0.9f, 0.1f, 1.f);
         } 
 		else 
 		{

@@ -76,11 +76,12 @@ private:
 	//void processSelection() const;
 	int getIdFromScreen(QPoint pos);
 
-	const float m_lightPos[4] = { 0.5f, 0.0f, 0.2f, 1.0f };
+	const QVector3D m_lightPos = { 0.5f, 0.0f, 0.2f };
 	const float m_damping = 0.01f;
-	const float m_ka[3] = { .0f, 0.4f, 0.4f };
-	const float m_kd[3] = { .6f, .6f, .6f };
-	const float m_ks[3] = { .8f, .8f, .8f };
+	const QVector3D m_ka = { .4f, 0.0f, 0.4f };
+	const QVector3D m_kd = { .6f, .6f, .6f };
+	const QVector3D m_ks = { .8f, .8f, .8f };
+	const QVector4D m_highlightColor = { .0f, .7f, .0f, .9f };
 	const float m_specExp = 50.0;
 	const QString m_vshFile = "./Resources/shaders/phong.vsh";
 	const QString m_fshFile = "./Resources/shaders/phong.fsh";

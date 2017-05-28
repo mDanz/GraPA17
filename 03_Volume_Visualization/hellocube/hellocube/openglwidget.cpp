@@ -88,6 +88,7 @@ void OpenGLWidget::cleanup()
 	delete m_highlightProgram;
 	m_highlightProgram = nullptr;
 	delete m_fbo;
+	delete m_entryExitFbo;
 	doneCurrent();
 }
 
@@ -114,7 +115,7 @@ void OpenGLWidget::initializeGL()
 
 	glClearColor(0, 0, 0, 0);
 	glEnable(GL_LIGHTING);
-	glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
+	glLightfv(GL_LIGHT0, GL_POSITION, new float[3]{ m_lightPos.x(), m_lightPos.y(), m_lightPos.z() });
 	glEnable(GL_LIGHT0);
 
 	m_primitiveFactory = new OpenGLPrimitiveFactory();
@@ -124,10 +125,8 @@ void OpenGLWidget::paintGL()
 {
 	auto items = m_scene->getAllItems();
 
-	//m_fbo->bind();
 	paintWithSceneShaderProgram(&items);
 	paintWithHighlightShaderProgram(&items);
-	//m_fbo->release();
 
 	//paintWithVolumeShaderProgram(&items);
 }
@@ -150,15 +149,21 @@ void OpenGLWidget::initializeFrameBufferObjects(int width, int height)
 {
 	auto drawRectSize = QRect(0, 0, width, height).size();
 	QOpenGLFramebufferObjectFormat format;
-	//format.setSamples(16);
+	format.setTextureTarget(GL_TEXTURE_2D);
+	format.setInternalTextureFormat(GL_RGBA8);
 	format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
 	m_fbo = new QOpenGLFramebufferObject(drawRectSize, format);
 	m_fbo->bind();
-	m_fbo->addColorAttachment(drawRectSize, GL_TEXTURE_2D);
+	m_fbo->addColorAttachment(drawRectSize, format.internalTextureFormat());
+	m_fbo->release();
+	qInfo() << "m_fbo " << (m_fbo->isValid() ? "is valid! " : "IS NOT VALID! ") << "size: " << m_fbo->width() << "," << m_fbo->height();
 
-	m_entryExitFbo = new QOpenGLFramebufferObject(width, height, QOpenGLFramebufferObject::Attachment::Depth);
+	m_entryExitFbo = new QOpenGLFramebufferObject(drawRectSize, format);
 	m_entryExitFbo->bind();
-	m_entryExitFbo->addColorAttachment(width, height);
+	m_entryExitFbo->addColorAttachment(drawRectSize, format.internalTextureFormat());
+	m_entryExitFbo->release();
+	qInfo() << "m_entryExitFbo " << (m_entryExitFbo->isValid() ? "is valid! " : "IS NOT VALID! ") << "size: " << m_entryExitFbo->width() << "," << m_entryExitFbo->height();
+	
 }
 
 void OpenGLWidget::initializeSceneShaderProgram()
@@ -283,11 +288,12 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 
 	m_program->bind();
 	m_program->setUniformValue("projMatrix", *m_cameraModel->getProjectionMatrix());
-	m_program->setUniformValue("lightPos", QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
-	m_program->setUniformValue("ambientColor", QVector3D(m_ka[0], m_ka[1], m_ka[2])); //todo use variable
-	m_program->setUniformValue("diffuseColor", QVector3D(m_kd[0], m_kd[1], m_kd[2]));
-	m_program->setUniformValue("specularColor", QVector3D(m_ks[0], m_ks[1], m_ks[2]));
+	m_program->setUniformValue("lightPos", m_lightPos);
+	m_program->setUniformValue("ambientColor", m_ka); //todo use variable
+	m_program->setUniformValue("diffuseColor", m_kd);
+	m_program->setUniformValue("specularColor", m_ks);
 	m_program->setUniformValue("specularExp", m_specExp);
+
 	for (auto i = 0; i < items->count(); i++)
 	{
 		auto item = items->at(i);
@@ -308,6 +314,16 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 	m_program->release();
 	m_fbo->release();
 
+	auto img1 = m_fbo->toImage(false, 0);
+	if (!img1.save("./tex/sceneTex.jpg"))
+	{
+		qWarning() << "Scene Texture not saved correctly";
+	}auto img2 = m_fbo->toImage(false, 1);
+	if (!img2.save("./tex/pickTex.jpg"))
+	{
+		qWarning() << "Pick Texture not saved correctly";
+	}
+
 	auto err = OpenGLHelper::Error();
 	if (!err.isEmpty())
 	{
@@ -319,26 +335,29 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 
 void OpenGLWidget::paintWithHighlightShaderProgram(QList<SceneItem*> *items) //todo refactor this
 {
-	GLenum defBuf[] = { GL_NONE };
-	OpenGLHelper::getGLFunc()->glDrawBuffers(1, defBuf);
+	auto glFunc = OpenGLHelper::getGLFunc();
+
+	GLenum defBuf[] = { GL_COLOR_ATTACHMENT0 };
+	glFunc->glDrawBuffers(1, defBuf);
 	qInfo() << "highlight shader debug:" << OpenGLHelper::Error();
 
 	m_highlightProgram->bind();
 
-	// bind the textures from the fbo
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_fbo->textures()[0]);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, m_fbo->textures()[1]);
+	glEnable(GL_TEXTURE_2D);
+	glFunc->glActiveTexture(GL_TEXTURE0);
+	glFunc->glBindTexture(GL_TEXTURE_2D, m_fbo->textures()[0]);
+	glFunc->glActiveTexture(GL_TEXTURE1);
+	glFunc->glBindTexture(GL_TEXTURE_2D, m_fbo->textures()[1]);
 
 	m_highlightProgram->setUniformValue("isSelectedWidget", m_isSelected);
+	m_highlightProgram->setUniformValue("highlightColor", m_highlightColor);
 	if (auto selectedItem = m_scene->getSelectedItem()) 
 	{
 		m_highlightProgram->setUniformValue("selectedID", QVector4D(selectedItem->getId()->getIdAsColor(), 1.0));
 	}
 	else 
 	{
-		m_highlightProgram->setUniformValue("selectedID", QVector4D(0.0, 0.0, 0.0, 0.0));
+		m_highlightProgram->setUniformValue("selectedID", QVector4D(0.0, 1.0, 0.0, 0.0));
 	}
 
 	glColor4f(0, 0, 0, 0);
@@ -349,6 +368,8 @@ void OpenGLWidget::paintWithHighlightShaderProgram(QList<SceneItem*> *items) //t
 		glVertex3f(-1, 1, 0);
 	glEnd();
 
+	glFlush();
+
 	m_highlightProgram->release();
 
 	auto err = OpenGLHelper::Error();
@@ -356,8 +377,6 @@ void OpenGLWidget::paintWithHighlightShaderProgram(QList<SceneItem*> *items) //t
 	{
 		qInfo() << "highlight shader program errors:" << err;
 	}
-
-	glFlush();
 }
 
 
@@ -401,8 +420,8 @@ const float boxVx[] = {
 };
 static const float quadVx[] = { -1,-1,0, 1,1,0, -1,1,0,  -1,-1,0, 1,-1,0, 1,1,0, };
 
-void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items) {
-
+void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items) 
+{
 
 	// set up the vbo for volume rendering
 	// set up quad vbo
@@ -453,7 +472,7 @@ void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items) {
 
 		glCullFace(GL_BACK);
 		glDepthFunc(GL_LESS);
-		OpenGLHelper::getGLFunc()->glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		OpenGLHelper::getGLFunc()->glDrawBuffer(GL_COLOR_ATTACHMENT1);
 
 		OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, boxVbo);
 		OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -461,6 +480,17 @@ void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items) {
 
 		glFlush();
 		m_entryExitFbo->release();
+
+		//auto img1 = m_entryExitFbo->toImage(0);
+		//if (!img1.save("./exitTex.jpg"))
+		//{
+		//	qWarning() << "Exit Texture not saved correctly";
+		//}
+		//auto img2 = m_entryExitFbo->toImage(1);
+		//if (!img2.save("./entryTex.jpg"))
+		//{
+		//	qWarning() << "Entry Texture not saved correctly";
+		//}
 
 		m_entryExitProgram->release();
 
