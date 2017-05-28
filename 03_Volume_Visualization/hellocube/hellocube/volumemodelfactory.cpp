@@ -4,6 +4,7 @@
 #include <QOpenGLTexture>
 #include "volumemodel.h"
 #include "openglhelper.h"
+#include <QByteArray>
 
 VolumeModel* VolumeModelFactory::createFromFile(const QString& fileName)
 {
@@ -87,12 +88,8 @@ void VolumeModelFactory::fillAspects(VolumeModel &model, QFile &file)
 
 void VolumeModelFactory::fillData(VolumeModel& model, QFile& file)
 {
-	int headerSize = 24;
-	int dataSize = file.size() - headerSize;
-	auto data = new char[dataSize];
-	file.read(data, dataSize);
-	model.setData(reinterpret_cast<unsigned char*>(data));
-	data = nullptr;
+	auto bytes = file.readAll();
+	model.setData(bytes);
 }
 
 void VolumeModelFactory::fillTexture(VolumeModel &model)
@@ -112,34 +109,54 @@ void VolumeModelFactory::fillTexture(VolumeModel &model)
 	auto dataType = model.getScalarType();
 
 	//// fix the byte order to big endian and find max and min values todo fix byteorder
-	//auto d = model.getData();
-	//auto scalarByteSize = model.getScalarByteSize();
-	//int domain = pow(256, scalarByteSize);
-	//int tmp, l, r, maxV = 0, minV = domain, v;
+	auto d = model.getData();
+	auto scalarByteSize = model.getScalarByteSize();
+	int domain = pow(256, scalarByteSize);
+	int l, r, maxV = 0, minV = domain, v;
+	char tmp;
 
 	//for (int i = 0; i < model.getDataSize(); i += scalarByteSize) {
 	//	for (int n = 0; n < (scalarByteSize + 1) / 2; n++) {
 	//		l = i + n;
 	//		r = i + scalarByteSize - 1 - n;
-	//		tmp = volumeData[l];
-	//		volumeData[l] = volumeData[r];
-	//		volumeData[r] = tmp;
+	//		tmp = model.getByteArrayData()->at(l);
+	//		model.getByteArrayData()[l] = model.getByteArrayData()[r];
+	//		model.getByteArrayData()->insert(r, tmp);
 	//	}
 
 	//	// determine current Value
 	//	v = 0;
 	//	for (int b = scalarByteSize - 1; b >= 0; b--)
+	//	{
 	//		v = (v << 8) | static_cast<int>(d[i + b]);
+	//	}
 
 	//	if (v > maxV)
+	//	{
 	//		maxV = v;
+	//	}
 	//	if (v < minV)
+	//	{
 	//		minV = v;
+	//	}
 	//}
-	//// normalize the max and min intensity values
-	//properties.minValue = minV / (float)domain;
-	//properties.maxValue = maxV / (float)domain;
-	//qInfo() << "Intensity values between " << properties.minValue << "and" << properties.maxValue;
+	// normalize the max and min intensity values
+
+	for (int i = 0; i < model.getDataSize(); i++)
+	{
+		if (d[i] > maxV)
+		{
+			maxV = d[i];
+		}
+		if (d[i] < minV)
+		{
+			minV = d[i];
+		}
+
+	}
+	model.setMinValue(minV / (float)domain);
+	model.setMaxValue(maxV / (float)domain);
+	qInfo() << "Intensity values between " << model.getMinValue() << "and" << model.getMaxValue();
 
 	glFunc->glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, model.getDimensions()->x(), model.getDimensions()->y(), model.getDimensions()->z(), 0, GL_RED, dataType, model.getData());
 	glFunc->glBindTexture(GL_TEXTURE_3D, model.getTextureName());

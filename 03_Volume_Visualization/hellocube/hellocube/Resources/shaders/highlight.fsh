@@ -1,6 +1,4 @@
 
-uniform vec3 objId;
-
 varying vec2 uv;
 
 uniform vec3 highlightColor;
@@ -40,7 +38,7 @@ void main(void)
         vec4 color = texture2D(pickTex, uv);
         if(color.a > 0.0f && color == selectedID && isBorder()) 
 		{
-          gl_FragColor = vec4(highlightColor, 1.f);
+            gl_FragColor = vec4(highlightColor, 1.f);
         } 
 		else 
 		{

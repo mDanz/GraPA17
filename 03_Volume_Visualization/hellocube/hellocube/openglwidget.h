@@ -56,15 +56,18 @@ protected:
 	//void focusOutEvent(QFocusEvent *event) override;
 
 private:
-	void initializeFrameBufferObject(int width, int height);
+	void initializeFrameBufferObjects(int width, int height);
 	void initializeSceneShaderProgram();
 	void initializeHighlightShaderProgram();
+	void initializeEntryExitShaderProgram();
+	void initializeVolumeShaderProgram();
 	//void initializeColorPickerShaderProgram();
 	//void initializeSceneShaders();
 	//void initializeColorPickerShaders();
 	//void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 	void paintWithSceneShaderProgram(QList<SceneItem*> *items);
 	void paintWithHighlightShaderProgram(QList<SceneItem*>* items);
+	void paintWithVolumeShaderProgram(QList<SceneItem*> *items);
 	//void paintWithColorPickerProgram(QList<SceneItem*> *items);
 	//void paintFocusHighlight();
 	//void manipulateScene();
@@ -73,24 +76,35 @@ private:
 	//void processSelection() const;
 	int getIdFromScreen(QPoint pos);
 
-	const GLfloat m_lightPos[4] = { 0.5f, 0.0f, 0.2f, 1.0f };
+	const float m_lightPos[4] = { 0.5f, 0.0f, 0.2f, 1.0f };
 	const float m_damping = 0.01f;
-	const GLfloat m_ka[3] = { .7f, 0.0f, 0.0f };
-	const GLfloat m_kd[3] = { .5f, .5f, .5f };
-	const GLfloat m_ks[3] = { .8f, .8f, .8f };
-	const GLfloat m_specExp = 50.0;
+	const float m_ka[3] = { .0f, 0.4f, 0.4f };
+	const float m_kd[3] = { .6f, .6f, .6f };
+	const float m_ks[3] = { .8f, .8f, .8f };
+	const float m_specExp = 50.0;
 	const QString m_vshFile = "./Resources/shaders/phong.vsh";
 	const QString m_fshFile = "./Resources/shaders/phong.fsh";
 	const QString m_highlight_vshFile = "./Resources/shaders/highlight.vsh";
 	const QString m_highlight_fshFile = "./Resources/shaders/highlight.fsh";
+	const QString m_volume_vshFile = "./Resources/shaders/volume.vsh";
+	const QString m_volume_fshFile = "./Resources/shaders/volume.fsh";
+	const QString m_entryExit_vshFile = "./Resources/shaders/entryExit.vsh";
+	const QString m_entryExit_fshFile = "./Resources/shaders/entryExit.fsh";
 
 	//bool m_manipulationModeFlag;
 	bool m_isSelected;
+	int m_displaymode;
 
 	QOpenGLShaderProgram *m_program;
 	QOpenGLShaderProgram *m_highlightProgram;
+	QOpenGLShaderProgram *m_entryExitProgram;
+	QOpenGLShaderProgram *m_volumeShaderProgram;
 	//QOpenGLShaderProgram *m_colorPickerProgram; 
 	QOpenGLFramebufferObject *m_fbo;
+	QOpenGLFramebufferObject *m_entryExitFbo;
+
+	GLuint boxVbo;
+	GLuint quadVbo;
 
 	int m_projMatrixLoc;
 	int m_mvMatrixLoc;
@@ -101,6 +115,7 @@ private:
 	int m_specularColor;
 	int m_specularExp;
 	int m_idColor;
+	int m_stepLoc;
 
 	int m_colorPicker_ProjMatrixLoc;
 	int m_colorPicker_mvMatrixLoc;

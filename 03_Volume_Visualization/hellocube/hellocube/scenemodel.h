@@ -1,6 +1,7 @@
 #pragma once
 #include <QObject>
 #include "openglprimitivetype.h"
+#include "volumemodel.h"
 
 
 class RigidBodyTransformation;
@@ -22,6 +23,8 @@ public:
 	SceneItem* getItem(int id) const;
 	QList<SceneItem*> getAllItems() const;
 	SceneItem* getSelectedItem() const;
+	void setVolume(VolumeModel* volume);
+	VolumeModel* getVolume();
 
 	void update();
 
@@ -32,6 +35,7 @@ public slots:
 private:
 	SceneItem *m_root;
 	SceneItem *m_selectedItem;
+	VolumeModel * m_volume;
 
 signals:
 	void sceneChanged();

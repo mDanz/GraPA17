@@ -13,12 +13,14 @@
 #include "openglhelper.h"
 #include "scenecontroller.h"
 #include "scenemodel.h"
+#include "volumemodel.h"
 
 # define M_PI           3.14159265358979323846
 
 OpenGLWidget::OpenGLWidget(QWidget* parent)
 	: QOpenGLWidget(parent)
 	, m_isSelected(false)
+	, m_displaymode(4)
 	, m_program(nullptr)
 	, m_highlightProgram(nullptr)
 	, m_fbo(nullptr)
@@ -97,9 +99,11 @@ void OpenGLWidget::initializeGL()
 	initializeOpenGLFunctions();
 	OpenGLHelper::initializeGLFunc(context());
 
-	initializeFrameBufferObject(width(), height());
+	initializeFrameBufferObjects(width(), height());
 	initializeSceneShaderProgram();
 	initializeHighlightShaderProgram();
+	initializeEntryExitShaderProgram();
+	initializeVolumeShaderProgram();
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -108,7 +112,7 @@ void OpenGLWidget::initializeGL()
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
 
-	glClearColor(.1, .1, .1, 1);
+	glClearColor(0, 0, 0, 0);
 	glEnable(GL_LIGHTING);
 	glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
 	glEnable(GL_LIGHT0);
@@ -120,10 +124,12 @@ void OpenGLWidget::paintGL()
 {
 	auto items = m_scene->getAllItems();
 
-	m_fbo->bind();
+	//m_fbo->bind();
 	paintWithSceneShaderProgram(&items);
-	//paintWithHighlightShaderProgram(&items);
-	m_fbo->release();
+	paintWithHighlightShaderProgram(&items);
+	//m_fbo->release();
+
+	//paintWithVolumeShaderProgram(&items);
 }
 
 void OpenGLWidget::resizeGL(int width, int height)
@@ -133,18 +139,26 @@ void OpenGLWidget::resizeGL(int width, int height)
 	m_cameraModel->resizeViewPort(width, height);
 	
 	delete m_fbo;
-	initializeFrameBufferObject(width, height);
+	delete m_entryExitFbo;
+	initializeFrameBufferObjects(width, height);
 
 	update();
 }
 
 
-void OpenGLWidget::initializeFrameBufferObject(int width, int height)
+void OpenGLWidget::initializeFrameBufferObjects(int width, int height)
 {
-	makeCurrent();
-	m_fbo = new QOpenGLFramebufferObject(width, height, QOpenGLFramebufferObject::Depth);
+	auto drawRectSize = QRect(0, 0, width, height).size();
+	QOpenGLFramebufferObjectFormat format;
+	//format.setSamples(16);
+	format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+	m_fbo = new QOpenGLFramebufferObject(drawRectSize, format);
 	m_fbo->bind();
-	m_fbo->addColorAttachment(width, height);
+	m_fbo->addColorAttachment(drawRectSize, GL_TEXTURE_2D);
+
+	m_entryExitFbo = new QOpenGLFramebufferObject(width, height, QOpenGLFramebufferObject::Attachment::Depth);
+	m_entryExitFbo->bind();
+	m_entryExitFbo->addColorAttachment(width, height);
 }
 
 void OpenGLWidget::initializeSceneShaderProgram()
@@ -156,18 +170,6 @@ void OpenGLWidget::initializeSceneShaderProgram()
 	{
 		qWarning() << "Linking Error" << m_program->log();
 	}
-
-	m_program->bind();
-	m_projMatrixLoc = m_program->uniformLocation("projMatrix");
-	m_mvMatrixLoc = m_program->uniformLocation("mvMatrix");
-	m_normalMatrixLoc = m_program->uniformLocation("normalMatrix");
-	m_lightPosLoc = m_program->uniformLocation("lightPos");
-	m_ambientColor = m_program->uniformLocation("ambientColor");
-	m_diffuseColor = m_program->uniformLocation("diffuseColor");
-	m_specularColor = m_program->uniformLocation("specularColor");
-	m_specularExp  = m_program->uniformLocation("specularExp");
-	m_idColor = m_program->uniformLocation("objId");
-	m_program->release();
 }
 
 void OpenGLWidget::initializeHighlightShaderProgram()
@@ -185,6 +187,38 @@ void OpenGLWidget::initializeHighlightShaderProgram()
 	m_highlightProgram->release();
 }
 
+void OpenGLWidget::initializeEntryExitShaderProgram()
+{
+	m_entryExitProgram = OpenGLHelper::createShaderProgam(m_entryExit_vshFile, m_entryExit_fshFile);
+	if (!m_entryExitProgram->link())
+	{
+		qWarning() << "Linking Error" << m_entryExitProgram->log();
+	}
+
+	m_entryExitProgram->bind();
+	m_mvMatrixLoc = m_entryExitProgram->uniformLocation("mvMatrix");
+	m_projMatrixLoc = m_entryExitProgram->uniformLocation("projMatrix");
+}
+
+void OpenGLWidget::initializeVolumeShaderProgram()
+{
+	m_volumeShaderProgram = OpenGLHelper::createShaderProgam(m_volume_vshFile, m_volume_fshFile);
+	if (!m_program->link())
+	{
+		qWarning() << "Linking Error" << m_volumeShaderProgram->log();
+	}
+	m_volumeShaderProgram->bind();
+	m_volumeShaderProgram->setUniformValue("volumeSampler", 0);
+	m_volumeShaderProgram->setUniformValue("entryPoints", 1);
+	m_volumeShaderProgram->setUniformValue("exitPoints", 2);
+	m_volumeShaderProgram->setUniformValue("transferFunction", 3);
+
+	m_stepLoc = m_volumeShaderProgram->uniformLocation("step");
+	m_mvMatrixLoc = m_volumeShaderProgram->uniformLocation("mvMat");
+	m_idColor = m_volumeShaderProgram->uniformLocation("idColor");
+
+	m_volumeShaderProgram->release();
+}
 
 QPointF OpenGLWidget::pixelPosToScreenPos(const QPointF &pos) const
 {
@@ -239,40 +273,55 @@ void OpenGLWidget::wheelEvent(QWheelEvent* event)
 
 void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 {
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_fbo->bind();
+
+	glClearColor(.0f, .0f, .0f, .0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	OpenGLHelper::getGLFunc()->glDrawBuffers(2, buffers);
-	m_program->bind();
-	m_program->setUniformValue(m_projMatrixLoc, *m_cameraModel->getProjectionMatrix());
-	m_program->setUniformValue(m_lightPosLoc, QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
-	m_program->setUniformValue(m_ambientColor, QVector3D(m_ka[0], m_ka[1], m_ka[2])); //todo use variable
-	m_program->setUniformValue(m_diffuseColor, QVector3D(m_kd[0], m_kd[1], m_kd[2]));
-	m_program->setUniformValue(m_specularColor, QVector3D(m_ks[0], m_ks[1], m_ks[2]));
-	m_program->setUniformValue(m_specularExp, m_specExp);
 
+	m_program->bind();
+	m_program->setUniformValue("projMatrix", *m_cameraModel->getProjectionMatrix());
+	m_program->setUniformValue("lightPos", QVector3D(m_lightPos[0], m_lightPos[1], m_lightPos[2]));
+	m_program->setUniformValue("ambientColor", QVector3D(m_ka[0], m_ka[1], m_ka[2])); //todo use variable
+	m_program->setUniformValue("diffuseColor", QVector3D(m_kd[0], m_kd[1], m_kd[2]));
+	m_program->setUniformValue("specularColor", QVector3D(m_ks[0], m_ks[1], m_ks[2]));
+	m_program->setUniformValue("specularExp", m_specExp);
 	for (auto i = 0; i < items->count(); i++)
 	{
 		auto item = items->at(i);
+		if (item->getPrimitiveType() == Volume)
+		{
+			return;
+		}
 		m_world = item->getRigidBodyTransformation()->getWorldMatrix();
 
-		m_program->setUniformValue(m_idColor, item->getId()->getIdAsColor());
-		m_program->setUniformValue(m_mvMatrixLoc, *m_cameraModel->getCameraMatrix() * m_world);
-		auto normalMatrix = m_world.normalMatrix();
-		m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
+		m_program->setUniformValue("idColor", item->getId()->getIdAsColor());
+		m_program->setUniformValue("mvMatrix", *m_cameraModel->getCameraMatrix() * m_world);
+		m_program->setUniformValue("normalMatrix", m_world.normalMatrix());
 
 		m_primitiveFactory->renderPrimitive(item->getPrimitiveType())->draw(m_program);
 	}
+	glFlush();
 
 	m_program->release();
-	glFlush();
+	m_fbo->release();
+
+	auto err = OpenGLHelper::Error();
+	if (!err.isEmpty())
+	{
+		qInfo() << "phong shader program errors:" << err;
+	}
+
+
 }
 
-void OpenGLWidget::paintWithHighlightShaderProgram(QList<SceneItem*> *items)
+void OpenGLWidget::paintWithHighlightShaderProgram(QList<SceneItem*> *items) //todo refactor this
 {
-	GLenum defBuf[] = { GL_FRONT_LEFT };
+	GLenum defBuf[] = { GL_NONE };
 	OpenGLHelper::getGLFunc()->glDrawBuffers(1, defBuf);
+	qInfo() << "highlight shader debug:" << OpenGLHelper::Error();
 
 	m_highlightProgram->bind();
 
@@ -282,15 +331,14 @@ void OpenGLWidget::paintWithHighlightShaderProgram(QList<SceneItem*> *items)
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_fbo->textures()[1]);
 
-
 	m_highlightProgram->setUniformValue("isSelectedWidget", m_isSelected);
 	if (auto selectedItem = m_scene->getSelectedItem()) 
 	{
-		m_highlightProgram->setUniformValue("selectedID", selectedItem->getId()->getIdAsColor());
+		m_highlightProgram->setUniformValue("selectedID", QVector4D(selectedItem->getId()->getIdAsColor(), 1.0));
 	}
 	else 
 	{
-		m_highlightProgram->setUniformValue("selectedID", QColor(0, 0, 0, 0));
+		m_highlightProgram->setUniformValue("selectedID", QVector4D(0.0, 0.0, 0.0, 0.0));
 	}
 
 	glColor4f(0, 0, 0, 0);
@@ -302,7 +350,186 @@ void OpenGLWidget::paintWithHighlightShaderProgram(QList<SceneItem*> *items)
 	glEnd();
 
 	m_highlightProgram->release();
+
+	auto err = OpenGLHelper::Error();
+	if (!err.isEmpty())
+	{
+		qInfo() << "highlight shader program errors:" << err;
+	}
+
 	glFlush();
+}
+
+
+const float boxVx[] = {
+	-1.0f,-1.0f,-1.0f,
+	-1.0f,-1.0f, 1.0f,
+	-1.0f, 1.0f, 1.0f,
+	1.0f, 1.0f,-1.0f,
+	-1.0f,-1.0f,-1.0f,
+	-1.0f, 1.0f,-1.0f,
+	1.0f,-1.0f, 1.0f,
+	-1.0f,-1.0f,-1.0f,
+	1.0f,-1.0f,-1.0f,
+	1.0f, 1.0f,-1.0f,
+	1.0f,-1.0f,-1.0f,
+	-1.0f,-1.0f,-1.0f,
+	-1.0f,-1.0f,-1.0f,
+	-1.0f, 1.0f, 1.0f,
+	-1.0f, 1.0f,-1.0f,
+	1.0f,-1.0f, 1.0f,
+	-1.0f,-1.0f, 1.0f,
+	-1.0f,-1.0f,-1.0f,
+	-1.0f, 1.0f, 1.0f,
+	-1.0f,-1.0f, 1.0f,
+	1.0f,-1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f,
+	1.0f,-1.0f,-1.0f,
+	1.0f, 1.0f,-1.0f,
+	1.0f,-1.0f,-1.0f,
+	1.0f, 1.0f, 1.0f,
+	1.0f,-1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f,
+	1.0f, 1.0f,-1.0f,
+	-1.0f, 1.0f,-1.0f,
+	1.0f, 1.0f, 1.0f,
+	-1.0f, 1.0f,-1.0f,
+	-1.0f, 1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f,
+	-1.0f, 1.0f, 1.0f,
+	1.0f,-1.0f, 1.0f
+};
+static const float quadVx[] = { -1,-1,0, 1,1,0, -1,1,0,  -1,-1,0, 1,-1,0, 1,1,0, };
+
+void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items) {
+
+
+	// set up the vbo for volume rendering
+	// set up quad vbo
+	OpenGLHelper::getGLFunc()->glGenBuffers(1, &quadVbo);
+	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, quadVbo);
+	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 2 * 3 * 3 * sizeof(float), quadVx, GL_STATIC_DRAW);
+	// set up box vbo
+	OpenGLHelper::getGLFunc()->glGenBuffers(1, &boxVbo);
+	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, boxVbo);
+	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 6 * 2 * 3 * 3 * sizeof(float), boxVx, GL_STATIC_DRAW);
+
+
+	// clear errors
+	QString err = OpenGLHelper::Error();
+
+	for(int i = 0; i < items->size(); i++)
+	{
+		auto item = items->at(i);
+		if (item->getPrimitiveType() != Volume)
+		{
+			return;
+		}
+		auto volume = reinterpret_cast<VolumeModel*>(item);
+
+		// RENDER THE EXIT POINTS ------------------- //
+		m_entryExitProgram->bind();
+
+		m_entryExitFbo->bind();
+		glClearColor(0.f, 0.f, 0.f, 0.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glCullFace(GL_FRONT);
+		OpenGLHelper::getGLFunc()->glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		m_entryExitProgram->setUniformValue("mvMatrix", *(m_cameraModel->getCameraMatrix()) * volume->getLocalMatrix());
+		m_entryExitProgram->setUniformValue("projMatrix", *(m_cameraModel->getProjectionMatrix()));
+
+		OpenGLHelper::getGLFunc()->glEnableVertexAttribArray(0);
+		OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, boxVbo);
+		OpenGLHelper::getGLFunc()->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+		OpenGLHelper::getGLFunc()->glColor3f(1.0, 0.0, 0.0);
+		OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		glFlush();
+
+		// RENDER THE ENTRY POINTS ------------------- //
+		glClearColor(0.f, 0.f, 0.f, 0.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glCullFace(GL_BACK);
+		glDepthFunc(GL_LESS);
+		OpenGLHelper::getGLFunc()->glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+		OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, boxVbo);
+		OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 36);
+		OpenGLHelper::getGLFunc()->glDisableVertexAttribArray(0);
+
+		glFlush();
+		m_entryExitFbo->release();
+
+		m_entryExitProgram->release();
+
+		err = OpenGLHelper::Error();
+		if (!err.isEmpty())
+		{
+			qInfo() << "entry/exit errors:" << err;
+		}
+
+		// RENDER THE VOLUME ------------------------- //
+		m_volumeShaderProgram->bind();
+		glCullFace(GL_BACK);
+
+		// set the buffer targets
+		m_fbo->bind();
+		GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		OpenGLHelper::getGLFunc()->glDrawBuffers(2, buffers);
+
+		// set display mode uniform
+		/*if (m_displaymode == SCENE) 
+		{
+			m_volumeShaderProgram->setUniformValue("displayMode", scene->getMode());
+		}
+		else
+		{*/
+		m_volumeShaderProgram->setUniformValue("displayMode", 3);//m_displaymode);
+		//}
+
+		// set the volume properties uniform
+		m_volumeShaderProgram->setUniformValue("properties.width", (int)volume->getDimensions()->x());
+		m_volumeShaderProgram->setUniformValue("properties.height", (int)volume->getDimensions()->y());
+		m_volumeShaderProgram->setUniformValue("properties.depth", (int)volume->getDimensions()->z());
+		m_volumeShaderProgram->setUniformValue("properties.minValue", volume->getMinValue());
+		m_volumeShaderProgram->setUniformValue("properties.maxValue", volume->getMaxValue());
+
+		m_volumeShaderProgram->setUniformValue("step", 0.01f);
+		m_volumeShaderProgram->setUniformValue("mvMat", *m_cameraModel->getCameraMatrix());
+		m_volumeShaderProgram->setUniformValue("idColor", QVector4D(volume->getId()->getIdAsColor(), 1.0));
+
+		// bind the volume texture
+		OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE0);
+		OpenGLHelper::getGLFunc()->glBindTexture(GL_TEXTURE_3D, volume->getTextureName());
+
+		// bind the entry exit textures
+		OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, m_entryExitFbo->textures()[1]);
+		OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, m_entryExitFbo->textures()[0]);
+		//OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE3); //todo use texture for transfer function
+		//scene->getTransFunc()->bindTexture();
+
+
+		// set the mv and projection matrizes
+		OpenGLHelper::getGLFunc()->glEnableVertexAttribArray(0);
+		OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, quadVbo);
+		OpenGLHelper::getGLFunc()->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+		OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		OpenGLHelper::getGLFunc()->glDisableVertexAttribArray(0);
+
+		m_volumeShaderProgram->release();
+
+		err = OpenGLHelper::Error();
+		if (!err.isEmpty()) 
+		{
+			qInfo() << "volume shader program errors:" << err;
+		}
+
+	}	
 }
 
 int OpenGLWidget::getIdFromScreen(QPoint pos)

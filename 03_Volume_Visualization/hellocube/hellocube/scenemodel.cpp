@@ -69,6 +69,16 @@ SceneItem* SceneModel::getSelectedItem() const
 	return m_selectedItem;
 }
 
+void SceneModel::setVolume(VolumeModel* volume)
+{
+	m_volume = volume;
+}
+
+VolumeModel* SceneModel::getVolume()
+{
+	return m_volume;
+}
+
 void SceneModel::update()
 {
 	//if (!volumeAdded && volume->isReady()) { //todo when i have volume
