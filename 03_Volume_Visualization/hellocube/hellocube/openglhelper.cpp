@@ -86,11 +86,13 @@ void OpenGLHelper::addNewShader(QString fileName, QOpenGLShader::ShaderType type
 		}
 		else
 		{
-			qCritical() << "Vertex Shader Error" << shader->log();
+			qCritical() << "Shader Error" << shader->log();
 		}
+
+		qInfo() << "Shader initialized successful: " << shader->log();
 	}
 	else
 	{
-		qCritical() << "Vertex Shader source file" << fileName << " not found.";
+		qCritical() << "Shader source file" << fileName << " not found.";
 	}
 }

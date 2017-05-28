@@ -9,8 +9,8 @@ varying vec3 vert;
 varying vec3 L;
 
 void main(){
-    gl_Position = projMatrix * mvMatrix * vec4(in_position, 1.0);
-    vert = vec3(mvMatrix * vec4(in_position, 1.0));
+	vert = vec3(mvMatrix * vec4(in_position, 1.0));
+    gl_Position = projMatrix * vec4(vert, 1.0);
 	L = normalize(lightPos - vert);
-    N = normalize(vec3(normalMatrix * vec4(in_normal, 0.0)));
+    N = normalize(vec3(normalMatrix * vec4(in_normal, 1.0)));
 }

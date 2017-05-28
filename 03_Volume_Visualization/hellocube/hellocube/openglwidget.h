@@ -62,14 +62,14 @@ private:
 	//void initializeColorPickerShaderProgram();
 	//void initializeSceneShaders();
 	//void initializeColorPickerShaders();
-	void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+	//void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 	void paintWithSceneShaderProgram(QList<SceneItem*> *items);
 	void paintWithHighlightShaderProgram(QList<SceneItem*>* items);
 	//void paintWithColorPickerProgram(QList<SceneItem*> *items);
 	//void paintFocusHighlight();
 	//void manipulateScene();
-	void updateOrthoProjection(int width, int height);
-	static GLfloat calculateAspectRatio(int width, int height);
+	//void updateOrthoProjection(int width, int height);
+	//static GLfloat calculateAspectRatio(int width, int height);
 	//void processSelection() const;
 	int getIdFromScreen(QPoint pos);
 
@@ -79,10 +79,10 @@ private:
 	const GLfloat m_kd[3] = { .5f, .5f, .5f };
 	const GLfloat m_ks[3] = { .8f, .8f, .8f };
 	const GLfloat m_specExp = 50.0;
-	const QString m_vshFile = ":/Resources/shaders/phong.vsh";
-	const QString m_fshFile = ":/Resources/shaders/phong.fsh";
-	const QString m_highlight_vshFile = ":/Resources/shaders/highlight.vsh";
-	const QString m_highlight_fshFile = ":/Resources/shaders/highlight.fsh";
+	const QString m_vshFile = "./Resources/shaders/phong.vsh";
+	const QString m_fshFile = "./Resources/shaders/phong.fsh";
+	const QString m_highlight_vshFile = "./Resources/shaders/highlight.vsh";
+	const QString m_highlight_fshFile = "./Resources/shaders/highlight.fsh";
 
 	//bool m_manipulationModeFlag;
 	bool m_isSelected;
