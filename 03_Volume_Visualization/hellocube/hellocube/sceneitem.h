@@ -4,7 +4,7 @@
 #include "objectid.h"
 #include "OpenGLGeometry.h"
 #include "rigidbodytransformation.h"
-#include "openglgeometrytype.h"
+#include "openglprimitivetype.h"
 
 class OpenGLCube;
 class OpenGLGeometry;
@@ -17,8 +17,8 @@ class SceneItem : public QObject
 
 public:
 
-	explicit SceneItem(SceneItem *parent = 0);
-	explicit SceneItem(OpenGLGeometryType primitiveType, RigidBodyTransformation *rigidBodyTransform = nullptr, SceneItem *parent = nullptr);
+	explicit SceneItem(OpenGLPrimitiveType primitiveType = OpenGLPrimitiveType::None, SceneItem *parent = nullptr);
+	explicit SceneItem(OpenGLPrimitiveType primitiveType, RigidBodyTransformation *rigidBodyTransform = nullptr, SceneItem *parent = nullptr);
 	~SceneItem();
 
 	void setParent(SceneItem *parent);
@@ -41,7 +41,7 @@ public:
 	RigidBodyTransformation* getRigidBodyTransformation() const;
 	void setRigidBodyTransform(RigidBodyTransformation* rigid_body_transformation);
 
-	OpenGLGeometryType getPrimitiveType() const;
+	OpenGLPrimitiveType getPrimitiveType() const;
 
 	//QVariant data(int column) const;
 	//QVariant data(const QModelIndex& index, int role) const;
@@ -65,6 +65,6 @@ private:
 
 	QString m_name;
 	ObjectID* m_id;
-	OpenGLGeometryType m_primitiveType;
+	OpenGLPrimitiveType m_primitiveType;
 	RigidBodyTransformation *m_rigidBodyTransform;
 };

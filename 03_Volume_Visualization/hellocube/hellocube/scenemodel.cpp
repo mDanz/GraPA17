@@ -18,7 +18,7 @@ SceneItem* SceneModel::getRoot() const
 	return m_root;
 }
 
-void SceneModel::addItem(OpenGLGeometryType primitiveType, RigidBodyTransformation* rigidBodyTransform, SceneItem* parent)
+void SceneModel::addItem(OpenGLPrimitiveType primitiveType, RigidBodyTransformation* rigidBodyTransform, SceneItem* parent)
 {
 	if (!parent)
 	{
@@ -51,7 +51,7 @@ void SceneModel::addItem(SceneItem *item, SceneItem *parent)
 void SceneModel::selectItem(SceneItem* item)
 {
 	m_selectedItem = item;
-	emit objectSelected(!m_selectedItem ? QString("<none>") : m_selectedItem->getName());
+	emit itemSelected(!m_selectedItem ? QString("<none>") : m_selectedItem->getName());
 }
 
 SceneItem* SceneModel::getItem(int id) const

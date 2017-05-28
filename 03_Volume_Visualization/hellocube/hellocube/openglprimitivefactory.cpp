@@ -30,7 +30,7 @@ OpenGLPrimitiveFactory::~OpenGLPrimitiveFactory()
 	//delete[] m_primitives;
 }
 
-OpenGLGeometry* OpenGLPrimitiveFactory::renderPrimitive(OpenGLGeometryType primitiveType)
+OpenGLGeometry* OpenGLPrimitiveFactory::renderPrimitive(OpenGLPrimitiveType primitiveType)
 {
 	switch (primitiveType)
 	{

@@ -1,7 +1,7 @@
 #pragma once
 
 
-enum OpenGLGeometryType
+enum OpenGLPrimitiveType
 {
 	None,
 	Cube,

@@ -1,6 +1,6 @@
 #pragma once
 #include <QObject>
-#include "openglgeometrytype.h"
+#include "openglprimitivetype.h"
 
 
 class RigidBodyTransformation;
@@ -16,7 +16,7 @@ public:
 
 	SceneItem* getRoot() const;
 
-	void addItem(OpenGLGeometryType primitiveType, RigidBodyTransformation *rigidBodyTransform = nullptr, SceneItem *parent = nullptr);
+	void addItem(OpenGLPrimitiveType primitiveType, RigidBodyTransformation *rigidBodyTransform = nullptr, SceneItem *parent = nullptr);
 	void addItem(SceneItem *item, SceneItem *parent = nullptr);
 	void selectItem(SceneItem *item);
 	SceneItem* getItem(int id) const;
@@ -35,5 +35,5 @@ private:
 
 signals:
 	void sceneChanged();
-	void objectSelected(QString name);
+	void itemSelected(QString name);
 };

@@ -1,6 +1,6 @@
 #pragma once
 #include <QObject>
-#include "openglgeometrytype.h"
+#include "openglprimitivetype.h"
 #include "viewportwidget.h"
 #include "trackball.h"
 
@@ -47,7 +47,7 @@ public slots:
 
 private:
 	SceneController();
-	void addItem(OpenGLGeometryType type) const;
+	void addItem(OpenGLPrimitiveType type) const;
 	void manipulateCamera(QPointF screenPos, QVector3D* delta, QMouseEvent* event) const;
 	void manipulateSelectedItem(QPointF screenPos, QVector3D* delta, QMouseEvent* event) const;
 

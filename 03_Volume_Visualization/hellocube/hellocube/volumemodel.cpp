@@ -3,7 +3,7 @@
 #include <QOpenGLTexture>
 
 VolumeModel::VolumeModel(RigidBodyTransformation* rigidBodyTransform, SceneItem* parent)
-	: SceneItem(OpenGLGeometryType::Volume, rigidBodyTransform, parent)
+	: SceneItem(OpenGLPrimitiveType::Volume, rigidBodyTransform, parent)
 	, m_data(nullptr)
 {
 	m_dimensions = new QVector3D;

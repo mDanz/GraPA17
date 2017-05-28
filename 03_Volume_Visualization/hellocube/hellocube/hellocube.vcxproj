@@ -176,7 +176,7 @@
     <ClInclude Include="openglcube.h" />
     <ClInclude Include="openglcylinder.h" />
     <ClInclude Include="openglgeometry.h" />
-    <ClInclude Include="openglgeometrytype.h" />
+    <ClInclude Include="openglprimitivetype.h" />
     <ClInclude Include="openglhelper.h" />
     <ClInclude Include="openglnone.h" />
     <ClInclude Include="openglprimitivefactory.h" />

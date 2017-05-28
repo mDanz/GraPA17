@@ -41,7 +41,6 @@ private:
 	void initializeDockWidgets();
 	void initializeViewportWidget();
 	void initializeOutliner();
-	void reinitializeOutlinerModel();
 	QSlider* createSlider();
 
 	SceneModel *m_scene;
@@ -88,4 +87,5 @@ private:
 
 private slots:
 	void updateOutliner();
+	void updateStatusBar(QString message) const;
 };

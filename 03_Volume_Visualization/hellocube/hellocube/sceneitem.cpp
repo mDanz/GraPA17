@@ -1,5 +1,4 @@
 #include "sceneitem.h"
-#include <QVariant>
 #include <QFileSystemModel>
 
 int SceneItem::s_cubeID = 0;
@@ -11,9 +10,9 @@ int SceneItem::s_objectID = 0;
 int SceneItem::s_volumeID = 0;
 
 
-SceneItem::SceneItem(SceneItem* parent)
+SceneItem::SceneItem(OpenGLPrimitiveType primitiveType, SceneItem* parent)
 	: m_parent(parent)
-	, m_primitiveType(OpenGLGeometryType::None)
+	, m_primitiveType(primitiveType)
 	, m_rigidBodyTransform(new RigidBodyTransformation(QVector3D(), QQuaternion()))
 {
 	m_name = createName();
@@ -21,10 +20,9 @@ SceneItem::SceneItem(SceneItem* parent)
 	//todo make transform with parent matrix
 }
 
-SceneItem::SceneItem(OpenGLGeometryType primitiveType, RigidBodyTransformation* rigidBodyTransform, SceneItem* parent)
-	: SceneItem(parent)
+SceneItem::SceneItem(OpenGLPrimitiveType primitiveType, RigidBodyTransformation* rigidBodyTransform, SceneItem* parent)
+	: SceneItem(primitiveType, parent)
 {
-	m_primitiveType = primitiveType;
 	if (rigidBodyTransform)
 	{
 		m_rigidBodyTransform = rigidBodyTransform;
@@ -34,8 +32,8 @@ SceneItem::SceneItem(OpenGLGeometryType primitiveType, RigidBodyTransformation* 
 SceneItem::~SceneItem()
 {
 	delete m_id;
-	qDeleteAll(m_children);
 	delete m_rigidBodyTransform;
+	qDeleteAll(m_children);
 
 	m_parent->removeChild(this);
 }
@@ -70,36 +68,6 @@ void SceneItem::setName(QString name)
 	m_name = name;
 }
 
-//QVariant SceneItem::data(int column) const
-//{
-//	switch (column)
-//	{
-//	case 0:
-//		return m_name;
-//	default:
-//		return QVariant();
-//	}
-//}
-
-//QVariant SceneItem::data(const QModelIndex& index, int role) const
-//{
-//	if (role == Qt::DisplayRole && index.column() == 0)
-//	{
-//		return m_name;
-//	}
-//
-//	return QVariant();
-//}
-
-//int SceneItem::row() const
-//{
-//	if (m_parent)
-//	{
-//		return m_parent->m_children.indexOf(const_cast<SceneItem*>(this));
-//	}
-//	return 0;
-//}
-
 SceneItem* SceneItem::getParent() const
 {
 	return m_parent;
@@ -125,41 +93,7 @@ SceneItem* SceneItem::getChild(int row) const
 	return m_children.at(row);
 }
 
-//bool SceneItem::isSelected() const
-//{
-//	return m_isSelected;
-//}
-//
-//void SceneItem::setSelected(bool status)
-//{
-//	m_isSelected = status;
-//}
-
-//SceneItem* SceneItem::getSelectedItem()
-//{
-//	if (isSelected())
-//	{
-//		return this;
-//	}
-//	else
-//	{
-//		for (int i = 0; i < m_children.count(); i++)
-//		{
-//			if (auto child = m_children.at(i)->getSelectedItem())
-//			{
-//				return child;
-//			}
-//		}
-//		return nullptr;
-//	}
-//}
-//
-//void SceneItem::clearChildren() const
-//{
-//	qDeleteAll(m_children);
-//}
-
-OpenGLGeometryType SceneItem::getPrimitiveType() const
+OpenGLPrimitiveType SceneItem::getPrimitiveType() const
 {
 	return m_primitiveType;
 }

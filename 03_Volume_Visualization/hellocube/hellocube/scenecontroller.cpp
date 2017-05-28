@@ -124,31 +124,31 @@ void SceneController::selectedItemChanged(const QModelIndex& current, const QMod
 
 void SceneController::cubeAdded() const
 {
-	addItem(OpenGLGeometryType::Cube);
+	addItem(OpenGLPrimitiveType::Cube);
 }
 
 void SceneController::sphereAdded() const
 {
-	addItem(OpenGLGeometryType::Sphere);
+	addItem(OpenGLPrimitiveType::Sphere);
 }
 
 void SceneController::cylinderAdded() const
 {
-	addItem(OpenGLGeometryType::Cylinder);
+	addItem(OpenGLPrimitiveType::Cylinder);
 }
 
 void SceneController::coneAdded() const
 {
-	addItem(OpenGLGeometryType::Cone);
+	addItem(OpenGLPrimitiveType::Cone);
 }
 
 void SceneController::torusAdded() const
 {
-	addItem(OpenGLGeometryType::Torus);
+	addItem(OpenGLPrimitiveType::Torus);
 }
 void SceneController::volumeAdded() const
 {
-	addItem(OpenGLGeometryType::Volume);
+	addItem(OpenGLPrimitiveType::Volume);
 }
 
 SceneController::SceneController()
@@ -162,13 +162,13 @@ SceneController::SceneController()
 	m_trackBall = new TrackBall(TrackBall::Sphere);
 }
 
-void SceneController::addItem(OpenGLGeometryType type) const
+void SceneController::addItem(OpenGLPrimitiveType type) const
 {
 	auto parent = m_scene->getSelectedItem();
 	auto position = m_viewPortWidget->getCurrentCamera()->getPointOfInterest();
 	auto rigidBodyTransform = new RigidBodyTransformation(*position, QQuaternion());//todo tesselation
 
-	if (type == OpenGLGeometryType::Volume)
+	if (type == OpenGLPrimitiveType::Volume)
 	{
 		auto fileName = QFileDialog::getOpenFileName(m_viewPortWidget, tr("Load Volume Data"), "./", tr("Raw Files (*.raw)"));
 		auto volume = VolumeModelFactory::createFromFile(fileName);

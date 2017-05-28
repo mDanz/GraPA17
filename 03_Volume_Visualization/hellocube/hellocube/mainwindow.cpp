@@ -67,7 +67,7 @@ void MainWindow::showAboutBox() const
 void MainWindow::initializeModel()
 {
 	m_scene = new SceneModel();
-	reinitializeOutlinerModel();
+	m_outlinerModel = new SceneItemModel(m_scene->getRoot());
 }
 
 void MainWindow::initializeActions()
@@ -175,6 +175,7 @@ void MainWindow::initializeActionConnections() const
 
 	connect(m_scene, SIGNAL(sceneChanged()), this, SLOT(updateOutliner()));
 	connect(m_scene, SIGNAL(sceneChanged()), m_viewPortWidget, SLOT(update()));
+	connect(m_scene, SIGNAL(itemSelected(QString)), this, SLOT(updateStatusBar(QString)));
 
 	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), m_sceneController, SLOT(selectedItemChanged(QModelIndex, QModelIndex)));
 }
@@ -301,29 +302,29 @@ void MainWindow::initializeViewportWidget()
 void MainWindow::initializeOutliner()
 {
 	m_outlinerDock = new QDockWidget("Outliner", this);
-
-	reinitializeOutlinerModel();
-
+	m_outlinerTreeView = new QTreeView(m_outlinerDock);
+	m_outlinerTreeView->setModel(m_outlinerModel);
 	m_outlinerDock->setWidget(m_outlinerTreeView);
 	addDockWidget(Qt::LeftDockWidgetArea, m_outlinerDock);
 }
 
 void MainWindow::updateOutliner()
 {
-	reinitializeOutlinerModel();
-	m_outlinerTreeView->expandAll();
-}
-
-void MainWindow::reinitializeOutlinerModel()
-{
 	if (m_outlinerModel != nullptr)
 	{
 		delete m_outlinerModel;
 	}
 
-	m_outlinerTreeView = new QTreeView(m_outlinerDock);
 	m_outlinerModel = new SceneItemModel(m_scene->getRoot());
 	m_outlinerTreeView->setModel(m_outlinerModel);
+	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), m_sceneController, SLOT(selectedItemChanged(QModelIndex, QModelIndex)));
+	m_outlinerTreeView->expandAll();
+}
+
+void MainWindow::updateStatusBar(QString message) const
+{
+	m_ui.statusBar->showMessage(message);
+	m_viewPortWidget->update();
 }
 
 QSlider* MainWindow::createSlider()

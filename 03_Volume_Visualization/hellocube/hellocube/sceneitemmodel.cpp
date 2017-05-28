@@ -170,8 +170,8 @@ int SceneItemModel::columnCount(const QModelIndex& parent) const
 //void SceneItemModel::setupModelData(SceneItem* parent) const
 ////todo make this custom
 //{
-//	parent->appendChild(new SceneItem(ObjectID(12345), QString("Cube 1"), OpenGLGeometryType::Cube, RigidBodyTransformation(QVector3D(), QQuaternion()), getParent));
-//	parent->appendChild(new SceneItem(ObjectID(99999999), QString("Cube 4"), OpenGLGeometryType::Cube, RigidBodyTransformation(QVector3D(1, 1, 1), QQuaternion()), getParent));
+//	parent->appendChild(new SceneItem(ObjectID(12345), QString("Cube 1"), OpenGLPrimitiveType::Cube, RigidBodyTransformation(QVector3D(), QQuaternion()), getParent));
+//	parent->appendChild(new SceneItem(ObjectID(99999999), QString("Cube 4"), OpenGLPrimitiveType::Cube, RigidBodyTransformation(QVector3D(1, 1, 1), QQuaternion()), getParent));
 //	parent->appendChild(new SceneItem(ObjectID(5678), QString("Cube 2"), getParent));
 //	parent->appendChild(new SceneItem(ObjectID(90123), QString("Cube 3"), getParent));
 //	updateSelectedItem(12345);
