@@ -125,10 +125,9 @@ void OpenGLWidget::paintGL()
 {
 	auto items = m_scene->getAllItems();
 
+	paintWithVolumeShaderProgram(&items);
 	paintWithSceneShaderProgram(&items);
 	paintWithHighlightShaderProgram(&items);
-
-	//paintWithVolumeShaderProgram(&items);
 }
 
 void OpenGLWidget::resizeGL(int width, int height)
@@ -156,13 +155,13 @@ void OpenGLWidget::initializeFrameBufferObjects(int width, int height)
 	m_fbo->bind();
 	m_fbo->addColorAttachment(drawRectSize, format.internalTextureFormat());
 	m_fbo->release();
-	qInfo() << "m_fbo " << (m_fbo->isValid() ? "is valid! " : "IS NOT VALID! ") << "size: " << m_fbo->width() << "," << m_fbo->height();
+	qInfo() << "m_fbo " << (m_fbo->isValid() ? "is valid " : "IS NOT VALID! ") << "size: " << m_fbo->width() << "," << m_fbo->height();
 
 	m_entryExitFbo = new QOpenGLFramebufferObject(drawRectSize, format);
 	m_entryExitFbo->bind();
 	m_entryExitFbo->addColorAttachment(drawRectSize, format.internalTextureFormat());
 	m_entryExitFbo->release();
-	qInfo() << "m_entryExitFbo " << (m_entryExitFbo->isValid() ? "is valid! " : "IS NOT VALID! ") << "size: " << m_entryExitFbo->width() << "," << m_entryExitFbo->height();
+	qInfo() << "m_entryExitFbo " << (m_entryExitFbo->isValid() ? "is valid " : "IS NOT VALID! ") << "size: " << m_entryExitFbo->width() << "," << m_entryExitFbo->height();
 	
 }
 
@@ -425,16 +424,16 @@ void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items)
 
 	// set up the vbo for volume rendering
 	// set up quad vbo
-	OpenGLHelper::getGLFunc()->glGenBuffers(1, &quadVbo);
-	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, quadVbo);
+	OpenGLHelper::getGLFunc()->glGenBuffers(1, &m_quadVbo);
+	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_quadVbo);
 	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 2 * 3 * 3 * sizeof(float), quadVx, GL_STATIC_DRAW);
 	// set up box vbo
-	OpenGLHelper::getGLFunc()->glGenBuffers(1, &boxVbo);
-	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, boxVbo);
+	OpenGLHelper::getGLFunc()->glGenBuffers(1, &m_boxVbo);
+	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_boxVbo);
 	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 6 * 2 * 3 * 3 * sizeof(float), boxVx, GL_STATIC_DRAW);
 
+	qInfo() << "Array buffer init debug:" << OpenGLHelper::Error();
 
-	// clear errors
 	QString err = OpenGLHelper::Error();
 
 	for(int i = 0; i < items->size(); i++)
@@ -446,120 +445,165 @@ void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items)
 		}
 		auto volume = reinterpret_cast<VolumeModel*>(item);
 
-		// RENDER THE EXIT POINTS ------------------- //
-		m_entryExitProgram->bind();
-
-		m_entryExitFbo->bind();
-		glClearColor(0.f, 0.f, 0.f, 0.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glCullFace(GL_FRONT);
-		OpenGLHelper::getGLFunc()->glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		m_entryExitProgram->setUniformValue("mvMatrix", *(m_cameraModel->getCameraMatrix()) * volume->getLocalMatrix());
-		m_entryExitProgram->setUniformValue("projMatrix", *(m_cameraModel->getProjectionMatrix()));
-
-		OpenGLHelper::getGLFunc()->glEnableVertexAttribArray(0);
-		OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, boxVbo);
-		OpenGLHelper::getGLFunc()->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-		OpenGLHelper::getGLFunc()->glColor3f(1.0, 0.0, 0.0);
-		OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		glFlush();
-
-		// RENDER THE ENTRY POINTS ------------------- //
-		glClearColor(0.f, 0.f, 0.f, 0.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glCullFace(GL_BACK);
-		glDepthFunc(GL_LESS);
-		OpenGLHelper::getGLFunc()->glDrawBuffer(GL_COLOR_ATTACHMENT1);
-
-		OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, boxVbo);
-		OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 36);
-		OpenGLHelper::getGLFunc()->glDisableVertexAttribArray(0);
-
-		glFlush();
-		m_entryExitFbo->release();
-
-		//auto img1 = m_entryExitFbo->toImage(0);
-		//if (!img1.save("./exitTex.jpg"))
-		//{
-		//	qWarning() << "Exit Texture not saved correctly";
-		//}
-		//auto img2 = m_entryExitFbo->toImage(1);
-		//if (!img2.save("./entryTex.jpg"))
-		//{
-		//	qWarning() << "Entry Texture not saved correctly";
-		//}
-
-		m_entryExitProgram->release();
-
-		err = OpenGLHelper::Error();
-		if (!err.isEmpty())
-		{
-			qInfo() << "entry/exit errors:" << err;
-		}
-
-		// RENDER THE VOLUME ------------------------- //
-		m_volumeShaderProgram->bind();
-		glCullFace(GL_BACK);
-
-		// set the buffer targets
-		m_fbo->bind();
-		GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-		OpenGLHelper::getGLFunc()->glDrawBuffers(2, buffers);
-
-		// set display mode uniform
-		/*if (m_displaymode == SCENE) 
-		{
-			m_volumeShaderProgram->setUniformValue("displayMode", scene->getMode());
-		}
-		else
-		{*/
-		m_volumeShaderProgram->setUniformValue("displayMode", 3);//m_displaymode);
-		//}
-
-		// set the volume properties uniform
-		m_volumeShaderProgram->setUniformValue("properties.width", (int)volume->getDimensions()->x());
-		m_volumeShaderProgram->setUniformValue("properties.height", (int)volume->getDimensions()->y());
-		m_volumeShaderProgram->setUniformValue("properties.depth", (int)volume->getDimensions()->z());
-		m_volumeShaderProgram->setUniformValue("properties.minValue", volume->getMinValue());
-		m_volumeShaderProgram->setUniformValue("properties.maxValue", volume->getMaxValue());
-
-		m_volumeShaderProgram->setUniformValue("step", 0.01f);
-		m_volumeShaderProgram->setUniformValue("mvMat", *m_cameraModel->getCameraMatrix());
-		m_volumeShaderProgram->setUniformValue("idColor", QVector4D(volume->getId()->getIdAsColor(), 1.0));
-
-		// bind the volume texture
-		OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE0);
-		OpenGLHelper::getGLFunc()->glBindTexture(GL_TEXTURE_3D, volume->getTextureName());
-
-		// bind the entry exit textures
-		OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, m_entryExitFbo->textures()[1]);
-		OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, m_entryExitFbo->textures()[0]);
-		//OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE3); //todo use texture for transfer function
-		//scene->getTransFunc()->bindTexture();
-
-
-		// set the mv and projection matrizes
-		OpenGLHelper::getGLFunc()->glEnableVertexAttribArray(0);
-		OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, quadVbo);
-		OpenGLHelper::getGLFunc()->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-		OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		OpenGLHelper::getGLFunc()->glDisableVertexAttribArray(0);
-
-		m_volumeShaderProgram->release();
-
-		err = OpenGLHelper::Error();
-		if (!err.isEmpty()) 
-		{
-			qInfo() << "volume shader program errors:" << err;
-		}
+		renderEntryExitPoints(volume);
+		renderVolumeData(volume);
 
 	}	
+}
+
+void OpenGLWidget::renderEntryExitPoints(VolumeModel *volume)
+{
+	m_entryExitFbo->bind();
+	m_entryExitProgram->bind();
+
+	renderExitPoints(volume);
+	renderEntryPoints();
+
+	m_entryExitProgram->release();
+	m_entryExitFbo->release();
+
+	auto err = OpenGLHelper::Error();
+	if (!err.isEmpty())
+	{
+		qInfo() << "entry/exit errors:" << err;
+	}
+}
+
+void OpenGLWidget::renderExitPoints(VolumeModel* volume)
+{
+	glClearColor(0.f, 0.f, 0.f, 0.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glCullFace(GL_FRONT);
+	OpenGLHelper::getGLFunc()->glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	m_entryExitProgram->setUniformValue("mvMatrix", *(m_cameraModel->getCameraMatrix()) * volume->getLocalMatrix());
+	m_entryExitProgram->setUniformValue("projMatrix", *(m_cameraModel->getProjectionMatrix()));
+
+	OpenGLHelper::getGLFunc()->glEnableVertexAttribArray(0);
+	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_boxVbo);
+	OpenGLHelper::getGLFunc()->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+	OpenGLHelper::getGLFunc()->glColor3f(1.0, 0.0, 0.0);
+	OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	glFlush();
+
+	auto img1 = m_entryExitFbo->toImage(false, 0);
+	if (!img1.save("./tex/exitTex.jpg"))
+	{
+		qWarning() << "Exit Texture not saved correctly";
+	}
+
+	auto err = OpenGLHelper::Error();
+	if (!err.isEmpty())
+	{
+		qInfo() << "exit point errors:" << err;
+	}
+}
+
+void OpenGLWidget::renderEntryPoints()
+{
+	glClearColor(0.f, 0.f, 0.f, 0.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glCullFace(GL_BACK);
+	glDepthFunc(GL_LESS);
+	OpenGLHelper::getGLFunc()->glDrawBuffer(GL_COLOR_ATTACHMENT1);
+
+	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_boxVbo);
+	OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 36);
+	OpenGLHelper::getGLFunc()->glDisableVertexAttribArray(0);
+
+	glFlush();
+
+	auto img2 = m_entryExitFbo->toImage(false, 1);
+	if (!img2.save("./tex/entryTex.jpg"))
+	{
+		qWarning() << "Entry Texture not saved correctly";
+	}
+
+	auto err = OpenGLHelper::Error();
+	if (!err.isEmpty())
+	{
+		qInfo() << "entry point errors:" << err;
+	}
+}
+
+void OpenGLWidget::renderVolumeData(VolumeModel *volume)
+{
+	m_fbo->bind();
+	m_volumeShaderProgram->bind();
+	glCullFace(GL_BACK);
+
+	GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	OpenGLHelper::getGLFunc()->glDrawBuffers(2, buffers);
+
+	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
+
+	// set display mode
+	/*if (m_displaymode == SCENE)
+	{
+	m_volumeShaderProgram->setUniformValue("displayMode", scene->getMode());
+	}
+	else
+	{*/
+		m_volumeShaderProgram->setUniformValue("displayMode", 0);//m_displaymode);
+	//}
+
+	m_volumeShaderProgram->setUniformValue("properties.width", static_cast<int>(volume->getDimensions()->x()));
+	m_volumeShaderProgram->setUniformValue("properties.height", static_cast<int>(volume->getDimensions()->y()));
+	m_volumeShaderProgram->setUniformValue("properties.depth", static_cast<int>(volume->getDimensions()->z()));
+	m_volumeShaderProgram->setUniformValue("properties.minValue", volume->getMinValue());
+	m_volumeShaderProgram->setUniformValue("properties.maxValue", volume->getMaxValue());
+
+	m_volumeShaderProgram->setUniformValue("step", 0.01f);
+	m_volumeShaderProgram->setUniformValue("mvMat", *m_cameraModel->getCameraMatrix());
+	m_volumeShaderProgram->setUniformValue("idColor", QVector4D(volume->getId()->getIdAsColor(), 1.0));
+
+	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
+
+	OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE0);
+	OpenGLHelper::getGLFunc()->glBindTexture(GL_TEXTURE_3D, volume->getTextureName());
+	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
+
+	OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_entryExitFbo->textures()[1]);
+	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
+
+	OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, m_entryExitFbo->textures()[0]);
+	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
+
+	//OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE3); //todo use texture for transfer function
+	//scene->getTransFunc()->bindTexture();
+
+	OpenGLHelper::getGLFunc()->glEnableVertexAttribArray(0);
+	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_quadVbo);
+	OpenGLHelper::getGLFunc()->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+	OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	OpenGLHelper::getGLFunc()->glDisableVertexAttribArray(0);
+
+	glFlush();
+
+	m_volumeShaderProgram->release();
+	m_fbo->release();
+
+	auto img1 = m_fbo->toImage(false, 0);
+	if (!img1.save("./tex/volumeTex.jpg"))
+	{
+		qWarning() << "Volume Texture not saved correctly";
+	}
+	auto img2 = m_fbo->toImage(false, 1);
+	if (!img2.save("./tex/volumePickTex.jpg"))
+	{
+		qWarning() << "Volume Pick Texture not saved correctly";
+	}
+
+	auto err = OpenGLHelper::Error();
+	if (!err.isEmpty())
+	{
+		qInfo() << "volume shader program errors:" << err;
+	}
 }
 
 int OpenGLWidget::getIdFromScreen(QPoint pos)

@@ -35,14 +35,16 @@ uniform vec4 idColor;
 in vec2 fragPos;
 //out vec4 outColor;
 
-vec4 transFunc(float intensity) {
+vec4 transFunc(float intensity) 
+{
     // fit the value to the relevant transfer function interval
     intensity = (intensity / (properties.maxValue - properties.minValue) + properties.minValue);
     // perform classification with the look up texture
     return texture1D(transferFunction, intensity);
 }
 
-vec3 gradient(vec3 samplePos) {
+vec3 gradient(vec3 samplePos) 
+{
     float h = 3.f/(properties.width + properties.height + properties.depth);
     float x = texture3D(volumeSampler, samplePos + vec3(h, 0, 0)).r
             - texture3D(volumeSampler, samplePos - vec3(h, 0, 0)).r;
@@ -54,7 +56,8 @@ vec3 gradient(vec3 samplePos) {
 }
 
 
-vec4 lighting(vec3 samplePos, vec3 color, float opacity) {
+vec4 lighting(vec3 samplePos, vec3 color, float opacity) 
+{
 
     // lightning parameters
     vec4 diffuseCol = vec4(color, 1.f);
@@ -86,10 +89,13 @@ vec4 lighting(vec3 samplePos, vec3 color, float opacity) {
 }
 
 
-vec4 directRendering(vec3 start, vec3 end) {
+vec4 directRendering(vec3 start, vec3 end) 
+{
 
     if(start == end)
+    {
         return vec4(0.f);
+    }
 
     vec3 dir = (end - start);
     float t_end = length(dir);
@@ -111,21 +117,23 @@ vec4 directRendering(vec3 start, vec3 end) {
         // iterate along the ray
         samplePos = start + t*dir;
 
-        intensity = texture3D(volumeSampler, start + t*dir).r;
-        curCol = vec4(intensity, intensity, intensity, intensity);//transFunc(intensity);
+        intensity = texture3D(volumeSampler, samplePos).r;
+        curCol = vec4(intensity);//transFunc(intensity);
 
-        if(curCol.a > 0.0f) {
+        if(curCol.a > 0.0f) 
+        {
             // alpha correction for different step sizes
             curCol.a = 1.f - pow(1.f - curCol.a, step * BASE_STEP);
             curOpacity = (1.f - alpha) * curCol.a;
             // apply lighting at current position for the resulting color
-            color += lighting(start + t*dir, curCol.rgb, curOpacity).rgb * curOpacity;
+            color += lighting(samplePos, curCol.rgb, curOpacity).rgb * curOpacity;
             // add the current alpha value to the opacity
             alpha += curOpacity;
         }
 
         // early ray termination
-        if(alpha >= OPACITY_TERMINATION) {
+        if(alpha >= OPACITY_TERMINATION) 
+        {
             alpha = 1.f;
             break;
         }
@@ -135,7 +143,8 @@ vec4 directRendering(vec3 start, vec3 end) {
 }
 
 
-vec4 maximumIntensity(vec3 start, vec3 end) {
+vec4 maximumIntensity(vec3 start, vec3 end) 
+{
     if(start == end)
         return vec4(0.f);
 
@@ -148,9 +157,11 @@ vec4 maximumIntensity(vec3 start, vec3 end) {
     float maxInt = -1.f;
     vec4 color = vec4(0.f);
 
-    for(float t = 0; t <= t_end; t += diff) {
+    for(float t = 0; t <= t_end; t += diff) 
+    {
         intensity = texture3D(volumeSampler, start + t*dir).r;
-        if(intensity > maxInt) {
+        if(intensity > maxInt) 
+        {
             color = transFunc(intensity);
             maxInt = intensity;
         }
@@ -159,38 +170,51 @@ vec4 maximumIntensity(vec3 start, vec3 end) {
     return color;
 }
 
-void main() {
+void main() 
+{
     // obtain entry and exit points from the prerendered textures
     vec4 col = texture2D(entryPoints, fragPos);
     vec3 entryPoint = col.rgb;
     col = texture2D(exitPoints, fragPos);
     vec3 exitPoint = col.rgb;
 
-    // Direct rendering
+    
     vec4 outColor;
-
+    // Direct rendering
     if(displayMode == 0)
+    {
         outColor = directRendering(entryPoint, exitPoint);
+    }
     // Maximum Intensity Projection
     else if(displayMode == 1)
+    {
         outColor = maximumIntensity(entryPoint, exitPoint);
+    }
 
     // Debug modes
     else if(displayMode == 2) // entry points
+    {
         outColor = vec4(entryPoint, 1.f);
+    }
     else if(displayMode == 3) // exit points
-        outColor = vec4(exitPoint, 1.f);
+    { 
+      outColor = vec4(exitPoint, 1.f);
+    }
     else if(displayMode == 4) // debug box
+    {
         outColor = clamp(vec4(exitPoint, 0.f)*0.2f + directRendering(entryPoint, exitPoint), vec4(0), vec4(1));
+    }
 
     gl_FragData[0] = outColor;
 
 
-    if(entryPoint == exitPoint) {
+    if(entryPoint == exitPoint)
+    {
         gl_FragDepth = 0.999f;
         gl_FragData[1] = vec4(0.f);
     }
-    else {
+    else 
+    {
         gl_FragData[1] = idColor;
         gl_FragDepth = 0.1f;
     }

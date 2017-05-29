@@ -9,6 +9,7 @@
 #include "openglprimitivefactory.h"
 #include "cameramodel.h"
 #include "sceneitem.h"
+#include "volumemodel.h"
 
 class SceneModel;
 class OpenGLPrimitiveFactory;
@@ -68,6 +69,10 @@ private:
 	void paintWithSceneShaderProgram(QList<SceneItem*> *items);
 	void paintWithHighlightShaderProgram(QList<SceneItem*>* items);
 	void paintWithVolumeShaderProgram(QList<SceneItem*> *items);
+	void renderEntryPoints();
+	void renderEntryExitPoints(VolumeModel* volume);
+	void renderExitPoints(VolumeModel* volume);
+	void renderVolumeData(VolumeModel* volume);
 	//void paintWithColorPickerProgram(QList<SceneItem*> *items);
 	//void paintFocusHighlight();
 	//void manipulateScene();
@@ -104,8 +109,8 @@ private:
 	QOpenGLFramebufferObject *m_fbo;
 	QOpenGLFramebufferObject *m_entryExitFbo;
 
-	GLuint boxVbo;
-	GLuint quadVbo;
+	GLuint m_boxVbo;
+	GLuint m_quadVbo;
 
 	int m_projMatrixLoc;
 	int m_mvMatrixLoc;
