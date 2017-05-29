@@ -138,6 +138,7 @@
     <ClCompile Include="sceneitemmodel.cpp" />
     <ClCompile Include="scenemodel.cpp" />
     <ClCompile Include="trackball.cpp" />
+    <ClCompile Include="transferfunctioneditordock.cpp" />
     <ClCompile Include="viewportmodel.cpp" />
     <ClCompile Include="viewportwidget.cpp" />
     <ClCompile Include="volumemodel.cpp" />
@@ -214,7 +215,9 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtOpenGLExtensions" "-I$(QTDIR)\include\QtWidgets"</Command>
     </CustomBuild>
-    <ClInclude Include="TransferFunctionEditorDock.h" />
+    <ClInclude Include="transferfunction.h" />
+    <ClInclude Include="transferfunctioncanvas.h" />
+    <ClInclude Include="transferfunctioneditordock.h" />
     <ClInclude Include="viewportmodel.h" />
     <CustomBuild Include="viewportwidget.h">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing viewportwidget.h...</Message>

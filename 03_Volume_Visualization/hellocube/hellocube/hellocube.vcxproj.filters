@@ -181,6 +181,9 @@
     <ClCompile Include="histogram.cpp">
       <Filter>Source Files\model</Filter>
     </ClCompile>
+    <ClCompile Include="transferfunctioneditordock.cpp">
+      <Filter>Source Files\view</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.ui">
@@ -271,6 +274,15 @@
     </ClInclude>
     <ClInclude Include="histogram.h">
       <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="transferfunctioneditordock.h">
+      <Filter>Header Files\view</Filter>
+    </ClInclude>
+    <ClInclude Include="transferfunction.h">
+      <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="transferfunctioncanvas.h">
+      <Filter>Header Files\view</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
