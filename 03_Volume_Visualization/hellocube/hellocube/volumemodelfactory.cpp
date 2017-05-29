@@ -33,8 +33,6 @@ void VolumeModelFactory::fillVolumeModel(const QString& fileName, VolumeModel &m
 	fillTexture(model);
 
 	qInfo() << "volume data errors: " << OpenGLHelper::Error();
-
-	//emit dataChanged(); todo emit data change adn catch somewhere
 }
 
 void VolumeModelFactory::skipByte(QFile &file)
@@ -106,59 +104,10 @@ void VolumeModelFactory::fillTexture(VolumeModel &model)
 	glFunc->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFunc->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	auto dataType = model.getScalarType();
+	model.setHistogram(new Histogram(model.getByteArrayData(), model.getScalarByteSize(), 256));
+	qInfo() << "Intensity values between " << model.getMinValue() << "and" << model.getMaxValue() << " and scalar Type: " << model.getScalarType() << "Size: " <<model.getScalarByteSize();
 
-	//// fix the byte order to big endian and find max and min values todo fix byteorder
-	auto d = model.getData();
-	auto scalarByteSize = model.getScalarByteSize();
-	int domain = pow(256, scalarByteSize);
-	int l, r, maxV = 0, minV = domain, v;
-	char tmp;
-
-	//for (int i = 0; i < model.getDataSize(); i += scalarByteSize) {
-	//	for (int n = 0; n < (scalarByteSize + 1) / 2; n++) {
-	//		l = i + n;
-	//		r = i + scalarByteSize - 1 - n;
-	//		tmp = model.getByteArrayData()->at(l);
-	//		model.getByteArrayData()[l] = model.getByteArrayData()[r];
-	//		model.getByteArrayData()->insert(r, tmp);
-	//	}
-
-	//	// determine current Value
-	//	v = 0;
-	//	for (int b = scalarByteSize - 1; b >= 0; b--)
-	//	{
-	//		v = (v << 8) | static_cast<int>(d[i + b]);
-	//	}
-
-	//	if (v > maxV)
-	//	{
-	//		maxV = v;
-	//	}
-	//	if (v < minV)
-	//	{
-	//		minV = v;
-	//	}
-	//}
-	// normalize the max and min intensity values
-
-	for (int i = 0; i < model.getDataSize(); i++)
-	{
-		if (d[i] > maxV)
-		{
-			maxV = d[i];
-		}
-		if (d[i] < minV)
-		{
-			minV = d[i];
-		}
-
-	}
-	model.setMinValue(minV / (float)domain);
-	model.setMaxValue(maxV / (float)domain);
-	qInfo() << "Intensity values between " << model.getMinValue() << "and" << model.getMaxValue();
-
-	glFunc->glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, model.getDimensions()->x(), model.getDimensions()->y(), model.getDimensions()->z(), 0, GL_RED, dataType, model.getData());
+	glFunc->glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, model.getDimensions()->x(), model.getDimensions()->y(), model.getDimensions()->z(), 0, GL_RED, model.getScalarType(), model.getData());
 	glFunc->glBindTexture(GL_TEXTURE_3D, model.getTextureName());
 }
 

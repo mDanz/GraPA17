@@ -19,7 +19,7 @@ public:
 
 	void setModelView(SceneModel *scene, ViewPortWidget *viewPortWidget);
 
-	void setName(SceneItem *item, QString name);
+	void setName(SceneItem *item, QString name) const;
 
 	void mousePressed(QPointF screenPos, QPointF mousePos, QMouseEvent* event);
 	void mouseReleased(QPointF screenPos, int idUnderMouse, QMouseEvent *event);
@@ -30,7 +30,9 @@ public slots:
 	void resetCamera() const;
 	void cameraModeSelected();
 	void objectModeSelected();
+
 	void setTessellation(int t);
+	void mipStateChanged();
 
 	void singleViewActivated() const;
 	void dualViewActivated() const;
@@ -52,6 +54,7 @@ private:
 	void manipulateSelectedItem(QPointF screenPos, QVector3D* delta, QMouseEvent* event) const;
 
 	bool m_isInCameraMode;
+	bool m_mipState;
 	int m_tessellation;
 	TrackBall *m_trackBall;
 	QPointF *m_lastPos;

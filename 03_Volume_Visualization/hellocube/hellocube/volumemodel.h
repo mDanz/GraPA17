@@ -2,6 +2,7 @@
 #include <QVector3D>
 #include <QOpenGLFunctions_4_4_Compatibility>
 #include "sceneitem.h"
+#include "histogram.h"
 
 
 class QVector3D;
@@ -16,9 +17,9 @@ public:
 	void setDimensions(float x, float y, float z) const;
 	void setAspects(float x, float y, float z) const;
 	float getMinValue() const;
-	void setMinValue(float value);
+	//void setMinValue(float value);
 	float getMaxValue() const;
-	void setMaxValue(float value);
+	//void setMaxValue(float value);
 
 	void setDataTexture(QOpenGLTexture *data);
 	void setData(QByteArray data);
@@ -30,11 +31,16 @@ public:
 	QVector3D* getAspects() const;
 	QVector3D* getDimensions() const;
 	int getScalarByteSize() const;
+	void setHistogram(Histogram *histogram);
+	Histogram* getHistogram() const;
 	int getTextureName() const;
 	void setTextureName(int tex_name);
 	QMatrix4x4 getLocalMatrix() const;
 	QMatrix4x4 getNormalizationMatrix() const;
+	
 private:
+	void fixByteOrder();
+
 	QVector3D *m_dimensions;
 	QVector3D *m_aspects;
 	float m_minValue;
@@ -43,4 +49,6 @@ private:
 	int m_scalarByteSize;
 	QOpenGLTexture *m_dataTexture;
 	int m_textureName;
+
+	Histogram *m_histogram;
 };

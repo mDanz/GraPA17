@@ -33,22 +33,12 @@ void VolumeModel::setAspects(float x, float y, float z) const
 
 float VolumeModel::getMinValue() const
 {
-	return m_minValue;
-}
-
-void VolumeModel::setMinValue(float value)
-{
-	m_minValue = value;
+	return m_histogram->getMinValue();
 }
 
 float VolumeModel::getMaxValue() const
 {
-	return m_maxValue;
-}
-
-void VolumeModel::setMaxValue(float value)
-{
-	m_maxValue = value;
+	return m_histogram->getMaxValue();
 }
 
 void VolumeModel::setDataTexture(QOpenGLTexture *dataTexture)
@@ -59,6 +49,10 @@ void VolumeModel::setDataTexture(QOpenGLTexture *dataTexture)
 void VolumeModel::setData(QByteArray data)
 {
 	m_data = data;
+	if (getScalarType() != GL_UNSIGNED_BYTE)
+	{
+		fixByteOrder();
+	}
 }
 
 QOpenGLTexture* VolumeModel::getDataTexture() const
@@ -79,8 +73,6 @@ QByteArray* VolumeModel::getByteArrayData()
 int VolumeModel::getDataSize() const
 {
 	return m_data.size();
-	/*auto size = sizeof(m_data) / sizeof(m_data[0]);
-	return size;*/
 }
 
 GLuint VolumeModel::getScalarType()
@@ -119,6 +111,16 @@ int VolumeModel::getScalarByteSize() const
 	return m_scalarByteSize;
 }
 
+void VolumeModel::setHistogram(Histogram *histogram)
+{
+	m_histogram = histogram;
+}
+
+Histogram* VolumeModel::getHistogram() const
+{
+	return m_histogram;
+}
+
 int VolumeModel::getTextureName() const
 {
 	return m_textureName;
@@ -148,4 +150,22 @@ QMatrix4x4 VolumeModel::getNormalizationMatrix() const
 	QMatrix4x4 m;
 	m.scale(width / max, height / max, depth / max);
 	return m;
+}
+
+void VolumeModel::fixByteOrder()
+{	
+	char tmp;
+	int left;
+	int right;
+	for (int i = 0; i < getDataSize(); i += m_scalarByteSize)
+	{
+		for (int n = 0; n < (m_scalarByteSize + 1) / 2; n++)
+		{
+			left = i + n;
+			right = i + m_scalarByteSize - 1 - n;
+			tmp = m_data[left];
+			m_data[left] = m_data[right];
+			m_data[right] = tmp;
+		}
+	}
 }

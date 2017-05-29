@@ -3,7 +3,8 @@
 #include "sceneitem.h"
 
 SceneModel::SceneModel()
-	: m_selectedItem(nullptr) 
+	: m_selectedItem(nullptr)
+	, m_displayMode(DirectRendering)
 {
 	m_root = new SceneItem();
 }
@@ -69,23 +70,13 @@ SceneItem* SceneModel::getSelectedItem() const
 	return m_selectedItem;
 }
 
-void SceneModel::setVolume(VolumeModel* volume)
+SceneModel::DisplayMode SceneModel::getDisplayMode() const
 {
-	m_volume = volume;
-}
-
-VolumeModel* SceneModel::getVolume()
-{
-	return m_volume;
+	return m_displayMode;
 }
 
 void SceneModel::update()
 {
-	//if (!volumeAdded && volume->isReady()) { //todo when i have volume
-	//	m_root->addChild(volume);
-	//	volumeAdded = true;
-	//}
-
 	emit sceneChanged();
 }
 
@@ -99,4 +90,10 @@ void SceneModel::deleteSelectedItem()
 	delete m_selectedItem;
 	m_selectedItem = nullptr;
 	update();
+}
+
+void SceneModel::changeDisplayMode(DisplayMode mode)
+{
+	m_displayMode = mode;
+	emit sceneChanged();
 }

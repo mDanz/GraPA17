@@ -36,6 +36,7 @@ private:
 	void initializeAboutMenu();
 	void initializeToolBar();
 	void initializeGeneralToolBar();
+	void initializeOptionsToolBar();
 	void initializeGeometryToolBar();
 	void initializeStatusBar() const;
 	void initializeDockWidgets();
@@ -57,6 +58,7 @@ private:
 	QMenu *m_aboutMenu;
 
 	QToolBar *m_generalToolBar;
+	QToolBar *m_optionsToolBar;
 	QToolBar *m_geometryToolBar;
 
 	QStatusBar *m_statusBar;
@@ -79,6 +81,7 @@ private:
 	QAction *m_addTorusAction;
 	QAction *m_addCubeAction;
 	QAction *m_addVolumeAction;
+	QAction *m_mipStateChanged;
 
 	QSlider *m_tessellationSlider;
 	QTreeView *m_outlinerTreeView;

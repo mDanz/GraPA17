@@ -29,6 +29,13 @@ void SceneController::setModelView(SceneModel* scene, ViewPortWidget* viewPortWi
 	m_scene = scene;
 }
 
+void SceneController::setName(SceneItem* item, QString name) const
+{
+	item->setName(name);
+	m_scene->update();
+	m_scene->selectItem(item);
+}
+
 void SceneController::mousePressed(QPointF screenPos, QPointF mousePos, QMouseEvent* event)
 {
 	m_singleClick = true;
@@ -100,6 +107,12 @@ void SceneController::setTessellation(int t)
 	m_tessellation = t;
 }
 
+void SceneController::mipStateChanged()
+{
+	m_scene->changeDisplayMode(m_mipState ? SceneModel::DirectRendering : SceneModel::MaximumIntensityProjection);
+	m_mipState = !m_mipState;
+}
+
 void SceneController::singleViewActivated() const
 {
 	m_viewPortWidget->singleViewActivated();
@@ -118,8 +131,6 @@ void SceneController::quadViewActivated() const
 void SceneController::selectedItemChanged(const QModelIndex& current, const QModelIndex& previous) const
 {
 	m_scene->selectItem(static_cast<SceneItem*>(current.internalPointer()));
-	// auto name = m_scene->getScene()->getSelectedItem()->getName();//todo fix name display
-	// m_ui.statusBar->messageChanged(name);
 }
 
 void SceneController::cubeAdded() const
@@ -173,15 +184,12 @@ void SceneController::addItem(OpenGLPrimitiveType type) const
 		auto fileName = QFileDialog::getOpenFileName(m_viewPortWidget, tr("Load Volume Data"), "./", tr("Raw Files (*.raw)"));
 		auto volume = VolumeModelFactory::createFromFile(fileName);
 		volume->setRigidBodyTransform(rigidBodyTransform);
-		m_scene->setVolume(volume);
 		m_scene->addItem(volume, parent);
 	}
 	else
 	{
 		m_scene->addItem(type, rigidBodyTransform, parent);
 	}
-	
-	//m_scene->setVolume(VolumeModelFactory::createFromFile(fileName)); //todo fix volume to tree adding
 }
 
 void SceneController::manipulateCamera(QPointF screenPos, QVector3D* delta, QMouseEvent* event) const

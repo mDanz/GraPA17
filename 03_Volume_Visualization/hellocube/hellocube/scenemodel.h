@@ -12,6 +12,16 @@ class SceneModel : public QObject
 	Q_OBJECT
 
 public:
+	enum DisplayMode
+	{
+		DirectRendering,
+		MaximumIntensityProjection,
+		EntryPoints,
+		ExitPoints,
+		DebugBox
+	};
+
+
 	SceneModel();
 	~SceneModel();
 
@@ -23,19 +33,19 @@ public:
 	SceneItem* getItem(int id) const;
 	QList<SceneItem*> getAllItems() const;
 	SceneItem* getSelectedItem() const;
-	void setVolume(VolumeModel* volume);
-	VolumeModel* getVolume();
+	DisplayMode getDisplayMode() const;
 
 	void update();
 
 public slots:
 	void deleteSelectedItem();
-	///void changeMode(int i); // todo volume rendering mode
+	void changeDisplayMode(DisplayMode i); // todo volume rendering mode
 
 private:
 	SceneItem *m_root;
 	SceneItem *m_selectedItem;
-	VolumeModel * m_volume;
+
+	DisplayMode m_displayMode;
 
 signals:
 	void sceneChanged();

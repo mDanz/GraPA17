@@ -54,6 +54,7 @@ MainWindow::~MainWindow()
 	delete m_dualViewAction;
 	delete m_quadViewAction;
 	delete m_addVolumeAction;
+	delete m_mipStateChanged;
 }
 
 void MainWindow::showAboutBox() const
@@ -84,6 +85,9 @@ void MainWindow::initializeActions()
 	initializeInteractionModeActionGroup();
 	initializeViewModeActionGroup();
 	initializeGeometryActions();
+
+	m_mipStateChanged = new QAction("&MIP", this);
+	m_mipStateChanged->isCheckable();
 }
 
 void MainWindow::initializeInteractionModeActionGroup()
@@ -171,7 +175,9 @@ void MainWindow::initializeActionConnections() const
 	connect(m_addConeAction, SIGNAL(triggered()), m_sceneController, SLOT(coneAdded()));
 	connect(m_addTorusAction, SIGNAL(triggered()), m_sceneController, SLOT(torusAdded()));
 	connect(m_addVolumeAction, SIGNAL(triggered()), m_sceneController, SLOT(volumeAdded()));
+	
 	connect(m_tessellationSlider, SIGNAL(valueChanged(int)), m_sceneController, SLOT(setTessellation(int)));
+	connect(m_mipStateChanged, SIGNAL(triggered()), m_sceneController, SLOT(mipStateChanged()));
 
 	connect(m_scene, SIGNAL(sceneChanged()), this, SLOT(updateOutliner()));
 	connect(m_scene, SIGNAL(sceneChanged()), m_viewPortWidget, SLOT(update()));
@@ -245,6 +251,7 @@ void MainWindow::initializeToolBar()
 {
 	
 	initializeGeneralToolBar();
+	initializeOptionsToolBar();
 	initializeGeometryToolBar();
 }
 
@@ -259,13 +266,19 @@ void MainWindow::initializeGeneralToolBar()
 	viewModeButton->setPopupMode(QToolButton::InstantPopup);
 	viewModeButton->setIcon(QIcon(":/Resources/img/viewports.png"));
 	m_generalToolBar->addWidget(viewModeButton);
-
 	m_generalToolBar->addAction(m_resetCameraAction);
 
-	m_tessellationSlider = createSlider();
-	m_generalToolBar->addWidget(m_tessellationSlider);
-
 	addToolBar(m_generalToolBar);
+}
+
+void MainWindow::initializeOptionsToolBar()
+{
+	m_optionsToolBar = new QToolBar("RenderOptions", this);
+	m_tessellationSlider = createSlider();
+	m_optionsToolBar->addWidget(m_tessellationSlider);
+	m_optionsToolBar->addAction(m_mipStateChanged);
+
+	addToolBar(m_optionsToolBar);
 }
 
 void MainWindow::initializeGeometryToolBar()

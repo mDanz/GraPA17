@@ -539,17 +539,9 @@ void OpenGLWidget::renderVolumeData(VolumeModel *volume)
 
 	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
 
-	// set display mode
-	/*if (m_displaymode == SCENE)
-	{
-	m_volumeShaderProgram->setUniformValue("displayMode", scene->getMode());
-	}
-	else
-	{*/
-		m_volumeShaderProgram->setUniformValue("displayMode", 0);//m_displaymode);
-	//}
+	m_volumeShaderProgram->setUniformValue("displayMode", m_scene->getDisplayMode());
 
-	m_volumeShaderProgram->setUniformValue("properties.width", static_cast<int>(volume->getDimensions()->x()));
+	m_volumeShaderProgram->setUniformValue("properties.width", static_cast<int>(volume->getDimensions()->x())); //todo refactor this
 	m_volumeShaderProgram->setUniformValue("properties.height", static_cast<int>(volume->getDimensions()->y()));
 	m_volumeShaderProgram->setUniformValue("properties.depth", static_cast<int>(volume->getDimensions()->z()));
 	m_volumeShaderProgram->setUniformValue("properties.minValue", volume->getMinValue());
