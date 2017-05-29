@@ -15,10 +15,18 @@ public:
 	explicit TransferFunctionEditorDock(QWidget *parent = nullptr, TransferFunction *transferFunc = nullptr);
 	~TransferFunctionEditorDock();
 
+public slots:
+	void updateCanvas() const;
+
 private:
 	void initializeCanvas();
 	void initializeCheckBoxes();
 	void initializeButtons();
+
+private slots:
+	void updateColorChannelBoxes() const;
+	void smoothTransferFunction() const;
+	void resetTransferFunction() const;
 
 	TransferFunction *m_transferFunc;
 	VolumeModel *m_volume;
