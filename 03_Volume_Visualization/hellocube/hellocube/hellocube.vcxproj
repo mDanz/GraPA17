@@ -144,6 +144,7 @@
     <ClCompile Include="sceneitemmodel.cpp" />
     <ClCompile Include="scenemodel.cpp" />
     <ClCompile Include="trackball.cpp" />
+    <ClCompile Include="transferfunction.cpp" />
     <ClCompile Include="transferfunctioncanvas.cpp" />
     <ClCompile Include="transferfunctioneditordock.cpp" />
     <ClCompile Include="viewportmodel.cpp" />

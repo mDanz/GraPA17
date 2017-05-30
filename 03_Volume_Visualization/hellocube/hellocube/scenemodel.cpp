@@ -52,7 +52,8 @@ void SceneModel::addItem(SceneItem *item, SceneItem *parent)
 void SceneModel::selectItem(SceneItem* item)
 {
 	m_selectedItem = item;
-	if (m_selectedItem->getPrimitiveType() == Volume)
+
+	if (m_selectedItem && m_selectedItem->getPrimitiveType() == Volume)
 	{
 		emit volumeSelected(reinterpret_cast<VolumeModel*>(item));
 	}

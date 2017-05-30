@@ -14,9 +14,9 @@ VolumeModel::VolumeModel(RigidBodyTransformation* rigidBodyTransform, SceneItem*
 
 VolumeModel::~VolumeModel()
 {
+	OpenGLHelper::getGLFunc()->glDeleteTextures(1, &m_textureName);
 	delete m_transferFunction;
 	delete m_histogram;
-	delete m_dataTexture;
 	delete m_dimensions;
 	delete m_aspects;
 }
@@ -45,11 +45,6 @@ float VolumeModel::getMaxValue() const
 	return m_histogram->getMaxValue();
 }
 
-void VolumeModel::setDataTexture(QOpenGLTexture *dataTexture)
-{
-	m_dataTexture = dataTexture;
-}
-
 void VolumeModel::setData(QByteArray data)
 {
 	m_data = data;
@@ -57,11 +52,6 @@ void VolumeModel::setData(QByteArray data)
 	{
 		fixByteOrder();
 	}
-}
-
-QOpenGLTexture* VolumeModel::getDataTexture() const
-{
-	return m_dataTexture;
 }
 
 unsigned char* VolumeModel::getData()

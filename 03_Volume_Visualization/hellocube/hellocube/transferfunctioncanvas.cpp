@@ -110,6 +110,11 @@ void TransferFunctionCanvas::paintTransferFunction(QPainter& paint) const
 
 void TransferFunctionCanvas::changeTransferFunction(QPoint pos)
 {
+	if (!m_volume || !m_volume->getTransferFunction())
+	{
+		return;
+	}
+
 	auto transferFunction = m_volume->getTransferFunction();
 
 	int startX = m_previousMousePos.x() * transferFunction->getSize() / width(); //todo rework

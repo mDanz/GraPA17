@@ -1,6 +1,4 @@
 #pragma once
-#include <QVector3D>
-#include <QOpenGLFunctions_4_4_Compatibility>
 #include "sceneitem.h"
 #include "histogram.h"
 #include "transferfunction.h"
@@ -18,13 +16,9 @@ public:
 	void setDimensions(float x, float y, float z) const;
 	void setAspects(float x, float y, float z) const;
 	float getMinValue() const;
-	//void setMinValue(float value);
 	float getMaxValue() const;
-	//void setMaxValue(float value);
 
-	void setDataTexture(QOpenGLTexture *data);
 	void setData(QByteArray data);
-	QOpenGLTexture* getDataTexture() const;
 	unsigned char* getData();
 	QByteArray* getByteArrayData();
 	int getDataSize() const;
@@ -49,8 +43,7 @@ private:
 	float m_maxValue;
 	QByteArray m_data;
 	int m_scalarByteSize;
-	QOpenGLTexture *m_dataTexture;
-	int m_textureName;
+	GLuint m_textureName;
 
 	Histogram *m_histogram;
 	TransferFunction *m_transferFunction;

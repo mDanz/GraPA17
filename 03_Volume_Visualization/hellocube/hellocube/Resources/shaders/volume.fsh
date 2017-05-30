@@ -118,7 +118,7 @@ vec4 directRendering(vec3 start, vec3 end)
         samplePos = start + t*dir;
 
         intensity = texture3D(volumeSampler, samplePos).r;
-        curCol = vec4(intensity);//transFunc(intensity);
+        curCol = transFunc(intensity);
 
         if(curCol.a > 0.0f) 
         {

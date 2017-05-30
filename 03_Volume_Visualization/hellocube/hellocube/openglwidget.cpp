@@ -565,12 +565,12 @@ void OpenGLWidget::renderVolumeData(VolumeModel *volume)
 	glBindTexture(GL_TEXTURE_2D, m_entryExitFbo->textures()[0]);
 	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
 
-	//OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE3); //todo use texture for transfer function
-	//scene->getTransFunc()->bindTexture();
+	OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_1D, volume->getTransferFunction()->getTextureName());
 
 	OpenGLHelper::getGLFunc()->glEnableVertexAttribArray(0);
 	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_quadVbo);
-	OpenGLHelper::getGLFunc()->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+	OpenGLHelper::getGLFunc()->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, static_cast<GLvoid*>(nullptr));
 	OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	OpenGLHelper::getGLFunc()->glDisableVertexAttribArray(0);

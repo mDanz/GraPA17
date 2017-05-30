@@ -37,7 +37,7 @@ void TransferFunctionEditorDock::initializeCanvas()
 	m_canvas = new TransferFunctionCanvas(this);
 	m_layout->addWidget(m_canvas, 0, 0, 1, 4);
 	m_canvas->show();
-	m_canvas->renderTransferFunction(m_volume);
+	updateCanvas();
 }
 
 void TransferFunctionEditorDock::initializeCheckBoxes()
@@ -87,5 +87,5 @@ void TransferFunctionEditorDock::smoothTransferFunction() const
 
 void TransferFunctionEditorDock::resetTransferFunction() const
 {
-	m_volume->getTransferFunction()->resetSelectedColorChannels(0, m_redBox->isChecked(), m_greenBox->isChecked(), m_blueBox->isChecked(), m_alphaBox->isChecked());
+	m_volume->getTransferFunction()->resetSelectedColorChannels(m_redBox->isChecked(), m_greenBox->isChecked(), m_blueBox->isChecked(), m_alphaBox->isChecked());
 }

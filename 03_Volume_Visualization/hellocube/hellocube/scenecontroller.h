@@ -5,6 +5,7 @@
 #include "trackball.h"
 
 
+class VolumeModel;
 class OpenGLWidget;
 class SceneItem;
 class SceneModel;
@@ -46,6 +47,9 @@ public slots:
 	void coneAdded() const;
 	void torusAdded() const;
 	void volumeAdded() const;
+
+signals:
+	void selectedVolumeChanged(VolumeModel *volume);
 
 private:
 	SceneController();

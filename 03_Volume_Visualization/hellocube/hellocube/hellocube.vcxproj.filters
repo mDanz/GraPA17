@@ -193,6 +193,9 @@
     <ClCompile Include="transferfunctioncanvas.cpp">
       <Filter>Source Files\view</Filter>
     </ClCompile>
+    <ClCompile Include="transferfunction.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.ui">
