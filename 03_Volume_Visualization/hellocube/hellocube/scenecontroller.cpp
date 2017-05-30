@@ -185,6 +185,7 @@ void SceneController::addItem(OpenGLPrimitiveType type) const
 		auto volume = VolumeModelFactory::createFromFile(fileName);
 		volume->setRigidBodyTransform(rigidBodyTransform);
 		m_scene->addItem(volume, parent);
+		connect(volume->getTransferFunction(), SIGNAL(transferFunctionChanged()), m_viewPortWidget, SLOT(update()));
 	}
 	else
 	{

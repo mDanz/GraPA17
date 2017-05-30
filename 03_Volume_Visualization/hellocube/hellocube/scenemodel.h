@@ -41,6 +41,9 @@ public slots:
 	void deleteSelectedItem();
 	void changeDisplayMode(DisplayMode i); // todo volume rendering mode
 
+signals:
+	void volumeSelected(VolumeModel* volume);
+
 private:
 	SceneItem *m_root;
 	SceneItem *m_selectedItem;

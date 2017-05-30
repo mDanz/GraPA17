@@ -3,6 +3,7 @@
 #include <QOpenGLFunctions_4_4_Compatibility>
 #include "sceneitem.h"
 #include "histogram.h"
+#include "transferfunction.h"
 
 
 class QVector3D;
@@ -37,7 +38,8 @@ public:
 	void setTextureName(int tex_name);
 	QMatrix4x4 getLocalMatrix() const;
 	QMatrix4x4 getNormalizationMatrix() const;
-	
+	TransferFunction* getTransferFunction() const;
+	void setTransferFunction(TransferFunction *transferFunction);
 private:
 	void fixByteOrder();
 
@@ -51,4 +53,5 @@ private:
 	int m_textureName;
 
 	Histogram *m_histogram;
+	TransferFunction *m_transferFunction;
 };

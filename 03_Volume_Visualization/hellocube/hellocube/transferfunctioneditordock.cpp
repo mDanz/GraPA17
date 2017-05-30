@@ -3,11 +3,10 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QCheckBox>
-#include <qtextstream.h>
-#include "transferfunction.h"
 
-TransferFunctionEditorDock::TransferFunctionEditorDock(QWidget* parent, TransferFunction* transferFunc)
-	: QDockWidget(parent)
+TransferFunctionEditorDock::TransferFunctionEditorDock(QString title, QWidget* parent)
+	: QDockWidget(title, parent)
+	, m_volume(nullptr)
 {
 	m_layout = new QGridLayout(this);
 
@@ -18,20 +17,19 @@ TransferFunctionEditorDock::TransferFunctionEditorDock(QWidget* parent, Transfer
 	QWidget *widget = new QWidget(this);
 	widget->setLayout(m_layout);
 	this->setWidget(widget);
-	m_transferFunc = transferFunc;
-	//m_volume = v; //todo get currently selected volume
-
 }
 
 TransferFunctionEditorDock::~TransferFunctionEditorDock()
 {
-	delete m_transferFunc;
+	delete m_volume;
 	delete m_canvas;
 }
 
-void TransferFunctionEditorDock::updateCanvas() const
+void TransferFunctionEditorDock::updateVolume(VolumeModel *volume)
 {
-	m_canvas->renderTransferFunction(m_transferFunc, m_volume);
+	m_volume = volume;
+	connect(m_volume->getTransferFunction(), SIGNAL(transferFunctionChanged()), this, SLOT(updateCanvas()));
+	updateCanvas();
 }
 
 void TransferFunctionEditorDock::initializeCanvas()
@@ -39,7 +37,7 @@ void TransferFunctionEditorDock::initializeCanvas()
 	m_canvas = new TransferFunctionCanvas(this);
 	m_layout->addWidget(m_canvas, 0, 0, 1, 4);
 	m_canvas->show();
-	m_canvas->renderTransferFunction(m_transferFunc, m_volume);
+	m_canvas->renderTransferFunction(m_volume);
 }
 
 void TransferFunctionEditorDock::initializeCheckBoxes()
@@ -77,12 +75,17 @@ void TransferFunctionEditorDock::updateColorChannelBoxes() const
 	m_canvas->setAffectedColorChannels(m_redBox->isChecked(), m_greenBox->isChecked(), m_blueBox->isChecked(), m_alphaBox->isChecked());
 }
 
+void TransferFunctionEditorDock::updateCanvas() const
+{
+	m_canvas->renderTransferFunction(m_volume);
+}
+
 void TransferFunctionEditorDock::smoothTransferFunction() const
 {
-	m_transferFunc->smoothSelectedColorChannels(m_redBox->isChecked(), m_greenBox->isChecked(), m_blueBox->isChecked(), m_alphaBox->isChecked());
+	m_volume->getTransferFunction()->smoothSelectedColorChannels(m_redBox->isChecked(), m_greenBox->isChecked(), m_blueBox->isChecked(), m_alphaBox->isChecked());
 }
 
 void TransferFunctionEditorDock::resetTransferFunction() const
 {
-	m_transferFunc->resetSelectedColorChannels(0, m_redBox->isChecked(), m_greenBox->isChecked(), m_blueBox->isChecked(), m_alphaBox->isChecked());
+	m_volume->getTransferFunction()->resetSelectedColorChannels(0, m_redBox->isChecked(), m_greenBox->isChecked(), m_blueBox->isChecked(), m_alphaBox->isChecked());
 }

@@ -11,13 +11,18 @@ public:
 
 	float getMaxValue() const;
 	float getMinValue() const;
+	float* getHistogramData(int buckets);
+
 
 private:
-	void initializeMaxMinValues(int byteCount, unsigned char* charData, int dataSize);
-	void createHistogram(int byteCount, unsigned char* charData, int dataSize, int buckets);
+	void initializeMaxMinValues();
+	void createHistogram(int buckets);
 
+	unsigned char* m_charData;
 	float *m_histogram;
 	int m_buckets;
+	int m_byteCount;
+	int m_dataSize;
 	float m_maxValue;
 	float m_minValue;
 	int m_domain;

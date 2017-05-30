@@ -6,18 +6,20 @@
 Histogram::Histogram(QByteArray *byteData, int byteCount, int buckets)
 {
 
-	auto charData = reinterpret_cast<unsigned char*>(byteData->data());
-	auto dataSize = byteData->size();
+	m_charData = reinterpret_cast<unsigned char*>(byteData->data());
+	m_dataSize = byteData->size();
 
 	m_domain = pow(256, byteCount);
+	m_byteCount = byteCount;
 
-	initializeMaxMinValues(byteCount, charData, dataSize);
-	createHistogram(byteCount, charData, dataSize, buckets);
+	initializeMaxMinValues();
+	createHistogram(buckets);
 }
 
 Histogram::~Histogram()
 {
 	delete[] m_histogram;
+	delete[] m_charData;
 }
 
 float Histogram::getMaxValue() const
@@ -30,15 +32,25 @@ float Histogram::getMinValue() const
 	return m_minValue;
 }
 
-void Histogram::initializeMaxMinValues(int byteCount, unsigned char* charData, int dataSize)
+float* Histogram::getHistogramData(int buckets)
+{
+	if (m_buckets == buckets)
+	{
+		return m_histogram;
+	}
+	createHistogram(buckets);
+	return m_histogram;
+}
+
+void Histogram::initializeMaxMinValues()
 {
 	int value, maxV = 0, minV = m_domain;
-	for (int i = 0; i < dataSize; i += byteCount)
+	for (int i = 0; i < m_dataSize; i += m_byteCount)
 	{
 		value = 0;
-		for (int b = byteCount - 1; b >= 0; b--)
+		for (int b = m_byteCount - 1; b >= 0; b--)
 		{
-			value = (value << 8) | static_cast<int>(charData[i + b]);
+			value = (value << 8) | static_cast<int>(m_charData[i + b]);
 		}
 
 		if (value > maxV)
@@ -56,7 +68,7 @@ void Histogram::initializeMaxMinValues(int byteCount, unsigned char* charData, i
 	m_maxValue = maxV / static_cast<float>(m_domain);
 }
 
-void Histogram::createHistogram(int byteCount, unsigned char* charData, int dataSize, int buckets)
+void Histogram::createHistogram(int buckets)
 {
 	m_buckets = buckets;
 	m_histogram = new float[m_buckets];
@@ -68,12 +80,12 @@ void Histogram::createHistogram(int byteCount, unsigned char* charData, int data
 
 	uint value;
 	int bucketId, maxBucket = 0;
-	for (int i = 0; i < dataSize; i += byteCount)
+	for (int i = 0; i < m_dataSize; i += m_byteCount)
 	{
 		value = 0;
-		for (int b = byteCount - 1; b >= 0; b--)
+		for (int b = m_byteCount - 1; b >= 0; b--)
 		{
-			value = (value << 8) | static_cast<int>(charData[i + b]);
+			value = (value << 8) | static_cast<int>(m_charData[i + b]);
 		}
 
 		//normalize

@@ -9,10 +9,14 @@ VolumeModel::VolumeModel(RigidBodyTransformation* rigidBodyTransform, SceneItem*
 	m_dimensions = new QVector3D;
 	m_aspects = new QVector3D;
 	m_textureName = GL_INVALID_VALUE;
+	m_transferFunction = new TransferFunction();
 }
 
 VolumeModel::~VolumeModel()
 {
+	delete m_transferFunction;
+	delete m_histogram;
+	delete m_dataTexture;
 	delete m_dimensions;
 	delete m_aspects;
 }
@@ -150,6 +154,16 @@ QMatrix4x4 VolumeModel::getNormalizationMatrix() const
 	QMatrix4x4 m;
 	m.scale(width / max, height / max, depth / max);
 	return m;
+}
+
+TransferFunction* VolumeModel::getTransferFunction() const
+{
+	return m_transferFunction;
+}
+
+void VolumeModel::setTransferFunction(TransferFunction* transferFunction)
+{
+	m_transferFunction = transferFunction;
 }
 
 void VolumeModel::fixByteOrder()

@@ -182,6 +182,7 @@ void MainWindow::initializeActionConnections() const
 	connect(m_scene, SIGNAL(sceneChanged()), this, SLOT(updateOutliner()));
 	connect(m_scene, SIGNAL(sceneChanged()), m_viewPortWidget, SLOT(update()));
 	connect(m_scene, SIGNAL(itemSelected(QString)), this, SLOT(updateStatusBar(QString)));
+	connect(m_scene, SIGNAL(volumeSelected(VolumeModel*)), m_transferFunctionEditor, SLOT(updateVolume(VolumeModel*)));
 
 	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), m_sceneController, SLOT(selectedItemChanged(QModelIndex, QModelIndex)));
 }
@@ -303,6 +304,7 @@ void MainWindow::initializeStatusBar() const
 void MainWindow::initializeDockWidgets()
 {
 	initializeOutliner();
+	initializeTransferFunctionEditor();
 }
 
 void MainWindow::initializeViewportWidget()
@@ -319,6 +321,12 @@ void MainWindow::initializeOutliner()
 	m_outlinerTreeView->setModel(m_outlinerModel);
 	m_outlinerDock->setWidget(m_outlinerTreeView);
 	addDockWidget(Qt::LeftDockWidgetArea, m_outlinerDock);
+}
+
+void MainWindow::initializeTransferFunctionEditor()
+{
+	m_transferFunctionEditor = new TransferFunctionEditorDock("Transfer Function Editor", this);
+	addDockWidget(Qt::LeftDockWidgetArea, m_transferFunctionEditor);
 }
 
 void MainWindow::updateOutliner()

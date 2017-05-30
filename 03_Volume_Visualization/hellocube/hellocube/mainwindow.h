@@ -5,6 +5,7 @@
 #include "openglwidget.h"
 #include "scenemodel.h"
 #include "sceneitemmodel.h"
+#include "transferfunctioneditordock.h"
 
 class SceneController;
 class ViewPortWidget;
@@ -42,6 +43,7 @@ private:
 	void initializeDockWidgets();
 	void initializeViewportWidget();
 	void initializeOutliner();
+	void initializeTransferFunctionEditor();
 	QSlider* createSlider();
 
 	SceneModel *m_scene;
@@ -64,6 +66,7 @@ private:
 	QStatusBar *m_statusBar;
 
 	QDockWidget *m_outlinerDock;
+	TransferFunctionEditorDock *m_transferFunctionEditor;
 
 	QActionGroup *m_interactionModeActionGroup;
 	QActionGroup *m_viewModeActionGroup;

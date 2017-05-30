@@ -12,11 +12,11 @@ class TransferFunction;
 class TransferFunctionEditorDock : public QDockWidget
 {
 public:
-	explicit TransferFunctionEditorDock(QWidget *parent = nullptr, TransferFunction *transferFunc = nullptr);
+	explicit TransferFunctionEditorDock(QString title = "", QWidget *parent = nullptr);
 	~TransferFunctionEditorDock();
 
 public slots:
-	void updateCanvas() const;
+	void updateVolume(VolumeModel *volume);
 
 private:
 	void initializeCanvas();
@@ -25,10 +25,10 @@ private:
 
 private slots:
 	void updateColorChannelBoxes() const;
+	void updateCanvas() const;
 	void smoothTransferFunction() const;
 	void resetTransferFunction() const;
 
-	TransferFunction *m_transferFunc;
 	VolumeModel *m_volume;
 	
 	TransferFunctionCanvas *m_canvas;
