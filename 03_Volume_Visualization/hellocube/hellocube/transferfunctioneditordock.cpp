@@ -98,10 +98,12 @@ void TransferFunctionEditorDock::resetTransferFunction() const
 	m_volume->getTransferFunction()->resetSelectedColorChannels(m_redBox->isChecked(), m_greenBox->isChecked(), m_blueBox->isChecked(), m_alphaBox->isChecked());
 }
 
-void TransferFunctionEditorDock::saveTransferFunction() const
+void TransferFunctionEditorDock::saveTransferFunction()
 {
-	QString filePath = "./functions/" + m_volume->getName() + ".tf";
-	m_volume->getTransferFunction()->save(filePath);
+	auto fileName = QFileDialog::getSaveFileName(this, tr("Save Transfer Function"), "./functions/", tr("Function Files (*.tf)"));
+
+	//QString filePath = "./functions/" + m_volume->getName() + ".tf";
+	m_volume->getTransferFunction()->save(fileName);
 }
 
 void TransferFunctionEditorDock::loadTransferFunction()

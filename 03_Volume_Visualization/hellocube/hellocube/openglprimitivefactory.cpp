@@ -22,7 +22,11 @@ OpenGLPrimitiveFactory::OpenGLPrimitiveFactory(OpenGLWidget* parent)
 
 OpenGLPrimitiveFactory::~OpenGLPrimitiveFactory()
 {
-	delete[] m_primitives;
+	for (int i = 0; i < 7; i++)
+	{
+		delete m_primitives[i];
+	}
+	delete m_primitives;
 }
 
 OpenGLGeometry* OpenGLPrimitiveFactory::renderPrimitive(OpenGLPrimitiveType primitiveType)

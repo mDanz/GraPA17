@@ -125,9 +125,15 @@ void OpenGLWidget::paintGL()
 {
 	auto items = m_scene->getAllItems();
 
-	paintWithVolumeShaderProgram(&items);
+	m_fbo->bind();
+	glClearColor(0.f, 0.f, 0.f, 0.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_fbo->release();
+
+
 	paintWithSceneShaderProgram(&items);
-	paintWithHighlightShaderProgram(&items);
+	paintWithVolumeShaderProgram(&items);
+	paintWithHighlightShaderProgram();
 }
 
 void OpenGLWidget::resizeGL(int width, int height)
@@ -262,9 +268,6 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 {
 	m_fbo->bind();
 
-	glClearColor(.0f, .0f, .0f, .0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	OpenGLHelper::getGLFunc()->glDrawBuffers(2, buffers);
 
@@ -315,7 +318,7 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 
 }
 
-void OpenGLWidget::paintWithHighlightShaderProgram(QList<SceneItem*> *items) //todo refactor this
+void OpenGLWidget::paintWithHighlightShaderProgram() //todo refactor this
 {
 	auto glFunc = OpenGLHelper::getGLFunc();
 
@@ -415,8 +418,6 @@ void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items)
 	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_boxVbo);
 	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 6 * 2 * 3 * 3 * sizeof(float), boxVx, GL_STATIC_DRAW);
 
-	qInfo() << "Array buffer init debug:" << OpenGLHelper::Error();
-
 	QString err = OpenGLHelper::Error();
 
 	for(int i = 0; i < items->size(); i++)
@@ -513,10 +514,11 @@ void OpenGLWidget::renderEntryPoints()
 
 void OpenGLWidget::renderVolumeData(VolumeModel *volume)
 {
-	m_fbo->bind();
+	
 	m_volumeShaderProgram->bind();
 	glCullFace(GL_BACK);
 
+	m_fbo->bind();
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	OpenGLHelper::getGLFunc()->glDrawBuffers(2, buffers);
 

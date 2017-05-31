@@ -29,7 +29,6 @@ bool isOnWindowBorder()
 
 void main(void)
 {
-    //gl_FragColor = highlightColor;
     if(isSelectedWidget && isOnWindowBorder()) 
 	{
         gl_FragColor = highlightColor;
@@ -39,7 +38,7 @@ void main(void)
         vec4 color = texture2D(pickTex, uv);
         if(color.a > 0.0f && color == selectedID && isBorder()) 
 		{
-            gl_FragColor = vec4(1.f, 0.9f, 0.1f, 1.f);
+            gl_FragColor = highlightColor * 1.3;
         } 
 		else 
 		{

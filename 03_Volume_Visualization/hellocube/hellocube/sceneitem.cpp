@@ -35,7 +35,10 @@ SceneItem::~SceneItem()
 	delete m_rigidBodyTransform;
 	qDeleteAll(m_children);
 
-	m_parent->removeChild(this);
+	if (m_parent)
+	{
+		m_parent->removeChild(this);
+	}
 }
 
 void SceneItem::setParent(SceneItem* parent)

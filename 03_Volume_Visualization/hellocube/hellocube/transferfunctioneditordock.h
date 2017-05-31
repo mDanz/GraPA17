@@ -44,6 +44,6 @@ private slots:
 	void updateCanvas() const;
 	void smoothTransferFunction() const;
 	void resetTransferFunction() const;
-	void saveTransferFunction() const;
+	void saveTransferFunction();
 	void loadTransferFunction();
 };

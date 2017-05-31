@@ -19,8 +19,7 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Compat
 	Q_OBJECT
 
 public:
-	explicit OpenGLWidget(QWidget *parent = 0);
-	//explicit OpenGLWidget(SceneModel *scene, CameraModel *cameraModel, QWidget *parent = 0);
+	explicit OpenGLWidget(QWidget *parent = nullptr);
 	~OpenGLWidget();
 
 	void setModel(SceneModel *scene, CameraModel* camera);
@@ -33,13 +32,7 @@ public:
 	QSize sizeHint() const override;
 
 public slots:
-	//void setTesselation(int t);
-	//void resetCamera();
 	void cleanup();
-	//void selectedCameraMode();
-	//void selectedObjManipulationMode();
-	//void keyPressEvent(QKeyEvent *e) override;
-	//void keyReleaseEvent(QKeyEvent* e) override;
 
 signals:
 	void clickedInside();
@@ -53,8 +46,6 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
 	void wheelEvent(QWheelEvent *event) override;
-	//void focusInEvent(QFocusEvent *event) override;
-	//void focusOutEvent(QFocusEvent *event) override;
 
 private:
 	void initializeFrameBufferObjects(int width, int height);
@@ -62,23 +53,13 @@ private:
 	void initializeHighlightShaderProgram();
 	void initializeEntryExitShaderProgram();
 	void initializeVolumeShaderProgram();
-	//void initializeColorPickerShaderProgram();
-	//void initializeSceneShaders();
-	//void initializeColorPickerShaders();
-	//void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 	void paintWithSceneShaderProgram(QList<SceneItem*> *items);
-	void paintWithHighlightShaderProgram(QList<SceneItem*>* items);
+	void paintWithHighlightShaderProgram();
 	void paintWithVolumeShaderProgram(QList<SceneItem*> *items);
 	void renderEntryPoints();
 	void renderEntryExitPoints(VolumeModel* volume);
 	void renderExitPoints(VolumeModel* volume);
 	void renderVolumeData(VolumeModel* volume);
-	//void paintWithColorPickerProgram(QList<SceneItem*> *items);
-	//void paintFocusHighlight();
-	//void manipulateScene();
-	//void updateOrthoProjection(int width, int height);
-	//static GLfloat calculateAspectRatio(int width, int height);
-	//void processSelection() const;
 	int getIdFromScreen(QPoint pos);
 
 	const QVector3D m_lightPos = { 0.5f, 0.0f, 0.2f };
@@ -97,7 +78,6 @@ private:
 	const QString m_entryExit_vshFile = "./Resources/shaders/entryExit.vsh";
 	const QString m_entryExit_fshFile = "./Resources/shaders/entryExit.fsh";
 
-	//bool m_manipulationModeFlag;
 	bool m_isSelected;
 	int m_displaymode;
 
@@ -105,7 +85,6 @@ private:
 	QOpenGLShaderProgram *m_highlightProgram;
 	QOpenGLShaderProgram *m_entryExitProgram;
 	QOpenGLShaderProgram *m_volumeShaderProgram;
-	//QOpenGLShaderProgram *m_colorPickerProgram; 
 	QOpenGLFramebufferObject *m_fbo;
 	QOpenGLFramebufferObject *m_entryExitFbo;
 
@@ -132,18 +111,6 @@ private:
 
 	QMatrix4x4 m_proj;
 	QMatrix4x4 m_world;
-	//int m_tessellation;
-	//int m_wheelDelta;
-	/*QPoint *m_lastPos;
-	QVector3D *m_dragTranslation;
-	QQuaternion m_dragRotation;
-	TrackBall *m_trackBall;*/
-	//bool m_isTessellationEnabled;
-	//QOpenGLShader* m_vertexShader;
-	//QOpenGLShader* m_fragmentShader;
-	//QOpenGLShader* m_colorPicker_vertexShader;
-	//QOpenGLShader* m_colorPicker_fragmentShader;
-	//QImage* m_pickerImage;
 
 	OpenGLPrimitiveFactory *m_primitiveFactory;
 };

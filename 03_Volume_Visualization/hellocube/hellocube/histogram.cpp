@@ -19,7 +19,7 @@ Histogram::Histogram(QByteArray *byteData, int byteCount, int buckets)
 Histogram::~Histogram()
 {
 	delete[] m_histogram;
-	delete[] m_charData;
+	m_charData = nullptr;
 }
 
 float Histogram::getMaxValue() const
