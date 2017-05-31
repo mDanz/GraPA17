@@ -49,3 +49,4 @@ CMakeLists.txt.user
 *.exe
 *.ilk
 *.TMP
+03_Volume_Visualization/hellocube/hellocube/VolumeData/
