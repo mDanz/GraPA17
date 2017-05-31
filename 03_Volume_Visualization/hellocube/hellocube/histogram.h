@@ -17,6 +17,7 @@ public:
 private:
 	void initializeMaxMinValues();
 	void createHistogram(int buckets);
+	void normalizeBucketsLogarithmic(int& maxBucketValue) const;
 
 	unsigned char* m_charData;
 	float *m_histogram;

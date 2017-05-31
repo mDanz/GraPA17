@@ -58,7 +58,8 @@ void TransferFunctionCanvas::paintHistogram(QPainter& paint) const
 	float *histogram = m_volume->getHistogram()->getHistogramData(width());
 	for (int i = 0; i<m_volume->getTransferFunction()->getSize(); i++)
 	{
-		paint.drawLine(i, height(), i, height() - histogram[i] * height());
+		auto h = height() - histogram[i] * height();
+		paint.drawLine(i, height(), i, h);
 	}
 }
 

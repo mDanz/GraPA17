@@ -78,8 +78,9 @@ void Histogram::createHistogram(int buckets)
 		m_histogram[i] = 0;
 	}
 
-	uint value;
-	int bucketId, maxBucket = 0;
+	uint value = 0;
+	int bucketId = 0;
+	int maxBucketValue = 0;
 	for (int i = 0; i < m_dataSize; i += m_byteCount)
 	{
 		value = 0;
@@ -88,8 +89,26 @@ void Histogram::createHistogram(int buckets)
 			value = (value << 8) | static_cast<int>(m_charData[i + b]);
 		}
 
-		//normalize
 		bucketId = (value / static_cast<float>(m_domain) - m_minValue) / (m_maxValue - m_minValue) * m_buckets;
 		m_histogram[bucketId]++;
+
+		if (m_histogram[bucketId] > maxBucketValue) 
+		{
+			maxBucketValue = m_histogram[bucketId];
+		}
+	}
+
+	normalizeBucketsLogarithmic(maxBucketValue);
+}
+
+void Histogram::normalizeBucketsLogarithmic(int& maxBucketValue) const
+{
+	maxBucketValue = log(maxBucketValue);
+	for (int i = 0; i < m_buckets; i++)
+	{
+		if (m_histogram[i] > 0)
+		{
+			m_histogram[i] = log(m_histogram[i]) / maxBucketValue;
+		}
 	}
 }

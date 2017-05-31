@@ -98,9 +98,9 @@ int TransferFunction::getSize() const
 
 QColor TransferFunction::getValue(int index) const
 {
-	if (index <= 0 || index >= m_dataSize) 
+	if (index < 0 || index >= m_dataSize) 
 	{
-		qWarning() << "Index out of bound!";
+		qWarning() << "getValue: Index out of bound! Index: " << index;
 		return QColor();
 	}
 	return m_function[index];
@@ -110,7 +110,7 @@ void TransferFunction::setValue(int index, QColor value)
 {
 	if (index < 0 || index > m_dataSize)
 	{
-		qWarning() << "Index out of boundary!";
+		qWarning() << "setValue: Index out of bound! Index: " << index;
 		return;
 	}
 
