@@ -54,7 +54,7 @@ void TransferFunctionCanvas::mouseMoveEvent(QMouseEvent* event)
 
 void TransferFunctionCanvas::paintHistogram(QPainter& paint) const
 {
-	paint.setPen(QColor::fromHsv(30, 40, 200));
+	paint.setPen(QColor::fromHsv(0, 0, 100));
 	float *histogram = m_volume->getHistogram()->getHistogramData(width());
 	for (int i = 0; i<m_volume->getTransferFunction()->getSize(); i++)
 	{

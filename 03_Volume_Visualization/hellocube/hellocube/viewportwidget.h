@@ -22,7 +22,6 @@ public:
 
 public slots:
 	void update() const;
-	//void homePosition();
 
 	void singleViewActivated();
 	void dualViewActivated();
