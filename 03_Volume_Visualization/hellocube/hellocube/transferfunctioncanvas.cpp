@@ -14,7 +14,7 @@ TransferFunctionCanvas::~TransferFunctionCanvas()
 	m_volume = nullptr;
 }
 
-void TransferFunctionCanvas::renderTransferFunction(VolumeModel* volume)
+void TransferFunctionCanvas::reRenderTransferFunction(VolumeModel* volume)
 {
 	m_volume = volume;
 	update();

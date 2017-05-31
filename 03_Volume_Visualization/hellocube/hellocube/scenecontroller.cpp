@@ -182,6 +182,11 @@ void SceneController::addItem(OpenGLPrimitiveType type) const
 	if (type == OpenGLPrimitiveType::Volume)
 	{
 		auto fileName = QFileDialog::getOpenFileName(m_viewPortWidget, tr("Load Volume Data"), "./", tr("Raw Files (*.raw)"));
+		if (fileName.isEmpty())
+		{
+			return;
+		}
+		
 		auto volume = VolumeModelFactory::createFromFile(fileName);
 		volume->setRigidBodyTransform(rigidBodyTransform);
 		m_scene->addItem(volume, parent);

@@ -14,9 +14,10 @@ TransferFunctionEditorDock::TransferFunctionEditorDock(QString title, QWidget* p
 	initializeCheckBoxes();
 	initializeButtons();
 
-	QWidget *widget = new QWidget(this);
+	//setLayout(m_layout);
+	auto widget = new QWidget(this);
 	widget->setLayout(m_layout);
-	this->setWidget(widget);
+	setWidget(widget);
 }
 
 TransferFunctionEditorDock::~TransferFunctionEditorDock()
@@ -52,10 +53,10 @@ void TransferFunctionEditorDock::initializeCheckBoxes()
 	m_layout->addWidget(m_blueBox, 1, 2);
 	m_layout->addWidget(m_alphaBox, 1, 3);
 
-	connect(m_redBox, SIGNAL(clicked(bool)), this, SLOT(updateBoxes()));
-	connect(m_greenBox, SIGNAL(clicked(bool)), this, SLOT(updateBoxes()));
-	connect(m_blueBox, SIGNAL(clicked(bool)), this, SLOT(updateBoxes()));
-	connect(m_alphaBox, SIGNAL(clicked(bool)), this, SLOT(updateBoxes()));
+	connect(m_redBox, SIGNAL(clicked(bool)), this, SLOT(updateColorChannelBoxes()));
+	connect(m_greenBox, SIGNAL(clicked(bool)), this, SLOT(updateColorChannelBoxes()));
+	connect(m_blueBox, SIGNAL(clicked(bool)), this, SLOT(updateColorChannelBoxes()));
+	connect(m_alphaBox, SIGNAL(clicked(bool)), this, SLOT(updateColorChannelBoxes()));
 }
 
 void TransferFunctionEditorDock::initializeButtons()
@@ -67,7 +68,7 @@ void TransferFunctionEditorDock::initializeButtons()
 	m_layout->addWidget(m_resetButton, 2, 2, 1, 2);
 
 	connect(m_smoothButton, SIGNAL(clicked(bool)), this, SLOT(smoothTransferFunction()));
-	connect(m_resetButton, SIGNAL(clicked(bool)), this, SLOT(defaultTransferFunction()));
+	connect(m_resetButton, SIGNAL(clicked(bool)), this, SLOT(resetTransferFunction()));
 }
 
 void TransferFunctionEditorDock::updateColorChannelBoxes() const
@@ -77,7 +78,7 @@ void TransferFunctionEditorDock::updateColorChannelBoxes() const
 
 void TransferFunctionEditorDock::updateCanvas() const
 {
-	m_canvas->renderTransferFunction(m_volume);
+	m_canvas->reRenderTransferFunction(m_volume);
 }
 
 void TransferFunctionEditorDock::smoothTransferFunction() const

@@ -11,6 +11,8 @@ class TransferFunction;
 
 class TransferFunctionEditorDock : public QDockWidget
 {
+	Q_OBJECT
+
 public:
 	explicit TransferFunctionEditorDock(QString title = "", QWidget *parent = nullptr);
 	~TransferFunctionEditorDock();
@@ -23,14 +25,8 @@ private:
 	void initializeCheckBoxes();
 	void initializeButtons();
 
-private slots:
-	void updateColorChannelBoxes() const;
-	void updateCanvas() const;
-	void smoothTransferFunction() const;
-	void resetTransferFunction() const;
-
 	VolumeModel *m_volume;
-	
+
 	TransferFunctionCanvas *m_canvas;
 	QGridLayout *m_layout;
 
@@ -40,4 +36,10 @@ private slots:
 	QCheckBox* m_alphaBox;
 	QPushButton* m_smoothButton;
 	QPushButton* m_resetButton;
+
+private slots:
+	void updateColorChannelBoxes() const;
+	void updateCanvas() const;
+	void smoothTransferFunction() const;
+	void resetTransferFunction() const;
 };

@@ -196,6 +196,12 @@
     <ClCompile Include="transferfunction.cpp">
       <Filter>Source Files\model</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_transferfunctioneditordock.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_transferfunctioneditordock.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.ui">
@@ -227,6 +233,9 @@
     </CustomBuild>
     <CustomBuild Include="transferfunction.h">
       <Filter>Header Files\model</Filter>
+    </CustomBuild>
+    <CustomBuild Include="transferfunctioneditordock.h">
+      <Filter>Header Files\view</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -289,9 +298,6 @@
     </ClInclude>
     <ClInclude Include="histogram.h">
       <Filter>Header Files\model</Filter>
-    </ClInclude>
-    <ClInclude Include="transferfunctioneditordock.h">
-      <Filter>Header Files\view</Filter>
     </ClInclude>
     <ClInclude Include="transferfunctioncanvas.h">
       <Filter>Header Files\view</Filter>

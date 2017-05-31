@@ -18,6 +18,7 @@
 #include "viewportmodel.h"
 #include "sceneitemmodel.h"
 #include "scenecontroller.h"
+#include "transferfunctioneditordock.h"
 
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)

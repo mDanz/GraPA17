@@ -10,7 +10,7 @@ public:
 	explicit TransferFunctionCanvas(QWidget *parent = nullptr, int width = 256, int height = 256);
 	~TransferFunctionCanvas();
 
-	void renderTransferFunction(VolumeModel* volume);
+	void reRenderTransferFunction(VolumeModel* volume);
 	void setAffectedColorChannels(bool red, bool green, bool blue, bool alpha);
 
 protected:
