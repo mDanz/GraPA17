@@ -25,7 +25,7 @@ uniform sampler2D entryPoints;
 uniform sampler2D exitPoints;
 
 uniform float step = 0.01f;
-uniform mat4 mvMat;
+uniform mat4 mvMatrix;
 
 uniform VolumeProps properties;
 
@@ -67,10 +67,10 @@ vec4 lighting(vec3 samplePos, vec3 color, float opacity)
     // calculate the surface normal with the gradient
     vec3 normal = gradient(samplePos);
     normal = normalize(normal);
-    normal = -(transpose(inverse(mat3(mvMat))) * normal);
+    normal = -(transpose(inverse(mat3(mvMatrix))) * normal);
 
     // the eye vector (since we're in view space it's the position)
-    vec3 worldPos = (mvMat * vec4(samplePos, 1.f)).xyz;
+    vec3 worldPos = (mvMatrix * vec4(samplePos, 1.f)).xyz;
     vec3 posNorm = normalize(worldPos);
 
     // the normalized light vector

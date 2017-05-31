@@ -22,6 +22,9 @@ public:
 	void setValue(int index, QColor value);
 	GLuint getTextureName() const;
 
+	void save(QString filePath) const;
+	void load(QString filePath);
+
 signals:
 	void transferFunctionChanged();
 

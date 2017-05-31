@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QFileDialog>
 
 TransferFunctionEditorDock::TransferFunctionEditorDock(QString title, QWidget* parent)
 	: QDockWidget(title, parent)
@@ -22,7 +23,7 @@ TransferFunctionEditorDock::TransferFunctionEditorDock(QString title, QWidget* p
 
 TransferFunctionEditorDock::~TransferFunctionEditorDock()
 {
-	delete m_volume;
+	m_volume = nullptr;
 	delete m_canvas;
 }
 
@@ -36,7 +37,7 @@ void TransferFunctionEditorDock::updateVolume(VolumeModel *volume)
 void TransferFunctionEditorDock::initializeCanvas()
 {
 	m_canvas = new TransferFunctionCanvas(this);
-	m_layout->addWidget(m_canvas, 0, 0, 1, 4);
+	m_layout->addWidget(m_canvas, 0, 0, 4, 3);
 	m_canvas->show();
 	updateCanvas();
 }
@@ -48,10 +49,10 @@ void TransferFunctionEditorDock::initializeCheckBoxes()
 	m_blueBox = new QCheckBox("Blue", this);
 	m_alphaBox = new QCheckBox("Alpha", this);
 
-	m_layout->addWidget(m_redBox, 1, 0);
-	m_layout->addWidget(m_greenBox, 1, 1);
-	m_layout->addWidget(m_blueBox, 1, 2);
-	m_layout->addWidget(m_alphaBox, 1, 3);
+	m_layout->addWidget(m_redBox, 0, 4, 1, 1);
+	m_layout->addWidget(m_greenBox, 1, 4, 1, 1);
+	m_layout->addWidget(m_blueBox, 2, 4, 1, 1);
+	m_layout->addWidget(m_alphaBox, 3, 4, 1, 1);
 
 	connect(m_redBox, SIGNAL(clicked(bool)), this, SLOT(updateColorChannelBoxes()));
 	connect(m_greenBox, SIGNAL(clicked(bool)), this, SLOT(updateColorChannelBoxes()));
@@ -63,12 +64,18 @@ void TransferFunctionEditorDock::initializeButtons()
 {
 	m_smoothButton = new QPushButton(QString("Smooth"), this);
 	m_resetButton = new QPushButton(QString("Reset"), this);
+	m_saveButton = new QPushButton(QString("Save"), this);
+	m_loadButton = new QPushButton(QString("Load"), this);
 	
-	m_layout->addWidget(m_smoothButton, 2, 0, 1, 2);
-	m_layout->addWidget(m_resetButton, 2, 2, 1, 2);
+	m_layout->addWidget(m_smoothButton, 4, 0, 1, 2);
+	m_layout->addWidget(m_resetButton, 4, 2, 1, 2);
+	m_layout->addWidget(m_saveButton, 5, 0, 1, 2);
+	m_layout->addWidget(m_loadButton, 5, 2, 1, 2);
 
 	connect(m_smoothButton, SIGNAL(clicked(bool)), this, SLOT(smoothTransferFunction()));
 	connect(m_resetButton, SIGNAL(clicked(bool)), this, SLOT(resetTransferFunction()));
+	connect(m_saveButton, SIGNAL(clicked(bool)), this, SLOT(saveTransferFunction()));
+	connect(m_loadButton, SIGNAL(clicked(bool)), this, SLOT(loadTransferFunction()));
 }
 
 void TransferFunctionEditorDock::updateColorChannelBoxes() const
@@ -89,4 +96,21 @@ void TransferFunctionEditorDock::smoothTransferFunction() const
 void TransferFunctionEditorDock::resetTransferFunction() const
 {
 	m_volume->getTransferFunction()->resetSelectedColorChannels(m_redBox->isChecked(), m_greenBox->isChecked(), m_blueBox->isChecked(), m_alphaBox->isChecked());
+}
+
+void TransferFunctionEditorDock::saveTransferFunction() const
+{
+	QString filePath = "./functions/" + m_volume->getName() + ".tf";
+	m_volume->getTransferFunction()->save(filePath);
+}
+
+void TransferFunctionEditorDock::loadTransferFunction()
+{
+	auto fileName = QFileDialog::getOpenFileName(this, tr("Load Transfer Function"), "./functions/", tr("Function Files (*.tf)"));
+	if (fileName.isEmpty())
+	{
+		qWarning() << "Could not open empty file string!";
+		return;
+	}
+	m_volume->getTransferFunction()->load(fileName);
 }

@@ -216,11 +216,6 @@ void OpenGLWidget::initializeVolumeShaderProgram()
 	m_volumeShaderProgram->setUniformValue("entryPoints", 1);
 	m_volumeShaderProgram->setUniformValue("exitPoints", 2);
 	m_volumeShaderProgram->setUniformValue("transferFunction", 3);
-
-	m_stepLoc = m_volumeShaderProgram->uniformLocation("step");
-	m_mvMatrixLoc = m_volumeShaderProgram->uniformLocation("mvMat");
-	m_idColor = m_volumeShaderProgram->uniformLocation("idColor");
-
 	m_volumeShaderProgram->release();
 }
 
@@ -262,18 +257,6 @@ void OpenGLWidget::wheelEvent(QWheelEvent* event)
 	SceneController::getController()->wheelMoved(event->delta());
 	update();
 }
-
-//void OpenGLWidget::perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
-//{
-//	GLdouble left, right, bottom, top;
-//
-//	top = zNear * tan(fovy * M_PI / 360.0f);
-//	bottom = -top;
-//	left = bottom * aspect;
-//	right = top * aspect;
-//
-//	glFrustum(left, right, bottom, top, zNear, zFar);
-//}
 
 void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 {
@@ -481,7 +464,7 @@ void OpenGLWidget::renderExitPoints(VolumeModel* volume)
 
 	OpenGLHelper::getGLFunc()->glEnableVertexAttribArray(0);
 	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_boxVbo);
-	OpenGLHelper::getGLFunc()->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+	OpenGLHelper::getGLFunc()->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, static_cast<GLvoid*>(nullptr));
 	OpenGLHelper::getGLFunc()->glColor3f(1.0, 0.0, 0.0);
 	OpenGLHelper::getGLFunc()->glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -548,7 +531,7 @@ void OpenGLWidget::renderVolumeData(VolumeModel *volume)
 	m_volumeShaderProgram->setUniformValue("properties.maxValue", volume->getMaxValue());
 
 	m_volumeShaderProgram->setUniformValue("step", 0.01f);
-	m_volumeShaderProgram->setUniformValue("mvMat", *m_cameraModel->getCameraMatrix());
+	m_volumeShaderProgram->setUniformValue("mvMatrix", *m_cameraModel->getCameraMatrix());
 	m_volumeShaderProgram->setUniformValue("idColor", QVector4D(volume->getId()->getIdAsColor(), 1.0));
 
 	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
@@ -567,6 +550,7 @@ void OpenGLWidget::renderVolumeData(VolumeModel *volume)
 
 	OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_1D, volume->getTransferFunction()->getTextureName());
+	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
 
 	OpenGLHelper::getGLFunc()->glEnableVertexAttribArray(0);
 	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_quadVbo);

@@ -3,6 +3,9 @@
 #include <qcolor.h>
 #include <GL/gl.h>
 #include "openglhelper.h"
+#include <QFileDialog>
+
+class QFile;
 
 TransferFunction::TransferFunction()
 	: TransferFunction(256)
@@ -115,12 +118,67 @@ void TransferFunction::setValue(int index, QColor value)
 	}
 
 	m_function[index] = value;
+	updateTextureData();
 	emit transferFunctionChanged();
 }
 
 GLuint TransferFunction::getTextureName() const
 {
 	return m_textureName;
+}
+
+void TransferFunction::save(QString filePath) const
+{
+	if (filePath.isEmpty())
+	{
+		qWarning() << "Could not save to empty string!";
+		return;
+	}
+
+	QFile file(filePath);
+	if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+	{
+		qWarning() << "Could not open file " << filePath << " for write!";
+	}
+
+	QDataStream outStream(&file);
+	outStream << m_dataSize;
+	for (int i = 0; i < m_dataSize; i++)
+	{
+		outStream << m_function[i];
+	}
+
+	file.close();
+}
+
+void TransferFunction::load(QString filePath)
+{
+	QFile file(filePath);
+	if (!file.exists())
+	{
+		qWarning() << "File " << filePath << " does not exist!";
+		return;
+	}
+
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		qWarning() << "Could not open file " << filePath << "!";
+		return;
+	}
+
+	QDataStream inStream(&file);
+	inStream >> m_dataSize;
+	delete[] m_function;
+	m_function = new QColor[m_dataSize];
+	for (int i = 0; i < m_dataSize; i++)
+	{
+		inStream >> m_function[i];
+	}
+
+	file.close();
+	updateTextureData();
+	emit transferFunctionChanged();
+
 }
 
 void TransferFunction::initializeTexture()
