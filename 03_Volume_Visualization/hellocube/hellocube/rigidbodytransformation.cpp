@@ -25,8 +25,7 @@ void RigidBodyTransformation::rotate(const QQuaternion& rotation)
 
 QMatrix4x4 RigidBodyTransformation::getWorldMatrix() const
 {
-	auto matrix = QMatrix4x4();
-	matrix.setToIdentity();
+	QMatrix4x4 matrix;
 	matrix.translate(m_translation);
 	matrix.rotate(m_rotation);
 

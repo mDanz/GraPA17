@@ -141,9 +141,9 @@ QMatrix4x4 VolumeModel::getNormalizationMatrix() const
 		? ((width > depth) ? width : depth) 
 		: ((height > depth) ? height : depth);
 
-	QMatrix4x4 m;
-	m.scale(width / max, height / max, depth / max);
-	return m;
+	QMatrix4x4 mat;
+	mat.scale(width / max, height / max, depth / max);
+	return mat;
 }
 
 TransferFunction* VolumeModel::getTransferFunction() const

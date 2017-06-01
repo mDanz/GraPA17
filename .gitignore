@@ -50,3 +50,4 @@ CMakeLists.txt.user
 *.ilk
 *.TMP
 03_Volume_Visualization/hellocube/hellocube/VolumeData/
+03_Volume_Visualization/hellocube/hellocube/tex/

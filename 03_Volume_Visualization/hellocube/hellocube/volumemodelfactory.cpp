@@ -35,52 +35,21 @@ void VolumeModelFactory::fillVolumeModel(const QString& fileName, VolumeModel &m
 	qInfo() << "volume data errors: " << OpenGLHelper::Error();
 }
 
-void VolumeModelFactory::skipByte(QFile &file)
-{
-	auto byte = new char;
-	file.read(byte, 1);
-	delete byte;
-}
-
-int VolumeModelFactory::readInt(QFile &file)
-{
-	auto bytes = new char[4];
-	file.read(bytes, 3);
-	bytes[3] = '\0';
-	auto i = atoi(bytes);
-	delete[] bytes;
-	return i;
-}
-
-float VolumeModelFactory::readFloat(QFile &file)
-{
-	auto bytes = new char[4];
-	file.read(bytes, 3);
-	bytes[3] = '\0';
-	auto f = atof(bytes);
-	delete[] bytes;
-	return f;
-}
-
 void VolumeModelFactory::fillDimensions(VolumeModel &model, QFile &file)
 {
-	auto xDim = readInt(file);
-	skipByte(file);
-	auto yDim = readInt(file);
-	skipByte(file);
-	auto zDim = readInt(file);
-	skipByte(file);
+	auto line = file.readLine();
+	QTextStream readStream(line);
+	int xDim, yDim, zDim;
+	readStream >> xDim >> yDim >> zDim;
 	model.setDimensions(xDim, yDim, zDim);
 }
 
 void VolumeModelFactory::fillAspects(VolumeModel &model, QFile &file)
 {
-	auto xAspect = readFloat(file);
-	skipByte(file);
-	auto yAspect = readFloat(file);
-	skipByte(file);
-	auto zAspect = readFloat(file);
-	skipByte(file);
+	auto line = file.readLine();
+	QTextStream readStream(line);
+	float xAspect, yAspect, zAspect;
+	readStream >> xAspect >> yAspect >> zAspect;
 	model.setAspects(xAspect, yAspect, zAspect);
 }
 

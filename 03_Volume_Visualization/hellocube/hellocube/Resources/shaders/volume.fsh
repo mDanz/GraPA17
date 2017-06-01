@@ -1,22 +1,10 @@
-#version 400
 
-const float BASE_STEP = 200.f, OPACITY_TERMINATION = 0.95f;
+const float BASE_STEP = 200.f;
+const float OPACITY_TERMINATION = 0.95f;
 
-struct VolumeProps {
-    int width;
-    int height;
-    int depth;
-    float aspectX;
-    float aspectY;
-    float aspectZ;
-    float minValue; // maximum normalized intensity value
-    float maxValue; // (normalized: [0,1])
-};
-
-// lightning parameters
 const vec4 lightPos = vec4(0.5f, 0.f, 2.f, 1.f);
 
-uniform int displayMode = 0;
+uniform int displayMode;
 
 uniform sampler3D volumeSampler;
 uniform sampler1D transferFunction;
@@ -24,28 +12,36 @@ uniform sampler1D transferFunction;
 uniform sampler2D entryPoints;
 uniform sampler2D exitPoints;
 
-uniform float step = 0.01f;
-uniform mat4 mvMatrix;
+uniform float step;
+uniform mat4 viewMatrix;
+//uniform mat4 projMatrix;
+uniform mat3 normalMatrix;
 
-uniform VolumeProps properties;
+uniform int width;
+uniform int height;
+uniform int depth;
+uniform float aspectX;
+uniform float aspectY;
+uniform float aspectZ;
+uniform float minValue;
+uniform float maxValue;
 
 uniform vec4 idColor;
 
 
 in vec2 fragPos;
-//out vec4 outColor;
 
 vec4 transFunc(float intensity) 
 {
     // fit the value to the relevant transfer function interval
-    intensity = (intensity / (properties.maxValue - properties.minValue) + properties.minValue);
+    intensity = (intensity / (maxValue - minValue) + minValue);
     // perform classification with the look up texture
     return texture1D(transferFunction, intensity);
 }
 
 vec3 gradient(vec3 samplePos) 
 {
-    float h = 3.f/(properties.width + properties.height + properties.depth);
+    float h = 3.f / float(width + height + depth);
     float x = texture3D(volumeSampler, samplePos + vec3(h, 0, 0)).r
             - texture3D(volumeSampler, samplePos - vec3(h, 0, 0)).r;
     float y = texture3D(volumeSampler, samplePos + vec3(0, h, 0)).r
@@ -62,15 +58,16 @@ vec4 lighting(vec3 samplePos, vec3 color, float opacity)
     // lightning parameters
     vec4 diffuseCol = vec4(color, 1.f);
     vec4 specularCol = vec4(0.2f);
-    const float intensity = 1, shininess = 10;
+    const float intensity = 1.f;
+    const float shininess = 10.f;
 
     // calculate the surface normal with the gradient
     vec3 normal = gradient(samplePos);
     normal = normalize(normal);
-    normal = -(transpose(inverse(mat3(mvMatrix))) * normal);
+    normal = -(normalMatrix * normal);
 
     // the eye vector (since we're in view space it's the position)
-    vec3 worldPos = (mvMatrix * vec4(samplePos, 1.f)).xyz;
+    vec3 worldPos = (viewMatrix * vec4(samplePos, 1.f)).xyz;
     vec3 posNorm = normalize(worldPos);
 
     // the normalized light vector
@@ -83,7 +80,7 @@ vec4 lighting(vec3 samplePos, vec3 color, float opacity)
 
     // calculate the resulting (diffuse and specular) optical properties
     vec4 diffuseSum = intensity * diffuseCol * clamp(abs(dot(toLightNorm, normal)), 0.0, 1.0);
-    vec4 specularSum = (shininess +2)/6.28318f * pow(clamp(abs(dot(posNorm, reflect)), 0.0, 1.0), shininess) * specularCol;
+    vec4 specularSum = (shininess + 2.f)/6.28318f * pow(clamp(abs(dot(posNorm, reflect)), 0.0, 1.0), shininess) * specularCol;
 
     return diffuseSum + specularSum;
 }
@@ -98,21 +95,22 @@ vec4 directRendering(vec3 start, vec3 end)
     }
 
     vec3 dir = (end - start);
-    float t_end = length(dir);
+    float length = length(dir);
     dir = normalize(dir);
-    float diff = abs(step/t_end);
+    float diff = abs(step/length);
 
     float intensity;
     vec4 curCol;
 
-    float alpha = 0, curOpacity;
+    float alpha = 0.f;
+    float curOpacity;
     vec3 color = vec3(0.f);
 
     // iterative direct volume rendering sum:
     vec3 samplePos;
     bool cont = true;
 
-    for(float t = 0; t <= t_end; t += diff) {   // diff vormals step
+    for(float t = 0.f; t <= length; t += diff) {   // diff vormals step
 
         // iterate along the ray
         samplePos = start + t*dir;
@@ -126,7 +124,7 @@ vec4 directRendering(vec3 start, vec3 end)
             curCol.a = 1.f - pow(1.f - curCol.a, step * BASE_STEP);
             curOpacity = (1.f - alpha) * curCol.a;
             // apply lighting at current position for the resulting color
-            color += lighting(samplePos, curCol.rgb, curOpacity).rgb * curOpacity;
+            color += curCol.rgb * curOpacity;//lighting(samplePos, curCol.rgb, curOpacity).rgb * curOpacity;
             // add the current alpha value to the opacity
             alpha += curOpacity;
         }
@@ -149,15 +147,15 @@ vec4 maximumIntensity(vec3 start, vec3 end)
         return vec4(0.f);
 
     vec3 dir = (end - start);
-    float t_end = length(dir);
+    float length = length(dir);
     dir = normalize(dir);
-    float diff = abs(step/t_end);
+    float diff = abs(step/length);
 
     float intensity;
     float maxInt = -1.f;
     vec4 color = vec4(0.f);
 
-    for(float t = 0; t <= t_end; t += diff) 
+    for(float t = 0.f; t <= length; t += diff) 
     {
         intensity = texture3D(volumeSampler, start + t*dir).r;
         if(intensity > maxInt) 
@@ -178,6 +176,9 @@ void main()
     col = texture2D(exitPoints, fragPos);
     vec3 exitPoint = col.rgb;
 
+
+    entryPoint = vec3(projMatrix * viewMatrix * vec4(entryPoint, 1.f));
+    exitPoint = vec3(projMatrix * viewMatrix * vec4(exitPoint, 1.f));
     
     vec4 outColor;
     // Direct rendering

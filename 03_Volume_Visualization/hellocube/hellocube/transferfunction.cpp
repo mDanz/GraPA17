@@ -33,7 +33,7 @@ void TransferFunction::resetSelectedColorChannels(bool isRedEnabled, bool isGree
 	QColor newColor;
 	for (int i = 0; i < m_dataSize; i++)
 	{
-		newColor = QColor::fromHsv(0, 0, i * 255 / m_dataSize, i * 255 / m_dataSize);
+		newColor = QColor::fromHsv(0, 0, i * 255 / m_dataSize, 20);// i * 255 / m_dataSize);
 
 		if (isRedEnabled) { m_function[i].setRedF(newColor.redF()); }
 		if (isGreenEnabled) { m_function[i].setGreenF(newColor.greenF()); }

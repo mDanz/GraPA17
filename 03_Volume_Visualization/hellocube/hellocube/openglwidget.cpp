@@ -106,6 +106,9 @@ void OpenGLWidget::initializeGL()
 	initializeEntryExitShaderProgram();
 	initializeVolumeShaderProgram();
 
+	glEnable(GL_BLEND); //todo do I need it really
+	glAlphaFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
@@ -200,6 +203,7 @@ void OpenGLWidget::initializeHighlightShaderProgram()
 void OpenGLWidget::initializeEntryExitShaderProgram()
 {
 	m_entryExitProgram = OpenGLHelper::createShaderProgam(m_entryExit_vshFile, m_entryExit_fshFile);
+	m_program->bindAttributeLocation("in_position", 0);
 	if (!m_entryExitProgram->link())
 	{
 		qWarning() << "Linking Error" << m_entryExitProgram->log();
@@ -213,6 +217,7 @@ void OpenGLWidget::initializeEntryExitShaderProgram()
 void OpenGLWidget::initializeVolumeShaderProgram()
 {
 	m_volumeShaderProgram = OpenGLHelper::createShaderProgam(m_volume_vshFile, m_volume_fshFile);
+	m_program->bindAttributeLocation("in_position", 0);
 	if (!m_program->link())
 	{
 		qWarning() << "Linking Error" << m_volumeShaderProgram->log();
@@ -409,11 +414,11 @@ void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items)
 {
 
 	// set up the vbo for volume rendering
-	// set up quad vbo
+
 	OpenGLHelper::getGLFunc()->glGenBuffers(1, &m_quadVbo);
 	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_quadVbo);
 	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 2 * 3 * 3 * sizeof(float), quadVx, GL_STATIC_DRAW);
-	// set up box vbo
+
 	OpenGLHelper::getGLFunc()->glGenBuffers(1, &m_boxVbo);
 	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_boxVbo);
 	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 6 * 2 * 3 * 3 * sizeof(float), boxVx, GL_STATIC_DRAW);
@@ -526,14 +531,16 @@ void OpenGLWidget::renderVolumeData(VolumeModel *volume)
 
 	m_volumeShaderProgram->setUniformValue("displayMode", m_scene->getDisplayMode());
 
-	m_volumeShaderProgram->setUniformValue("properties.width", static_cast<int>(volume->getDimensions()->x())); //todo refactor this
-	m_volumeShaderProgram->setUniformValue("properties.height", static_cast<int>(volume->getDimensions()->y()));
-	m_volumeShaderProgram->setUniformValue("properties.depth", static_cast<int>(volume->getDimensions()->z()));
-	m_volumeShaderProgram->setUniformValue("properties.minValue", volume->getMinValue());
-	m_volumeShaderProgram->setUniformValue("properties.maxValue", volume->getMaxValue());
+	m_volumeShaderProgram->setUniformValue("width", static_cast<int>(volume->getDimensions()->x()));
+	m_volumeShaderProgram->setUniformValue("height", static_cast<int>(volume->getDimensions()->y()));
+	m_volumeShaderProgram->setUniformValue("depth", static_cast<int>(volume->getDimensions()->z()));
+	m_volumeShaderProgram->setUniformValue("minValue", volume->getMinValue());
+	m_volumeShaderProgram->setUniformValue("maxValue", volume->getMaxValue());
 
 	m_volumeShaderProgram->setUniformValue("step", 0.01f);
-	m_volumeShaderProgram->setUniformValue("mvMatrix", *m_cameraModel->getCameraMatrix());
+	m_volumeShaderProgram->setUniformValue("viewMatrix", *m_cameraModel->getCameraMatrix());
+	//m_volumeShaderProgram->setUniformValue("projMatrix", *m_cameraModel->getProjectionMatrix());
+	m_volumeShaderProgram->setUniformValue("normalMatrix", m_cameraModel->getCameraMatrix()->normalMatrix());
 	m_volumeShaderProgram->setUniformValue("idColor", QVector4D(volume->getId()->getIdAsColor(), 1.0));
 
 	qInfo() << "volume shader debug:" << OpenGLHelper::Error();

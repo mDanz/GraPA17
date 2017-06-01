@@ -1,8 +1,9 @@
-#version 400
+
 
 in vec4 modelPos;
-out vec4 outColor;
+//out vec4 outColor;
 
 void main() {
-    outColor = modelPos;
+    //outColor = modelPos;
+    gl_FragColor = modelPos;
 }
