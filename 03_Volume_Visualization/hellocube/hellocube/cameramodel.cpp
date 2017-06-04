@@ -27,6 +27,7 @@ QMatrix4x4* CameraModel::getCameraMatrix()
 		m_cameraMatrix = new QMatrix4x4();
 	}
 	m_cameraMatrix->setToIdentity();
+	//m_cameraMatrix->lookAt(m_position, m_center, m_rotation * QVector3D(0, 1, 0));
 	m_cameraMatrix->translate(m_position);
 	m_cameraMatrix->translate(-(m_center));
 	m_cameraMatrix->rotate(m_rotation);
@@ -89,7 +90,7 @@ void CameraModel::move(const QVector3D* translation)
 void CameraModel::rotate(const QQuaternion& rotation)
 {
 	m_rotation = QQuaternion(-rotation.scalar(), m_rotation * rotation.vector()) * m_rotation;
-	//m_rotation += rotation;
+	//m_rotation *= rotation;
 }
 
 QVector3D* CameraModel::getPointOfInterest()
@@ -101,6 +102,7 @@ void CameraModel::reset()
 {
 	m_position = m_defaultPosition;
 	m_rotation = m_defaultRotation;
+	m_center = QVector3D();
 }
 
 void CameraModel::updateOrthoProjection()
