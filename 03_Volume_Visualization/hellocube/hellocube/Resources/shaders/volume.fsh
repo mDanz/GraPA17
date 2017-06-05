@@ -86,18 +86,17 @@ vec4 lighting(vec3 samplePos, vec3 color, float opacity)
 }
 
 
-vec4 directRendering(vec3 start, vec3 end, float length) 
+vec4 directRendering(vec3 start, vec3 end) 
 {
 
     if(start == end)
-    //if (length <= 0.0001f)
     {
         return vec4(0.f);
     }
 
-    //vec3 dir = (end - start);
-    //float length = length(dir);
-    //dir = normalize(dir);
+    vec3 dir = (end - start);
+    float length = length(dir);
+    dir = normalize(dir);
     float diff = abs(step/length);
 
     float intensity;
@@ -113,10 +112,7 @@ vec4 directRendering(vec3 start, vec3 end, float length)
 
     for(float t = 0.f; t <= length; t += diff) 
     {   
-
-        // iterate along the ray
-        //samplePos = start + t*dir;
-        samplePos = start  + t*end;
+        samplePos = start + t*dir;
 
         intensity = texture3D(volumeSampler, samplePos).r;
         curCol = transFunc(intensity);
@@ -127,7 +123,7 @@ vec4 directRendering(vec3 start, vec3 end, float length)
             curCol.a = 1.f - pow(1.f - curCol.a, step * BASE_STEP);
             curOpacity = (1.f - alpha) * curCol.a;
             // apply lighting at current position for the resulting color
-            color += curCol.rgb * curOpacity;//lighting(samplePos, curCol.rgb, curOpacity).rgb * curOpacity;
+            color += lighting(samplePos, curCol.rgb, curOpacity).rgb * curOpacity;
             // add the current alpha value to the opacity
             alpha += curOpacity;
         }
@@ -178,18 +174,12 @@ void main()
     vec3 entryPoint = col.rgb;
     col = texture2D(exitPoints, fragPos);
     vec3 exitPoint = col.rgb;
-    float length = col.a;
 
-
-    //entryPoint = vec3(projMatrix * viewMatrix * vec4(entryPoint, 1.f));
-    //exitPoint = vec3(projMatrix * viewMatrix * vec4(exitPoint, 1.f));
-    
     vec4 outColor;
     // Direct rendering
     if(displayMode == 0)
     {
-        //outColor = directRendering(entryPoint, exitPoint);
-        outColor = directRendering(entryPoint, exitPoint, length);
+        outColor = directRendering(entryPoint, exitPoint);
     }
     // Maximum Intensity Projection
     else if(displayMode == 1)
@@ -208,14 +198,13 @@ void main()
     }
     else if(displayMode == 4) // debug box
     {
-        //outColor = clamp(vec4(exitPoint, 0.f)*0.2f + directRendering(entryPoint, exitPoint), vec4(0), vec4(1));
+        outColor = clamp(vec4(exitPoint, 0.f)*0.2f + directRendering(entryPoint, exitPoint), vec4(0), vec4(1));
     }
 
     gl_FragData[0] = outColor;
 
 
-    //if(entryPoint == exitPoint)
-    if (length <= 0.0001f)
+    if(entryPoint == exitPoint)
     {
         gl_FragDepth = 0.999f;
         gl_FragData[1] = vec4(0.f);
