@@ -63,19 +63,12 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 	, m_displaymode(4)
 	, m_program(nullptr)
 	, m_highlightProgram(nullptr)
+	, m_entryExitProgram(nullptr)
+	, m_volumeShaderProgram(nullptr)
 	, m_fbo(nullptr)
-	, m_projMatrixLoc(0)
-	, m_mvMatrixLoc(0)
-	, m_normalMatrixLoc(0)
-	, m_lightPosLoc(0)
-	, m_ambientColor(0)
-	, m_diffuseColor(0)
-	, m_specularColor(0)
-	, m_specularExp(0)
-	, m_idColor(0)
-	, m_colorPicker_ProjMatrixLoc(0)
-	, m_colorPicker_mvMatrixLoc(0)
-	, m_colorPicker_objId(0)
+	, m_entryExitFbo(nullptr)
+	, m_boxVbo(0)
+	, m_quadVbo(0)
 	, m_cameraModel(nullptr)
 	, m_scene(nullptr)
 	, m_primitiveFactory(nullptr)
@@ -145,9 +138,6 @@ void OpenGLWidget::initializeGL()
 	initializeHighlightShaderProgram();
 	initializeEntryExitShaderProgram();
 	initializeVolumeShaderProgram();
-
-	//glEnable(GL_BLEND); //todo do I need it really
-	//glAlphaFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -248,10 +238,6 @@ void OpenGLWidget::initializeEntryExitShaderProgram()
 	{
 		qWarning() << "Linking Error" << m_entryExitProgram->log();
 	}
-
-	m_entryExitProgram->bind();
-	m_mvMatrixLoc = m_entryExitProgram->uniformLocation("mvMatrix");
-	m_projMatrixLoc = m_entryExitProgram->uniformLocation("projMatrix");
 }
 
 void OpenGLWidget::initializeVolumeShaderProgram()
@@ -327,7 +313,7 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 	m_program->bind();
 	m_program->setUniformValue("projMatrix", *m_cameraModel->getProjectionMatrix());
 	m_program->setUniformValue("lightPos", m_lightPos);
-	m_program->setUniformValue("ambientColor", m_ka); //todo use variable
+	m_program->setUniformValue("ambientColor", m_ka);
 	m_program->setUniformValue("diffuseColor", m_kd);
 	m_program->setUniformValue("specularColor", m_ks);
 	m_program->setUniformValue("specularExp", m_specExp);
@@ -371,13 +357,12 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 
 }
 
-void OpenGLWidget::paintWithHighlightShaderProgram() //todo refactor this
+void OpenGLWidget::paintWithHighlightShaderProgram()
 {
 	auto glFunc = OpenGLHelper::getGLFunc();
 
 	GLenum defBuf[] = { GL_COLOR_ATTACHMENT0 };
 	glFunc->glDrawBuffers(1, defBuf);
-	qInfo() << "highlight shader debug:" << OpenGLHelper::Error();
 
 	m_highlightProgram->bind();
 
@@ -472,8 +457,8 @@ void OpenGLWidget::renderExitPoints(VolumeModel* volume)
 
 	glFlush();
 
-	auto img1 = m_entryExitFbo->toImage(false, 0);
-	if (!img1.save("./tex/exitTex.jpg"))
+	auto img = m_entryExitFbo->toImage(false, 0);
+	if (!img.save("./tex/exitTex.jpg"))
 	{
 		qWarning() << "Exit Texture not saved correctly";
 	}
@@ -500,8 +485,8 @@ void OpenGLWidget::renderEntryPoints()
 
 	glFlush();
 
-	auto img2 = m_entryExitFbo->toImage(false, 1);
-	if (!img2.save("./tex/entryTex.jpg"))
+	auto img = m_entryExitFbo->toImage(false, 1);
+	if (!img.save("./tex/entryTex.jpg"))
 	{
 		qWarning() << "Entry Texture not saved correctly";
 	}
@@ -523,8 +508,6 @@ void OpenGLWidget::renderVolumeData(VolumeModel *volume)
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	OpenGLHelper::getGLFunc()->glDrawBuffers(2, buffers);
 
-	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
-
 	m_volumeShaderProgram->setUniformValue("displayMode", m_scene->getDisplayMode());
 
 	m_volumeShaderProgram->setUniformValue("width", static_cast<int>(volume->getDimensions()->x()));
@@ -540,23 +523,17 @@ void OpenGLWidget::renderVolumeData(VolumeModel *volume)
 	m_volumeShaderProgram->setUniformValue("normalMatrix", m_cameraModel->getCameraMatrix()->normalMatrix());
 	m_volumeShaderProgram->setUniformValue("idColor", QVector4D(volume->getId()->getIdAsColor(), 1.0));
 
-	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
-
 	OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE0);
 	OpenGLHelper::getGLFunc()->glBindTexture(GL_TEXTURE_3D, volume->getTextureName());
-	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
 
 	OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_entryExitFbo->textures()[1]);
-	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
 
 	OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, m_entryExitFbo->textures()[0]);
-	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
 
 	OpenGLHelper::getGLFunc()->glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_1D, volume->getTransferFunction()->getTextureName());
-	qInfo() << "volume shader debug:" << OpenGLHelper::Error();
 
 	OpenGLHelper::getGLFunc()->glEnableVertexAttribArray(0);
 	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_quadVbo);

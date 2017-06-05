@@ -9,7 +9,7 @@
 VolumeModel* VolumeModelFactory::createFromFile(const QString& fileName)
 {
 	auto model = new VolumeModel;
-	fillVolumeModel(fileName, *model);//todo loop over data.
+	fillVolumeModel(fileName, *model);
 	
 	return model;
 }

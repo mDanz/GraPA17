@@ -15,7 +15,6 @@ TransferFunctionEditorDock::TransferFunctionEditorDock(QString title, QWidget* p
 	initializeCheckBoxes();
 	initializeButtons();
 
-	//setLayout(m_layout);
 	auto widget = new QWidget(this);
 	widget->setLayout(m_layout);
 	setWidget(widget);
@@ -101,8 +100,6 @@ void TransferFunctionEditorDock::resetTransferFunction() const
 void TransferFunctionEditorDock::saveTransferFunction()
 {
 	auto fileName = QFileDialog::getSaveFileName(this, tr("Save Transfer Function"), "./functions/", tr("Function Files (*.tf)"));
-
-	//QString filePath = "./functions/" + m_volume->getName() + ".tf";
 	m_volume->getTransferFunction()->save(fileName);
 }
 

@@ -9,7 +9,7 @@ class OpenGLCone : public OpenGLGeometry
 {
 public:
 	OpenGLCone();
-	~OpenGLCone();
+	virtual ~OpenGLCone();
 
 	virtual void draw(QOpenGLShaderProgram *program) override;
 };

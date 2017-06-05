@@ -1,5 +1,4 @@
 #pragma once
-#include <qcolor.h>
 
 
 class QVector3D;

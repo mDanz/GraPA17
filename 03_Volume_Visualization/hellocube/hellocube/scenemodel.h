@@ -39,7 +39,7 @@ public:
 
 public slots:
 	void deleteSelectedItem();
-	void changeDisplayMode(DisplayMode i); // todo volume rendering mode
+	void changeDisplayMode(DisplayMode i);
 
 signals:
 	void volumeSelected(VolumeModel* volume);

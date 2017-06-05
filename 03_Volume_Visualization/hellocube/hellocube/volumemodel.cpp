@@ -3,8 +3,12 @@
 #include <QOpenGLTexture>
 
 VolumeModel::VolumeModel(RigidBodyTransformation* rigidBodyTransform, SceneItem* parent)
-	: SceneItem(OpenGLPrimitiveType::Volume, rigidBodyTransform, parent)
+	: SceneItem(Volume, rigidBodyTransform, parent)
+	, m_minValue(INT_MAX)
+	, m_maxValue(0)
 	, m_data(nullptr)
+	, m_scalarByteSize(0)
+	, m_histogram(nullptr)
 {
 	m_dimensions = new QVector3D;
 	m_aspects = new QVector3D;

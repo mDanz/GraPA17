@@ -13,7 +13,6 @@
 #include "scenemodel.h"
 #include <QUuid>
 #include <QFileDialog>
-#include "volumemodelfactory.h"
 #include "viewportwidget.h"
 #include "viewportmodel.h"
 #include "sceneitemmodel.h"
@@ -42,7 +41,6 @@ MainWindow::MainWindow(QMainWindow *parent)
 MainWindow::~MainWindow()
 {
 	delete m_scene;
-	//delete m_outlinerModel;
 	delete m_viewPortWidget;
 	delete m_interactionModeActionGroup;
 	delete m_viewModeActionGroup;
@@ -58,7 +56,7 @@ MainWindow::~MainWindow()
 	delete m_mipStateChanged;
 }
 
-void MainWindow::showAboutBox() const
+void MainWindow::showAboutBox()
 {
 	QMessageBox msgBox;
 	msgBox.setWindowTitle("About Hello Cube!");
@@ -186,7 +184,6 @@ void MainWindow::initializeActionConnections() const
 	connect(m_scene, SIGNAL(volumeSelected(VolumeModel*)), m_transferFunctionEditor, SLOT(updateVolume(VolumeModel*)));
 
 	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), m_sceneController, SLOT(selectedItemChanged(QModelIndex, QModelIndex)));
-	//todo rename connetion of outlinertreeview and scenemodel
 }
 
 void MainWindow::initializeMenuBar()
@@ -252,7 +249,6 @@ void MainWindow::initializeAboutMenu()
 
 void MainWindow::initializeToolBar()
 {
-	
 	initializeGeneralToolBar();
 	initializeOptionsToolBar();
 	initializeGeometryToolBar();

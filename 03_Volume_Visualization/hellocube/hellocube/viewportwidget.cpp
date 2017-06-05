@@ -16,8 +16,8 @@ ViewPortWidget::ViewPortWidget(QWidget *parent)
 	selectPerspective();
 	m_quadView->show();
 	syncTop();
-	m_currentLayout = QUAD_VIEW;
-	switchToView(SINGLE_VIEW);
+	m_currentLayout = QuadView;
+	switchToView(SingleView);
 }
 
 ViewPortWidget::~ViewPortWidget()
@@ -54,11 +54,11 @@ CameraModel* ViewPortWidget::getCurrentCamera() const
 void ViewPortWidget::update() const
 {
 	m_perspectiveWidget->update();
-	if (m_currentLayout != SINGLE_VIEW)
+	if (m_currentLayout != SingleView)
 	{
 		m_frontWidget->update();
 	}
-	if (m_currentLayout == QUAD_VIEW) 
+	if (m_currentLayout == QuadView) 
 	{
 		m_topWidget->update();
 		m_leftWidget->update();
@@ -67,17 +67,17 @@ void ViewPortWidget::update() const
 
 void ViewPortWidget::singleViewActivated()
 {
-	switchToView(SINGLE_VIEW);
+	switchToView(SingleView);
 }
 
 void ViewPortWidget::dualViewActivated()
 {
-	switchToView(DUAL_VIEW);
+	switchToView(DualView);
 }
 
 void ViewPortWidget::quadViewActivated()
 {
-	switchToView(QUAD_VIEW);
+	switchToView(QuadView);
 }
 
 void ViewPortWidget::selectPerspective()
@@ -152,14 +152,14 @@ void ViewPortWidget::hideWidgets(ViewPortWidget::ViewPortLayout type) const
 {
 	switch (type)
 	{
-	case DUAL_VIEW:
+	case DualView:
 		m_frontWidget->hide();
 		break;
-	case QUAD_VIEW:
+	case QuadView:
 		m_frontWidget->hide();
 		m_bottomView->hide();
 		break;
-	case SINGLE_VIEW: break;
+	case SingleView: break;
 	default: break;
 	}
 }
@@ -168,11 +168,11 @@ void ViewPortWidget::showWidgets(ViewPortWidget::ViewPortLayout currentType) con
 {
 	switch (currentType)
 	{
-	case SINGLE_VIEW: break;
-	case DUAL_VIEW:
+	case SingleView: break;
+	case DualView:
 		m_frontWidget->show();
 		break;
-	case QUAD_VIEW:
+	case QuadView:
 		m_frontWidget->show();
 		m_bottomView->show();
 		break;

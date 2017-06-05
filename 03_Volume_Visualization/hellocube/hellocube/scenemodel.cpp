@@ -26,8 +26,8 @@ void SceneModel::addItem(OpenGLPrimitiveType primitiveType, RigidBodyTransformat
 		parent = m_root;
 	}
 
-	//QMatrix4x4 pMat = parent->getGlobalMatrix().inverted(); //todo transform rigid body with parent matrix
-	//data.translation = QVector3D(pMat * QVector4D(data.translation, 1));
+	//QMatrix4x4 parentTransformation = parent->getRigidBodyTransformation()->getWorldMatrix().inverted(); //todo transform rigid body with parent matrix
+	//auto transform = parentTransformation * rigidBodyTransform->getWorldMatrix();
 
 	auto item = new SceneItem(primitiveType, rigidBodyTransform, parent);
 	parent->appendChild(item);

@@ -91,21 +91,6 @@ private:
 	GLuint m_boxVbo;
 	GLuint m_quadVbo;
 
-	int m_projMatrixLoc;
-	int m_mvMatrixLoc;
-	int m_normalMatrixLoc;
-	int m_lightPosLoc;
-	int m_ambientColor;
-	int m_diffuseColor;
-	int m_specularColor;
-	int m_specularExp;
-	int m_idColor;
-	int m_stepLoc;
-
-	int m_colorPicker_ProjMatrixLoc;
-	int m_colorPicker_mvMatrixLoc;
-	int m_colorPicker_objId;
-
 	CameraModel* m_cameraModel;
 	SceneModel* m_scene;
 

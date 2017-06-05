@@ -36,9 +36,9 @@ public slots:
 private:
 	enum ViewPortLayout
 	{
-		SINGLE_VIEW = 1,
-		DUAL_VIEW = 2,
-		QUAD_VIEW = 4
+		SingleView = 1,
+		DualView = 2,
+		QuadView = 4
 	};
 
 	void initializeOpenGLWidgets();

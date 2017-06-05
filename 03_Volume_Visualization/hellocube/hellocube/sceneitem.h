@@ -1,6 +1,5 @@
 #pragma once
 #include <qlist.h>
-#include <QButtonGroup>
 #include "objectid.h"
 #include "OpenGLGeometry.h"
 #include "rigidbodytransformation.h"
@@ -42,13 +41,7 @@ public:
 	void setRigidBodyTransform(RigidBodyTransformation* rigid_body_transformation);
 
 	OpenGLPrimitiveType getPrimitiveType() const;
-
-	//QVariant data(int column) const;
-	//QVariant data(const QModelIndex& index, int role) const;
-	//int row() const;
-	//void clearChildren() const;
-
-
+	
 private:
 	QString createName() const;
 

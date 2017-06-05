@@ -8,7 +8,7 @@ class OpenGLCylinder : public OpenGLGeometry
 {
 public:
 	OpenGLCylinder();
-	~OpenGLCylinder();
+	virtual ~OpenGLCylinder();
 
 	virtual void draw(QOpenGLShaderProgram *program) override;
 };

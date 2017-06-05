@@ -9,7 +9,7 @@ class OpenGLTorus : public OpenGLGeometry
 {
 public:
 	OpenGLTorus();
-	~OpenGLTorus();
+	virtual ~OpenGLTorus();
 
 	virtual void draw(QOpenGLShaderProgram *program) override;
 };

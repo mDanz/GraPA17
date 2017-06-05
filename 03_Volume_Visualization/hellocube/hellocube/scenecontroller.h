@@ -67,8 +67,5 @@ private:
 	SceneModel *m_scene;
 	ViewPortWidget* m_viewPortWidget;
 
-	// used for interactive step distance in volume rendering
-	//float oldStep; //todo volume rendering
-
 	static SceneController *s_controller;
 };

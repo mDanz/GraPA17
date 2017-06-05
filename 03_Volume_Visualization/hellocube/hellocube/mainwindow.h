@@ -19,7 +19,7 @@ public:
 	~MainWindow();
 
 public slots:
-	void showAboutBox() const;
+	static void showAboutBox();
 
 private:
 	void initializeModel();

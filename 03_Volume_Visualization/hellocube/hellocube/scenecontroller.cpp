@@ -163,7 +163,8 @@ void SceneController::volumeAdded() const
 }
 
 SceneController::SceneController()
-	: m_scene(nullptr)
+	: m_mipState(false)
+	, m_scene(nullptr)
 	, m_viewPortWidget(nullptr)
 {
 	m_lastPos = new QPointF;
@@ -201,7 +202,7 @@ void SceneController::addItem(OpenGLPrimitiveType type) const
 void SceneController::manipulateCamera(QPointF screenPos, QVector3D* delta, QMouseEvent* event) const
 {
 	auto currentCamera = m_viewPortWidget->getCurrentCamera();
-	// todo refactor
+
 	if (event->buttons() & Qt::LeftButton && !currentCamera->isOrthographic())
 	{
 		m_trackBall->reset();

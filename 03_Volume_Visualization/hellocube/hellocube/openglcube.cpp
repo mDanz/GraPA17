@@ -13,7 +13,7 @@ static const float faceColors[6][3]{
 	{ 0, 1, 0 }
 };
 
-OpenGLCube::OpenGLCube()
+OpenGLCube::OpenGLCube()			//todo cleanup this class
 	: m_vertexBuf(QOpenGLBuffer::VertexBuffer)
 	, m_normalBuf(QOpenGLBuffer::VertexBuffer)
 	, m_indexBuf(QOpenGLBuffer::IndexBuffer)
@@ -31,7 +31,7 @@ OpenGLCube::~OpenGLCube()
 
 void OpenGLCube::draw(QOpenGLShaderProgram* program)
 {
-	renderCube(0);
+	renderCube(0); //todo use tesselation
 
 	//m_vertexBuf.bind();
 	//// Tell OpenGL programmable pipeline how to locate vertex position data
@@ -48,7 +48,7 @@ void OpenGLCube::draw(QOpenGLShaderProgram* program)
 	//glDrawElements(GL_TRIANGLE_STRIP, m_indexBuf.size(), GL_UNSIGNED_SHORT, 0);
 }
 
-void OpenGLCube::renderCube(int tesselation) 
+void OpenGLCube::renderCube(int tesselation) const
 {
 	auto glFunc = OpenGLHelper::getGLFunc(); //todo refactor this
 	glFunc->glBegin(GL_QUADS);
@@ -67,7 +67,7 @@ void OpenGLCube::renderCube(int tesselation)
 	glFunc->glEnd();
 }
 
-void OpenGLCube::renderPlane(QVector3D normal, int tesselation, QOpenGLFunctions_4_4_Compatibility *glFunc)
+void OpenGLCube::renderPlane(QVector3D normal, int tesselation, QOpenGLFunctions_4_4_Compatibility *glFunc) const
 {
 	const QVector3D frontNormal = QVector3D(0., 0., 1.);
 

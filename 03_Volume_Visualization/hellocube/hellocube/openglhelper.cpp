@@ -23,8 +23,6 @@ QString OpenGLHelper::Error()
 QOpenGLShaderProgram* OpenGLHelper::createShaderProgam(QString vshFile, QString fshFile)
 {
 	auto program = new QOpenGLShaderProgram;
-	QOpenGLShader* vertexShader;
-	QOpenGLShader* fragmentShader;
 
 	addNewShader(vshFile, QOpenGLShader::Vertex, *program);
 	addNewShader(fshFile, QOpenGLShader::Fragment, *program);

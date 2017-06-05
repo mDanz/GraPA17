@@ -19,7 +19,7 @@ public:
 	QVector3D* getPointOfInterest();
 	void reset();
 private:
-	void updateOrthoProjection();
+	void updateOrthoProjection() const;
 
 	const float m_damping = 0.01f;
 	

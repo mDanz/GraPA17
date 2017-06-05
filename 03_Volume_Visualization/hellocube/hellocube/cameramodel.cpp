@@ -105,7 +105,7 @@ void CameraModel::reset()
 	m_center = QVector3D();
 }
 
-void CameraModel::updateOrthoProjection()
+void CameraModel::updateOrthoProjection() const
 {
 	float top, bottom, left, right;
 

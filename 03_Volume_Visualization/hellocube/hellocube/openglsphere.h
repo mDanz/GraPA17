@@ -8,7 +8,7 @@ class OpenGLSphere : public OpenGLGeometry
 {
 public:
 	OpenGLSphere();
-	~OpenGLSphere();
+	virtual ~OpenGLSphere();
 
 	virtual void draw(QOpenGLShaderProgram *program) override;
 };
