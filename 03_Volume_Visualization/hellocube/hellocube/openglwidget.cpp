@@ -17,6 +17,46 @@
 
 # define M_PI           3.14159265358979323846
 
+static const float boxVx[] = {
+	-1.0f,-1.0f,-1.0f,
+	-1.0f,-1.0f, 1.0f,
+	-1.0f, 1.0f, 1.0f,
+	1.0f, 1.0f,-1.0f,
+	-1.0f,-1.0f,-1.0f,
+	-1.0f, 1.0f,-1.0f,
+	1.0f,-1.0f, 1.0f,
+	-1.0f,-1.0f,-1.0f,
+	1.0f,-1.0f,-1.0f,
+	1.0f, 1.0f,-1.0f,
+	1.0f,-1.0f,-1.0f,
+	-1.0f,-1.0f,-1.0f,
+	-1.0f,-1.0f,-1.0f,
+	-1.0f, 1.0f, 1.0f,
+	-1.0f, 1.0f,-1.0f,
+	1.0f,-1.0f, 1.0f,
+	-1.0f,-1.0f, 1.0f,
+	-1.0f,-1.0f,-1.0f,
+	-1.0f, 1.0f, 1.0f,
+	-1.0f,-1.0f, 1.0f,
+	1.0f,-1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f,
+	1.0f,-1.0f,-1.0f,
+	1.0f, 1.0f,-1.0f,
+	1.0f,-1.0f,-1.0f,
+	1.0f, 1.0f, 1.0f,
+	1.0f,-1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f,
+	1.0f, 1.0f,-1.0f,
+	-1.0f, 1.0f,-1.0f,
+	1.0f, 1.0f, 1.0f,
+	-1.0f, 1.0f,-1.0f,
+	-1.0f, 1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f,
+	-1.0f, 1.0f, 1.0f,
+	1.0f,-1.0f, 1.0f
+};
+static const float quadVx[] = { -1,-1,0, 1,1,0, -1,1,0,  -1,-1,0, 1,-1,0, 1,1,0, };
+
 OpenGLWidget::OpenGLWidget(QWidget* parent)
 	: QOpenGLWidget(parent)
 	, m_isSelected(false)
@@ -106,8 +146,8 @@ void OpenGLWidget::initializeGL()
 	initializeEntryExitShaderProgram();
 	initializeVolumeShaderProgram();
 
-	glEnable(GL_BLEND); //todo do I need it really
-	glAlphaFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_BLEND); //todo do I need it really
+	//glAlphaFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -228,11 +268,19 @@ void OpenGLWidget::initializeVolumeShaderProgram()
 	m_volumeShaderProgram->setUniformValue("exitPoints", 2);
 	m_volumeShaderProgram->setUniformValue("transferFunction", 3);
 	m_volumeShaderProgram->release();
+
+	OpenGLHelper::getGLFunc()->glGenBuffers(1, &m_quadVbo);
+	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_quadVbo);
+	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 2 * 3 * 3 * sizeof(float), quadVx, GL_STATIC_DRAW);
+
+	OpenGLHelper::getGLFunc()->glGenBuffers(1, &m_boxVbo);
+	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_boxVbo);
+	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 6 * 2 * 3 * 3 * sizeof(float), boxVx, GL_STATIC_DRAW);
 }
 
 QPointF OpenGLWidget::pixelPosToScreenPos(const QPointF &pos) const
 {
-	//todo maybe fix needed
+	//todo fix needed
 	auto x = 2.0 * float(pos.x()) / width() - 1.0;
 	auto y = 1.0 - 2.0 * float(pos.y()) / height();
 	return QPointF(x, y);
@@ -289,7 +337,7 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 		auto item = items->at(i);
 		if (item->getPrimitiveType() == Volume)
 		{
-			return;
+			continue;
 		}
 		m_world = item->getRigidBodyTransformation()->getWorldMatrix();
 
@@ -369,60 +417,8 @@ void OpenGLWidget::paintWithHighlightShaderProgram() //todo refactor this
 	}
 }
 
-
-const float boxVx[] = {
-	-1.0f,-1.0f,-1.0f,
-	-1.0f,-1.0f, 1.0f,
-	-1.0f, 1.0f, 1.0f,
-	1.0f, 1.0f,-1.0f,
-	-1.0f,-1.0f,-1.0f,
-	-1.0f, 1.0f,-1.0f,
-	1.0f,-1.0f, 1.0f,
-	-1.0f,-1.0f,-1.0f,
-	1.0f,-1.0f,-1.0f,
-	1.0f, 1.0f,-1.0f,
-	1.0f,-1.0f,-1.0f,
-	-1.0f,-1.0f,-1.0f,
-	-1.0f,-1.0f,-1.0f,
-	-1.0f, 1.0f, 1.0f,
-	-1.0f, 1.0f,-1.0f,
-	1.0f,-1.0f, 1.0f,
-	-1.0f,-1.0f, 1.0f,
-	-1.0f,-1.0f,-1.0f,
-	-1.0f, 1.0f, 1.0f,
-	-1.0f,-1.0f, 1.0f,
-	1.0f,-1.0f, 1.0f,
-	1.0f, 1.0f, 1.0f,
-	1.0f,-1.0f,-1.0f,
-	1.0f, 1.0f,-1.0f,
-	1.0f,-1.0f,-1.0f,
-	1.0f, 1.0f, 1.0f,
-	1.0f,-1.0f, 1.0f,
-	1.0f, 1.0f, 1.0f,
-	1.0f, 1.0f,-1.0f,
-	-1.0f, 1.0f,-1.0f,
-	1.0f, 1.0f, 1.0f,
-	-1.0f, 1.0f,-1.0f,
-	-1.0f, 1.0f, 1.0f,
-	1.0f, 1.0f, 1.0f,
-	-1.0f, 1.0f, 1.0f,
-	1.0f,-1.0f, 1.0f
-};
-static const float quadVx[] = { -1,-1,0, 1,1,0, -1,1,0,  -1,-1,0, 1,-1,0, 1,1,0, };
-
 void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items) 
 {
-
-	// set up the vbo for volume rendering
-
-	OpenGLHelper::getGLFunc()->glGenBuffers(1, &m_quadVbo);
-	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_quadVbo);
-	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 2 * 3 * 3 * sizeof(float), quadVx, GL_STATIC_DRAW);
-
-	OpenGLHelper::getGLFunc()->glGenBuffers(1, &m_boxVbo);
-	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_boxVbo);
-	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 6 * 2 * 3 * 3 * sizeof(float), boxVx, GL_STATIC_DRAW);
-
 	QString err = OpenGLHelper::Error();
 
 	for(int i = 0; i < items->size(); i++)
@@ -430,7 +426,7 @@ void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items)
 		auto item = items->at(i);
 		if (item->getPrimitiveType() != Volume)
 		{
-			return;
+			continue;
 		}
 		auto volume = reinterpret_cast<VolumeModel*>(item);
 
@@ -539,6 +535,7 @@ void OpenGLWidget::renderVolumeData(VolumeModel *volume)
 
 	m_volumeShaderProgram->setUniformValue("step", 0.01f);
 	m_volumeShaderProgram->setUniformValue("viewMatrix", *m_cameraModel->getCameraMatrix());
+	//m_volumeShaderProgram->setUniformValue("mvMatrix", *m_cameraModel->getCameraMatrix());
 	//m_volumeShaderProgram->setUniformValue("projMatrix", *m_cameraModel->getProjectionMatrix());
 	m_volumeShaderProgram->setUniformValue("normalMatrix", m_cameraModel->getCameraMatrix()->normalMatrix());
 	m_volumeShaderProgram->setUniformValue("idColor", QVector4D(volume->getId()->getIdAsColor(), 1.0));
