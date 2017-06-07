@@ -194,12 +194,12 @@ void OpenGLWidget::paintGL()
 
 	m_fbo->bind();
 	m_program->bind();
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	glDrawBuffer(GL_COLOR_ATTACHMENT1);
 	paintWithSceneShaderProgram(&items);
 	m_program->release();
 
 	m_colorPickerProgram->bind();
-	glDrawBuffer(GL_COLOR_ATTACHMENT1);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	paintWithColorPickerProgram(&items);
 	m_colorPickerProgram->release();
 	m_fbo->release();

@@ -32,6 +32,7 @@ public:
 	SceneItem* getSelectedItem();
 	void clearChildren() const;
 	const ObjectID getId() const;
+	QString getName() const;
 	OpenGLGeometryType getPrimitive() const;
 	RigidBodyTransformation* getRigidBodyTransformation();
 	SceneItem* getItem(int id);

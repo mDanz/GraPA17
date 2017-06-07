@@ -125,6 +125,11 @@ const ObjectID SceneItem::getId() const
 	return m_id;
 }
 
+QString SceneItem::getName() const
+{
+	return m_name;
+}
+
 OpenGLGeometryType SceneItem::getPrimitive() const
 {
 	return m_primitiveType;

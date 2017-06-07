@@ -11,22 +11,26 @@
 #include <QTreeView>
 #include <QFileSystemModel>
 #include "scenemodel.h"
-#include <QSplitter>
-#include <QStackedWidget>
-#include "sceneitem.h"
-#include "objectid.h"
 #include <QUuid>
+#include <QFileDialog>
+#include "viewportwidget.h"
+#include "viewportmodel.h"
+#include "sceneitemmodel.h"
+#include "scenecontroller.h"
+#include "transferfunctioneditordock.h"
 
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
+	, m_outlinerModel(nullptr)
 {
     m_ui.setupUi(this);
 
 	setWindowTitle("Hello Cube");
 
 	initializeModel();
-	initializeViewportLayouts();
+	initializeViewportWidget();
 	initializeActions();
+	initializeController();
 	initializeMenuBar();
 	initializeToolBar();
 	initializeStatusBar();
@@ -36,31 +40,8 @@ MainWindow::MainWindow(QMainWindow *parent)
 
 MainWindow::~MainWindow()
 {
-	delete m_model;
-	delete m_stackedWidget;
-	/*delete  m_dualViewSplitter;
-	delete m_quadViewSplitter;
-	delete m_topRowSplitter;
-	delete m_bottomRowSplitter;
-	delete m_currentGLWidget;
-	delete m_singlePerspectiveView;
-	delete m_perspectiveGLWidgetDual;
-	delete m_perspectiveGLWidgetQuad;
-	delete m_frontGLWidgetDual;
-	delete m_frontGLWidgetQuad;
-	delete m_leftGLWidgetQuad;
-	delete m_topGLWidgetQuad;
-	delete m_menuBar;
-	delete m_fileMenu;
-	delete m_interactionModeMenu;
-	delete m_viewModeMenu;
-	delete m_geometryMenu;
-	delete m_aboutMenu;
-	delete m_generalToolBar;
-	delete m_geometryToolBar;
-	delete m_statusBar;
-	delete m_outlinerDock;
-	*/
+	delete m_scene;
+	delete m_viewPortWidget;
 	delete m_interactionModeActionGroup;
 	delete m_viewModeActionGroup;
 	delete m_exitAction;
@@ -71,13 +52,8 @@ MainWindow::~MainWindow()
 	delete m_singleViewAction;
 	delete m_dualViewAction;
 	delete m_quadViewAction;
-	delete m_addSphereAction;
-	delete m_addCylinderAction;
-	delete m_addConeAction;
-	delete m_addTorusAction;
-	delete m_addCubeAction;
-	delete m_tesselationSlider;
-	delete m_outlinerTreeView;
+	delete m_addVolumeAction;
+	delete m_mipStateChanged;
 }
 
 void MainWindow::showAboutBox()
@@ -88,63 +64,10 @@ void MainWindow::showAboutBox()
 	msgBox.exec();
 }
 
-void MainWindow::singleViewModeActivated()
-{
-	m_stackedWidget->setCurrentWidget(m_singlePerspectiveView);
-}
-
-void MainWindow::dualViewModeActivated()
-{
-	m_stackedWidget->setCurrentWidget(m_dualViewSplitter);
-}
-
-void MainWindow::quadViewModeActivated()
-{
-	m_stackedWidget->setCurrentWidget(m_quadViewSplitter);
-}
-
-void MainWindow::cubeAdded()
-{
-	QUuid uuid;	//todo fix
-	uuid.createUuid();
-	ObjectID id(uuid.data1);
-
-	auto selectedItem = m_model->getScene()->getSelectedItem();
-	auto cube = new SceneItem(id, QString("New Cube"), selectedItem); //todo name Cube 1, 2, ...
-	selectedItem->appendChild(cube);
-	//todo use tesselation slider value
-}
-
-void MainWindow::sphereAdded()
-{
-	//todo add sphere to model; use tesselation slider value
-}
-
-void MainWindow::cylinderAdded()
-{
-	//todo add cylinder to model; use tesselation slider value
-}
-
-void MainWindow::coneAdded()
-{
-	//todo add cone to model; use tesselation slider value
-}
-
-void MainWindow::torusAdded()
-{
-	//todo add torus to model; use tesselation slider value
-}
-
-void MainWindow::selectedObjectChanged(const QModelIndex& current, const QModelIndex& previous) const
-{
-	m_model->getScene()->updateSelectedItem(current, previous);
-	auto name = m_model->getScene()->getSelectedItem()->getName();//todo fix
-	m_ui.statusBar->messageChanged(name);
-}
-
 void MainWindow::initializeModel()
 {
-	m_model = new ModellingToolModel();
+	m_scene = new SceneModel();
+	m_outlinerModel = new SceneItemModel(m_scene->getRoot());
 }
 
 void MainWindow::initializeActions()
@@ -161,6 +84,9 @@ void MainWindow::initializeActions()
 	initializeInteractionModeActionGroup();
 	initializeViewModeActionGroup();
 	initializeGeometryActions();
+
+	m_mipStateChanged = new QAction("&MIP", this);
+	m_mipStateChanged->isCheckable();
 }
 
 void MainWindow::initializeInteractionModeActionGroup()
@@ -214,35 +140,50 @@ void MainWindow::initializeGeometryActions()
 	m_addConeAction = new QAction("&Cone", this);
 	m_addTorusAction = new QAction("&Torus", this);
 	m_addCubeAction = new QAction("&Cube", this);
+	m_addVolumeAction = new QAction("&Volume", this);
 
 	m_addSphereAction->setIcon(QIcon(":/Resources/img/sphere.png"));
 	m_addCylinderAction->setIcon(QIcon(":/Resources/img/cylinder.png"));
 	m_addConeAction->setIcon(QIcon(":/Resources/img/cone.png"));
 	m_addTorusAction->setIcon(QIcon(":/Resources/img/torus.png"));
 	m_addCubeAction->setIcon(QIcon(":/Resources/img/box.png"));
-	
-
+	m_addVolumeAction->setIcon(QIcon(":/Resources/img/sphere.png")); //todo correct icon for volume
 }
 
-void MainWindow::initializeActionConnections()
+void MainWindow::initializeController()
+{
+	m_sceneController = SceneController::getController();
+	m_sceneController->setModelView(m_scene, m_viewPortWidget);
+}
+
+void MainWindow::initializeActionConnections() const
 {
 	connect(m_exitAction, SIGNAL(triggered()), this, SLOT(close()));
 	connect(m_aboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
-	connect(m_resetCameraAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(resetCamera()));
+	connect(m_resetCameraAction, SIGNAL(triggered()), m_sceneController, SLOT(resetCamera()));
 
-	connect(m_cameraModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedCameraMode()));
-	connect(m_objManipulationModeAction, SIGNAL(triggered()), m_currentGLWidget, SLOT(selectedObjManipulationMode()));
-	connect(m_singleViewAction, SIGNAL(triggered()), this, SLOT(singleViewModeActivated()));
-	connect(m_dualViewAction, SIGNAL(triggered()), this, SLOT(dualViewModeActivated()));
-	connect(m_quadViewAction, SIGNAL(triggered()), this, SLOT(quadViewModeActivated()));
-	connect(m_addCubeAction, SIGNAL(triggered()), this, SLOT(cubeAdded()));
-	connect(m_addSphereAction, SIGNAL(triggered()), this, SLOT(sphereAdded()));
-	connect(m_addCylinderAction, SIGNAL(triggered()), this, SLOT(cylinderAdded()));
-	connect(m_addConeAction, SIGNAL(triggered()), this, SLOT(coneAdded()));
-	connect(m_addTorusAction, SIGNAL(triggered()), this, SLOT(torusAdded()));
+	connect(m_singleViewAction, SIGNAL(triggered()), m_sceneController, SLOT(singleViewActivated()));
+	connect(m_dualViewAction, SIGNAL(triggered()), m_sceneController, SLOT(dualViewActivated()));
+	connect(m_quadViewAction, SIGNAL(triggered()), m_sceneController, SLOT(quadViewActivated()));
 
-	connect(m_tesselationSlider, SIGNAL(valueChanged(int)), m_currentGLWidget, SLOT(setTesselation(int)));
-	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex, const QModelIndex)), this, SLOT(selectedObjectChanged(const QModelIndex, const QModelIndex)));
+	connect(m_cameraModeAction, SIGNAL(triggered()), m_sceneController, SLOT(cameraModeSelected()));
+	connect(m_objManipulationModeAction, SIGNAL(triggered()), m_sceneController, SLOT(objectModeSelected()));
+	connect(m_addCubeAction, SIGNAL(triggered()), m_sceneController, SLOT(cubeAdded()));
+	connect(m_addSphereAction, SIGNAL(triggered()), m_sceneController, SLOT(sphereAdded()));
+	connect(m_addCylinderAction, SIGNAL(triggered()), m_sceneController, SLOT(cylinderAdded()));
+	connect(m_addConeAction, SIGNAL(triggered()), m_sceneController, SLOT(coneAdded()));
+	connect(m_addTorusAction, SIGNAL(triggered()), m_sceneController, SLOT(torusAdded()));
+	connect(m_addVolumeAction, SIGNAL(triggered()), m_sceneController, SLOT(volumeAdded()));
+	
+	connect(m_tessellationSlider, SIGNAL(valueChanged(int)), m_sceneController, SLOT(setTessellation(int)));
+	connect(m_mipStateChanged, SIGNAL(triggered()), m_sceneController, SLOT(mipStateChanged()));
+
+	connect(m_scene, SIGNAL(sceneChanged()), this, SLOT(updateOutliner()));
+	connect(m_scene, SIGNAL(sceneChanged()), m_viewPortWidget, SLOT(update()));
+	connect(m_scene, SIGNAL(itemSelected(QString)), this, SLOT(updateStatusBar(QString)));
+	connect(m_scene, SIGNAL(volumeSelected(VolumeModel*)), m_transferFunctionEditor, SLOT(updateVolume(VolumeModel*)));
+
+	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), m_sceneController, SLOT(selectedItemChanged(QModelIndex, QModelIndex)));
 }
 
 void MainWindow::initializeMenuBar()
@@ -293,6 +234,7 @@ void MainWindow::initializeGeometryMenu()
 	m_geometryMenu->addAction(m_addCylinderAction);
 	m_geometryMenu->addAction(m_addConeAction);
 	m_geometryMenu->addAction(m_addTorusAction);
+	m_geometryMenu->addAction(m_addVolumeAction);
 
 	m_menuBar->addMenu(m_geometryMenu);
 }
@@ -307,8 +249,8 @@ void MainWindow::initializeAboutMenu()
 
 void MainWindow::initializeToolBar()
 {
-	
 	initializeGeneralToolBar();
+	initializeOptionsToolBar();
 	initializeGeometryToolBar();
 }
 
@@ -323,13 +265,19 @@ void MainWindow::initializeGeneralToolBar()
 	viewModeButton->setPopupMode(QToolButton::InstantPopup);
 	viewModeButton->setIcon(QIcon(":/Resources/img/viewports.png"));
 	m_generalToolBar->addWidget(viewModeButton);
-
 	m_generalToolBar->addAction(m_resetCameraAction);
 
-	m_tesselationSlider = createSlider();
-	m_generalToolBar->addWidget(m_tesselationSlider);
-
 	addToolBar(m_generalToolBar);
+}
+
+void MainWindow::initializeOptionsToolBar()
+{
+	m_optionsToolBar = new QToolBar("RenderOptions", this);
+	m_tessellationSlider = createSlider();
+	m_optionsToolBar->addWidget(m_tessellationSlider);
+	m_optionsToolBar->addAction(m_mipStateChanged);
+
+	addToolBar(m_optionsToolBar);
 }
 
 void MainWindow::initializeGeometryToolBar()
@@ -340,11 +288,12 @@ void MainWindow::initializeGeometryToolBar()
 	m_geometryToolBar->addAction(m_addCylinderAction);
 	m_geometryToolBar->addAction(m_addConeAction);
 	m_geometryToolBar->addAction(m_addTorusAction);
+	m_geometryToolBar->addAction(m_addVolumeAction);
 
 	addToolBar(m_geometryToolBar);
 }
 
-void MainWindow::initializeStatusBar()
+void MainWindow::initializeStatusBar() const
 {
 	auto label = new QLabel("<none>");
     m_ui.statusBar->addWidget(label); //had to use m_ui otherwise statusBar would be at top of screen.
@@ -353,70 +302,53 @@ void MainWindow::initializeStatusBar()
 void MainWindow::initializeDockWidgets()
 {
 	initializeOutliner();
+	initializeTransferFunctionEditor();
 }
 
-void MainWindow::initializeViewportLayouts()
+void MainWindow::initializeViewportWidget()
 { 
-	//todo correct rotations for cameras
-	m_singlePerspectiveView = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
-	m_perspectiveGLWidgetDual = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
-	m_perspectiveGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(0), this);
-	m_frontGLWidgetDual = new OpenGLWidget(m_model->getScene(), m_model->getCamera(1), this);
-	m_frontGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(1), this);
-	m_leftGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(2), this);
-	m_topGLWidgetQuad = new OpenGLWidget(m_model->getScene(), m_model->getCamera(3), this);
-
-	m_dualViewSplitter = new QSplitter(this);
-	m_dualViewSplitter->addWidget(m_perspectiveGLWidgetDual);
-	m_dualViewSplitter->addWidget(m_frontGLWidgetDual);
-
-	m_topRowSplitter = new QSplitter(this);
-	m_topRowSplitter->addWidget(m_perspectiveGLWidgetQuad);
-	m_topRowSplitter->addWidget(m_frontGLWidgetQuad);
-
-	m_bottomRowSplitter = new QSplitter(this);
-	m_bottomRowSplitter->addWidget(m_leftGLWidgetQuad);
-	m_bottomRowSplitter->addWidget(m_topGLWidgetQuad);
-
-	m_quadViewSplitter = new QSplitter(this);
-	m_quadViewSplitter->addWidget(m_topRowSplitter);
-	m_quadViewSplitter->addWidget(m_bottomRowSplitter);
-	m_quadViewSplitter->setOrientation(Qt::Vertical);
-
-	m_stackedWidget = new QStackedWidget;
-	m_stackedWidget->addWidget(m_singlePerspectiveView);
-	m_stackedWidget->addWidget(m_dualViewSplitter);
-	m_stackedWidget->addWidget(m_quadViewSplitter);
-
-	setCentralWidget(m_stackedWidget);
-	m_currentGLWidget = m_singlePerspectiveView; //todo make selection correct
-	m_currentGLWidget->setFocus();
+	m_viewPortWidget = new ViewPortWidget(this);
+	m_viewPortWidget->setModel(new ViewPortModel(m_scene));
+	setCentralWidget(m_viewPortWidget);
 }
 
 void MainWindow::initializeOutliner()
 {
-	//QFile file(":/Resources/shaders/phong.fsh");
-	//file.open(QIODevice::ReadOnly);
-	//SceneModel model(file.readAll());
-	//file.close();
-
-	m_outlinerDock = new QDockWidget(this);
-	//auto model = new QFileSystemModel();	//todo set correct model
-	//model->setRootPath(QDir::currentPath());
-
+	m_outlinerDock = new QDockWidget("Outliner", this);
 	m_outlinerTreeView = new QTreeView(m_outlinerDock);
-	m_outlinerTreeView->setModel(m_model->getScene());
-	//m_outlinerTreeView->setRootIndex(model->index(QDir::currentPath()));
-
+	m_outlinerTreeView->setModel(m_outlinerModel);
 	m_outlinerDock->setWidget(m_outlinerTreeView);
-	m_outlinerDock->setWindowTitle("Outliner");
-
 	addDockWidget(Qt::LeftDockWidgetArea, m_outlinerDock);
+}
+
+void MainWindow::initializeTransferFunctionEditor()
+{
+	m_transferFunctionEditor = new TransferFunctionEditorDock("Transfer Function Editor", this);
+	addDockWidget(Qt::LeftDockWidgetArea, m_transferFunctionEditor);
+}
+
+void MainWindow::updateOutliner()
+{
+	if (m_outlinerModel != nullptr)
+	{
+		delete m_outlinerModel;
+	}
+
+	m_outlinerModel = new SceneItemModel(m_scene->getRoot());
+	m_outlinerTreeView->setModel(m_outlinerModel);
+	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), m_sceneController, SLOT(selectedItemChanged(QModelIndex, QModelIndex)));
+	m_outlinerTreeView->expandAll();
+}
+
+void MainWindow::updateStatusBar(QString message) const
+{
+	m_ui.statusBar->showMessage(message);
+	m_viewPortWidget->update();
 }
 
 QSlider* MainWindow::createSlider()
 {
-	auto slider = new QSlider(Qt::Horizontal);
+	auto slider = new QSlider(Qt::Horizontal, this);
 	slider->setRange(0, 6);
 	slider->setSingleStep(1);
 	slider->setTickPosition(QSlider::TicksRight);
@@ -424,4 +356,3 @@ QSlider* MainWindow::createSlider()
 	//slider->setSizePolicy(QSizePolicy(QSizePolicy::Policy::Maximum, QSizePolicy::Policy::Ignored));
 	return slider;
 }
-

@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Resources/img/cam_home.png</file>
+        <file>Resources/img/flat.png</file>
+        <file>Resources/img/gouraud.png</file>
+        <file>Resources/img/phong.png</file>
+        <file>Resources/img/wireframe.png</file>
+        <file>Resources/shaders/phong.fsh</file>
+        <file>Resources/shaders/phong.vsh</file>
+        <file>Resources/img/box.png</file>
+        <file>Resources/img/camera.png</file>
+        <file>Resources/img/cone.png</file>
+        <file>Resources/img/cylinder.png</file>
+        <file>Resources/img/select.png</file>
+        <file>Resources/img/torus.png</file>
+        <file>Resources/img/sphere.png</file>
+        <file>Resources/img/view-dual.png</file>
+        <file>Resources/img/viewports.png</file>
+        <file>Resources/img/view-single.png</file>
+        <file>Resources/shaders/highlight.fsh</file>
+        <file>Resources/shaders/highlight.vsh</file>
+    </qresource>
+</RCC>
