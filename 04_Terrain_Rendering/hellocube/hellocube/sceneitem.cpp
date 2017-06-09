@@ -8,6 +8,7 @@ int SceneItem::s_coneID = 0;
 int SceneItem::s_torusID = 0;
 int SceneItem::s_objectID = 0;
 int SceneItem::s_volumeID = 0;
+int SceneItem::s_terrainID = 0;
 
 
 SceneItem::SceneItem(OpenGLPrimitiveType primitiveType, SceneItem* parent)
@@ -117,6 +118,8 @@ QString SceneItem::createName() const
 		return QString("Torus ").append(QString::number(SceneItem::s_torusID++));
 	case Volume: 
 		return QString("Volume ").append(QString::number(SceneItem::s_volumeID++));
+	case Terrain:
+		return QString("Terrain ").append(QString::number(SceneItem::s_terrainID++));
 	case Object:
 		return QString("Object ").append(QString::number(SceneItem::s_objectID++));
 	case None:

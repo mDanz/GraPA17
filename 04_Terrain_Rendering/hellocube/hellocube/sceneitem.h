@@ -52,6 +52,7 @@ private:
 	static int s_torusID;
 	static int s_objectID;
 	static int s_volumeID;
+	static int s_terrainID;
 
 	SceneItem *m_parent;
 	QList<SceneItem*> m_children;
