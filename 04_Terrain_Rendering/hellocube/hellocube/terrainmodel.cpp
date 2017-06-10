@@ -1,18 +1,44 @@
 
 #include "terrainmodel.h"
+#include <QOpenGLTexture>
 
 TerrainModel::TerrainModel(RigidBodyTransformation* rigidBodyTransform, SceneItem* parent)
-	: m_scale(nullptr)
-	, m_mapSize(nullptr)
+	: m_mapSize(nullptr)
+	, m_scalarByteSize(0)
 	, m_maxValue(0)
 	, m_textureName(0)
+	, m_materials(nullptr)
 {
+	m_scale = new QPointF(1, 1);
 }
 
 TerrainModel::~TerrainModel()
 {
 	delete m_scale;
 	delete m_mapSize;
+	delete m_materials;
+}
+
+int TerrainModel::getHeightScale() const
+{
+	return m_scale->y();
+}
+
+void TerrainModel::setHeightScale(int height)
+{
+	m_scale->setY(height);
+	emit terrainModelChanged();
+}
+
+int TerrainModel::getWidthScale() const
+{
+	return m_scale->x();
+}
+
+void TerrainModel::setWidthScale(int width)
+{
+	m_scale->setX(width);
+	emit terrainModelChanged();
 }
 
 void TerrainModel::setSize(int width, int height)
@@ -24,11 +50,15 @@ void TerrainModel::setSize(int width, int height)
 
 	m_mapSize->setX(width);
 	m_mapSize->setY(height);
+
+	emit terrainModelChanged();
 }
 
 void TerrainModel::setMaxValue(int maxVal)
 {
 	m_maxValue = maxVal;
+
+	emit terrainModelChanged();
 }
 
 void TerrainModel::setData(QByteArray data)
@@ -38,6 +68,8 @@ void TerrainModel::setData(QByteArray data)
 	{
 		fixByteOrder();
 	}
+
+	emit terrainModelChanged();
 }
 
 unsigned char* TerrainModel::getData()
@@ -58,6 +90,8 @@ int TerrainModel::getHeighMapTextureName() const
 void TerrainModel::setTextureName(int textureName)
 {
 	m_textureName = textureName;
+
+	emit terrainModelChanged();
 }
 
 QPoint* TerrainModel::getMapSize() const
@@ -85,6 +119,8 @@ GLuint TerrainModel::getScalarType()
 void TerrainModel::setMaterials(QOpenGLTexture* materials)
 {
 	m_materials = materials;
+
+	emit terrainModelChanged();
 }
 
 void TerrainModel::fixByteOrder()

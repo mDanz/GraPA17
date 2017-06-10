@@ -260,7 +260,7 @@ void SceneController::AddTerrain(RigidBodyTransformation* rigidBodyTransform, Sc
 	terrain->setRigidBodyTransform(rigidBodyTransform);
 
 	m_scene->addItem(terrain, parent);
-	//connect(volume->getTransferFunction(), SIGNAL(transferFunctionChanged()), m_viewPortWidget, SLOT(update())); //todo connect to scale sliders
+	connect(terrain, SIGNAL(terrainModelChanged()), m_viewPortWidget, SLOT(update()));
 }
 
 void SceneController::manipulateCamera(QPointF screenPos, QVector3D* delta, QMouseEvent* event) const

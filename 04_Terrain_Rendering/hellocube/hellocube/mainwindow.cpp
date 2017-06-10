@@ -18,6 +18,7 @@
 #include "sceneitemmodel.h"
 #include "scenecontroller.h"
 #include "transferfunctioneditordock.h"
+#include "terraineditordock.h"
 
 MainWindow::MainWindow(QMainWindow *parent)
 	: QMainWindow(parent)
@@ -310,6 +311,7 @@ void MainWindow::initializeDockWidgets()
 {
 	initializeOutliner();
 	initializeTransferFunctionEditor();
+	initializeTerrainEditor();
 }
 
 void MainWindow::initializeViewportWidget()
@@ -332,6 +334,12 @@ void MainWindow::initializeTransferFunctionEditor()
 {
 	m_transferFunctionEditor = new TransferFunctionEditorDock("Transfer Function Editor", this);
 	addDockWidget(Qt::LeftDockWidgetArea, m_transferFunctionEditor);
+}
+
+void MainWindow::initializeTerrainEditor()
+{
+	m_terrainEditor = new TerrainEditorDock("Terrain Editor", this);
+	addDockWidget(Qt::LeftDockWidgetArea, m_terrainEditor);
 }
 
 void MainWindow::updateOutliner()

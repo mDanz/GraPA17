@@ -208,6 +208,21 @@
     <ClCompile Include="terrainmodel.cpp">
       <Filter>Source Files\model</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_terraineditordock.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_terraineditordock.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="terraineditordock.cpp">
+      <Filter>Source Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_terrainmodel.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_terrainmodel.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.ui">
@@ -242,6 +257,12 @@
     </CustomBuild>
     <CustomBuild Include="transferfunctioneditordock.h">
       <Filter>Header Files\view</Filter>
+    </CustomBuild>
+    <CustomBuild Include="terraineditordock.h">
+      <Filter>Header Files\view</Filter>
+    </CustomBuild>
+    <CustomBuild Include="terrainmodel.h">
+      <Filter>Header Files\model</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -309,9 +330,6 @@
       <Filter>Header Files\view</Filter>
     </ClInclude>
     <ClInclude Include="terrainmodelfactory.h">
-      <Filter>Header Files\model</Filter>
-    </ClInclude>
-    <ClInclude Include="terrainmodel.h">
       <Filter>Header Files\model</Filter>
     </ClInclude>
   </ItemGroup>

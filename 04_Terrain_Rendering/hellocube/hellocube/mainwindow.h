@@ -6,6 +6,7 @@
 #include "scenemodel.h"
 #include "sceneitemmodel.h"
 #include "transferfunctioneditordock.h"
+#include "terraineditordock.h"
 
 class SceneController;
 class ViewPortWidget;
@@ -44,6 +45,7 @@ private:
 	void initializeViewportWidget();
 	void initializeOutliner();
 	void initializeTransferFunctionEditor();
+	void initializeTerrainEditor();
 	QSlider* createSlider();
 
 	SceneModel *m_scene;
@@ -67,6 +69,7 @@ private:
 
 	QDockWidget *m_outlinerDock;
 	TransferFunctionEditorDock *m_transferFunctionEditor;
+	TerrainEditorDock* m_terrainEditor;
 
 	QActionGroup *m_interactionModeActionGroup;
 	QActionGroup *m_viewModeActionGroup;
@@ -91,7 +94,6 @@ private:
 	QTreeView *m_outlinerTreeView;
 
 	SceneController *m_sceneController;
-
 private slots:
 	void updateOutliner();
 	void updateStatusBar(QString message) const;
