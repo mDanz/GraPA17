@@ -202,6 +202,12 @@
     <ClCompile Include="GeneratedFiles\Release\moc_transferfunctioneditordock.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="terrainmodelfactory.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
+    <ClCompile Include="terrainmodel.cpp">
+      <Filter>Source Files\model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.ui">
@@ -301,6 +307,12 @@
     </ClInclude>
     <ClInclude Include="transferfunctioncanvas.h">
       <Filter>Header Files\view</Filter>
+    </ClInclude>
+    <ClInclude Include="terrainmodelfactory.h">
+      <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="terrainmodel.h">
+      <Filter>Header Files\model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

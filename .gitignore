@@ -53,3 +53,4 @@ CMakeLists.txt.user
 03_Volume_Visualization/hellocube/hellocube/tex/
 04_Terrain_Rendering/hellocube/hellocube/VolumeData/
 04_Terrain_Rendering/hellocube/hellocube/tex/
+04_Terrain_Rendering/hellocube/hellocube/TerrainData/
