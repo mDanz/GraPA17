@@ -4,25 +4,26 @@
 #include <QFileDialog>
 #include <QOpenGLFunctions_4_4_Compatibility>
 #include "openglhelper.h"
+#include <QOpenGLTexture>
 
-TerrainModel* TerrainModelFactory::createFromFile(const QString& fileName)
+TerrainModel* TerrainModelFactory::createFromFile(const QString& heightMapFile, const QStringList& textureFiles)
 {
 	auto model = new TerrainModel;
-	fillTerrainModel(fileName, *model);
+	fillTerrainModel(heightMapFile, textureFiles, *model);
 
 	return model;
 }
 
-void TerrainModelFactory::fillTerrainModel(const QString& fileName, TerrainModel& model)
+void TerrainModelFactory::fillTerrainModel(const QString& heightMapFile, const QStringList& textureFiles, TerrainModel& model)
 {
-	QFile file(fileName);
+	QFile file(heightMapFile);
 	if (!file.exists()) {
-		qWarning() << "File '" << fileName << "'' does not exist!";
+		qWarning() << "File '" << heightMapFile << "'' does not exist!";
 		return;
 	}
 
 	if (!file.open(QIODevice::ReadOnly)) {
-		qWarning() << "Could not open file '" << fileName << "'' !";
+		qWarning() << "Could not open file '" << heightMapFile << "'' !";
 		return;
 	}
 
@@ -36,8 +37,8 @@ void TerrainModelFactory::fillTerrainModel(const QString& fileName, TerrainModel
 	fillMapSize(file, model);
 	fillMaxValue(file, model);
 	fillData(file, model);
-	createTexture(model);
-
+	createHeightMapTexture(model);
+	createMaterialTextures(textureFiles, model);
 }
 
 void TerrainModelFactory::fillMapSize(QFile& file, TerrainModel& model)
@@ -66,11 +67,11 @@ void TerrainModelFactory::fillData(QFile& file, TerrainModel& model)
 	model.setData(bytes);
 }
 
-void TerrainModelFactory::createTexture(TerrainModel& model)
+void TerrainModelFactory::createHeightMapTexture(TerrainModel& model)
 {
 	auto glFunc = OpenGLHelper::getGLFunc();
-	generateTexture(model, glFunc);
-	glFunc->glBindTexture(GL_TEXTURE_2D, model.getTextureName());
+	generateHeightMapTexture(model, glFunc);
+	glFunc->glBindTexture(GL_TEXTURE_2D, model.getHeighMapTextureName());
 
 	// set up wrapping, filtering and pixel alignment todo see if this is correct
 	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -85,25 +86,53 @@ void TerrainModelFactory::createTexture(TerrainModel& model)
 	//qInfo() << "Intensity values between " << model.getMinValue() << "and" << model.getMaxValue() << " and scalar Type: " << model.getScalarType() << "Size: " << model.getScalarByteSize();
 
 	glFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, model.getMapSize()->x(), model.getMapSize()->y(), 0, GL_RGBA, model.getScalarType(), model.getData());
-	glFunc->glBindTexture(GL_TEXTURE_2D, model.getTextureName());
+	glFunc->glBindTexture(GL_TEXTURE_2D, model.getHeighMapTextureName());
 }
 
-void TerrainModelFactory::generateTexture(TerrainModel& model, QOpenGLFunctions_4_4_Compatibility* glFunc)
+void TerrainModelFactory::generateHeightMapTexture(TerrainModel& model, QOpenGLFunctions_4_4_Compatibility* glFunc)
 {
 	glFunc->glActiveTexture(GL_TEXTURE0);
-	if (model.getTextureName() == GL_INVALID_VALUE)
+	if (model.getHeighMapTextureName() == GL_INVALID_VALUE)
 	{
 		GLuint texName;
 		glFunc->glGenTextures(1, &texName);
 		model.setTextureName(texName);
 	}
 
-	if (model.getTextureName() == GL_INVALID_VALUE)
+	if (model.getHeighMapTextureName() == GL_INVALID_VALUE)
 	{
 		qInfo() << "Texture name invalid!";
 	}
 	else
 	{
-		qInfo() << "Terrain hight map texture" << model.getTextureName() << "created.";
+		qInfo() << "Terrain hight map texture" << model.getHeighMapTextureName() << "created.";
 	}
+}
+
+void TerrainModelFactory::createMaterialTextures(const QStringList& textureFiles, TerrainModel& model)
+{
+	QOpenGLTexture *materialTextures[4];
+	for (int i = 0; i < 4; i++)
+	{
+		if (i < textureFiles.size())
+		{
+			break;
+		}
+		materialTextures[i] = new QOpenGLTexture(QImage(textureFiles[i])); //todo insert warning code
+	}
+
+	//if (materialTextures[textureStage] != 0) //todo maybe use explicit texture options
+	//{
+	//	glBindTexture(GL_TEXTURE_2D, m_GLTextures[textureStage]);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	//	glBindTexture(GL_TEXTURE_2D, 0);
+	//}
+
+	model.setMaterials(*materialTextures);
+
+
 }

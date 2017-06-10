@@ -1,6 +1,8 @@
 #pragma once
 #include "sceneitem.h"
 
+class QOpenGLTexture;
+
 class TerrainModel : public SceneItem
 {
 public:
@@ -11,11 +13,11 @@ public:
 	void setData(QByteArray data);
 	unsigned char* getData();
 	int getDataSize() const;
-	int getTextureName() const;
+	int getHeighMapTextureName() const;
 	void setTextureName(int textureName);
 	QPoint* getMapSize() const;
 	GLuint getScalarType();
-
+	void setMaterials(QOpenGLTexture* materials);
 private:
 	void fixByteOrder();
 
@@ -25,6 +27,6 @@ private:
 	int m_scalarByteSize;
 	int m_maxValue;
 	GLuint m_textureName;
-
+	QOpenGLTexture* m_materials;
 };
 

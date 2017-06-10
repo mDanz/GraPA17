@@ -50,7 +50,7 @@ int TerrainModel::getDataSize() const
 	return m_data.count();
 }
 
-int TerrainModel::getTextureName() const
+int TerrainModel::getHeighMapTextureName() const
 {
 	return m_textureName;
 }
@@ -80,6 +80,11 @@ GLuint TerrainModel::getScalarType()
 	qWarning() << "Unsupported data type! Max Value: " << m_maxValue << " is not supported. Using default type unsigned byte.";
 	m_scalarByteSize = 1;
 	return GL_UNSIGNED_BYTE;
+}
+
+void TerrainModel::setMaterials(QOpenGLTexture* materials)
+{
+	m_materials = materials;
 }
 
 void TerrainModel::fixByteOrder()

@@ -244,15 +244,21 @@ void SceneController::AddVolume(RigidBodyTransformation *rigidBodyTransform, Sce
 
 void SceneController::AddTerrain(RigidBodyTransformation* rigidBodyTransform, SceneItem* parent) const
 {
-	auto fileName = QFileDialog::getOpenFileName(m_viewPortWidget, tr("Load Terrain Data"), "./", tr("Gray Scale Map Files (*.pgm)"));
-	if (fileName.isEmpty())
+	auto heightMapFile = QFileDialog::getOpenFileName(m_viewPortWidget, tr("Load Terrain Data"), "./", tr("Gray Scale Map Files (*.pgm)"));
+	if (heightMapFile.isEmpty())
 	{
 		return;
 	}
-	auto terrain = TerrainModelFactory::createFromFile(fileName);
-	terrain->setRigidBodyTransform(rigidBodyTransform);
-	//todo add materials
 	
+	auto textureFiles = QFileDialog::getOpenFileNames(m_viewPortWidget, tr("Load Material Textures"), "./", tr("JPEG (*.jpg)"));
+	if (textureFiles.isEmpty())
+	{
+		return;
+	}
+
+	auto terrain = TerrainModelFactory::createFromFile(heightMapFile, textureFiles);
+	terrain->setRigidBodyTransform(rigidBodyTransform);
+
 	m_scene->addItem(terrain, parent);
 	//connect(volume->getTransferFunction(), SIGNAL(transferFunctionChanged()), m_viewPortWidget, SLOT(update())); //todo connect to scale sliders
 }

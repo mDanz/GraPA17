@@ -9,13 +9,14 @@ class TerrainModel;
 class TerrainModelFactory
 {
 public:
-	static TerrainModel* createFromFile(const QString& fileName);
+	static TerrainModel* createFromFile(const QString& heightMapFile, const QStringList& textureFiles);
 
 private:
-	static void fillTerrainModel(const QString& fileName, TerrainModel& model);
+	static void fillTerrainModel(const QString& hightMapFile, const QStringList& textureFiles, TerrainModel& model);
 	static void fillMapSize(QFile& file, TerrainModel& model);
 	static void fillMaxValue(QFile& file, TerrainModel& model);
 	static void fillData(QFile& file, TerrainModel& model);
-	static void createTexture(TerrainModel& model);
-	static void generateTexture(TerrainModel& model, QOpenGLFunctions_4_4_Compatibility* glFunc);
+	static void createHeightMapTexture(TerrainModel& model);
+	static void generateHeightMapTexture(TerrainModel& model, QOpenGLFunctions_4_4_Compatibility* glFunc);
+	static void createMaterialTextures(const QStringList& textureFiles, TerrainModel& model);
 };
