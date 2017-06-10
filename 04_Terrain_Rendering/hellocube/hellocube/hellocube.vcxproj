@@ -153,6 +153,7 @@
     <ClCompile Include="openglhelper.cpp" />
     <ClCompile Include="openglprimitivefactory.cpp" />
     <ClCompile Include="openglsphere.cpp" />
+    <ClCompile Include="openglterrain.cpp" />
     <ClCompile Include="opengltorus.cpp" />
     <ClCompile Include="openglvolume.cpp" />
     <ClCompile Include="openglwidget.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="openglnone.h" />
     <ClInclude Include="openglprimitivefactory.h" />
     <ClInclude Include="openglsphere.h" />
+    <ClInclude Include="openglterrain.h" />
     <ClInclude Include="opengltorus.h" />
     <ClInclude Include="openglvolume.h" />
     <ClInclude Include="rigidbodytransformation.h" />

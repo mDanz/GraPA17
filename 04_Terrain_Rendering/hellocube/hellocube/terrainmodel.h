@@ -19,6 +19,7 @@ public:
 	void setMaxValue(int maxVal);
 	void setData(QByteArray data);
 	unsigned char* getData();
+	float getHeightValue(QPoint &pos);
 	int getDataSize() const;
 	int getHeighMapTextureName() const;
 	void setTextureName(int textureName);
@@ -31,10 +32,13 @@ signals:
 
 private:
 	void fixByteOrder();
+	float* getHeightValues(QByteArray &data) const;
+	float getHeightValue(unsigned char* data) const;
 
 	QPointF *m_scale;
 	QPoint *m_mapSize;
 	QByteArray m_data;
+	float *m_floatData;
 	int m_scalarByteSize;
 	int m_maxValue;
 	GLuint m_textureName;

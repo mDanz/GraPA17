@@ -64,10 +64,13 @@ void TerrainModel::setMaxValue(int maxVal)
 void TerrainModel::setData(QByteArray data)
 {
 	m_data = data;
+
 	if (getScalarType() != GL_UNSIGNED_BYTE)
 	{
 		fixByteOrder();
 	}
+
+	m_floatData = getHeightValues(data);
 
 	emit terrainModelChanged();
 }
@@ -75,6 +78,11 @@ void TerrainModel::setData(QByteArray data)
 unsigned char* TerrainModel::getData()
 {
 	return reinterpret_cast<unsigned char*>(m_data.data());
+}
+
+float TerrainModel::getHeightValue(QPoint& pos) const
+{
+	return m_floatData[pos.x()*m_mapSize->x() + pos.y()];
 }
 
 int TerrainModel::getDataSize() const
@@ -138,5 +146,33 @@ void TerrainModel::fixByteOrder()
 			m_data[left] = m_data[right];
 			m_data[right] = tmp;
 		}
+	}
+}
+
+float* TerrainModel::getHeightValues(QByteArray &data) const
+{
+	auto floatData = new float[m_data.size()/m_scalarByteSize];
+	auto chars = reinterpret_cast<unsigned char*>(data.data());
+	
+	for (int i = 0; i < m_data.size(); i += m_scalarByteSize)
+	{
+		floatData[i / m_scalarByteSize] = getHeightValue(&chars[i]); //todo test this
+	}
+
+	return floatData;
+}
+
+float TerrainModel::getHeightValue(unsigned char* data) const
+{
+	switch (m_scalarByteSize)
+	{
+	case 1:
+		return static_cast<unsigned char>(data[0]) / static_cast<float>(0xff);
+	case 2:
+		return static_cast<unsigned short>(data[1] << 8 | data[0]) / static_cast<float>(0xffff);
+	case 4:
+		return static_cast<unsigned int>(data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0]) / static_cast<float>(0xffffffff);
+	default:
+		return 0.0f;
 	}
 }

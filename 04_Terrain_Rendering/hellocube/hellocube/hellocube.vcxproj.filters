@@ -223,6 +223,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_terrainmodel.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="openglterrain.cpp">
+      <Filter>Source Files\geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.ui">
@@ -331,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="terrainmodelfactory.h">
       <Filter>Header Files\model</Filter>
+    </ClInclude>
+    <ClInclude Include="openglterrain.h">
+      <Filter>Header Files\geometry</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

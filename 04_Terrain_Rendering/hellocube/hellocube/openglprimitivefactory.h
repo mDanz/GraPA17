@@ -15,6 +15,6 @@ public:
 
 private:
 	OpenGLWidget *m_parent;
-	OpenGLGeometry *m_primitives[7];
+	OpenGLGeometry *m_primitives[8];
 };
 

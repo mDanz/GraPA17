@@ -22,8 +22,8 @@ TerrainEditorDock::~TerrainEditorDock()
 void TerrainEditorDock::updateTerrain(TerrainModel* terrain)
 {
 	m_terrain = terrain;
-	m_heightSlider->setTickPosition(m_terrain->getHeightScale());
-	m_widthSlider->setTickPosition(m_terrain->getWidthScale());
+	m_heightSlider->setSliderPosition(m_terrain->getHeightScale());
+	m_widthSlider->setSliderPosition(m_terrain->getWidthScale());
 }
 
 void TerrainEditorDock::initializeSliders()

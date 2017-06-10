@@ -7,6 +7,7 @@
 #include "openglcylinder.h"
 #include "openglnone.h"
 #include "openglvolume.h"
+#include "openglterrain.h"
 
 OpenGLPrimitiveFactory::OpenGLPrimitiveFactory(OpenGLWidget* parent)
 	: m_parent(parent) 
@@ -18,6 +19,7 @@ OpenGLPrimitiveFactory::OpenGLPrimitiveFactory(OpenGLWidget* parent)
 	m_primitives[4] = new OpenGLCone();
 	m_primitives[5] = new OpenGLTorus();
 	m_primitives[6] = new OpenGLVolume();
+	m_primitives[7] = new OpenGLTerrain();
 }
 
 OpenGLPrimitiveFactory::~OpenGLPrimitiveFactory()
@@ -47,6 +49,9 @@ OpenGLGeometry* OpenGLPrimitiveFactory::renderPrimitive(OpenGLPrimitiveType prim
 		return m_primitives[5];
 	case Volume:
 		return m_primitives[6];
+	case Terrain:
+		return m_primitives[7];
+	case Object:
 	default: 
 		return nullptr;
 	}
