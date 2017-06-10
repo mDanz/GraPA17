@@ -19,7 +19,7 @@ public:
 	void setMaxValue(int maxVal);
 	void setData(QByteArray data);
 	unsigned char* getData();
-	float getHeightValue(QPoint &pos);
+	float getHeightValue(QPoint &pos) const;
 	int getDataSize() const;
 	int getHeighMapTextureName() const;
 	void setTextureName(int textureName);
