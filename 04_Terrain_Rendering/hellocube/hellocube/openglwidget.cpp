@@ -303,6 +303,11 @@ void OpenGLWidget::wheelEvent(QWheelEvent* event)
 	update();
 }
 
+void OpenGLWidget::keyPressEvent(QKeyEvent* event)
+{
+	SceneController::getController()->keyPressed(event->key());
+}
+
 void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 {
 	m_fbo->bind();

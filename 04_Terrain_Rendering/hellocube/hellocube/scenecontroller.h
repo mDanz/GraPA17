@@ -27,6 +27,7 @@ public:
 	void mouseReleased(QPointF screenPos, int idUnderMouse, QMouseEvent *event);
 	void mouseMoved(QPointF screenPos, QPointF mousePos, QMouseEvent* event);
 	void wheelMoved(int wheelDelta) const;
+	void keyPressed(int key) const;
 
 public slots:
 	void resetCamera() const;

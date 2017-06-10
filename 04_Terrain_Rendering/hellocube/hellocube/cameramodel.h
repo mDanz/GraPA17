@@ -13,10 +13,11 @@ public:
 	void resizeViewPort(int width, int height);
 	QMatrix4x4* getProjectionMatrix();
 	bool isOrthographic() const;
-	void zoom(int m_wheel_delta);
-	void move(const QVector3D *translation);
+	void zoom(int m_wheel_delta) const;
+	void moveTo(const QVector3D *translation) const;
+	void move(const QVector3D *translation) const;
 	void rotate(const QQuaternion& rotation);
-	QVector3D* getPointOfInterest();
+	QVector3D* getPointOfInterest() const;
 	void reset();
 private:
 	void updateOrthoProjection() const;
@@ -28,10 +29,10 @@ private:
 	float m_fov;
 	float m_aspect;
 
-	QVector3D m_center;
+	QVector3D *m_center;
 	bool m_isOrthographic;
-	QVector3D m_position;
-	QQuaternion m_rotation;
+	QVector3D *m_position;
+	QQuaternion *m_rotation;
 	QVector3D m_defaultPosition;
 	QQuaternion m_defaultRotation;
 	QMatrix4x4 *m_projectionMatrix;

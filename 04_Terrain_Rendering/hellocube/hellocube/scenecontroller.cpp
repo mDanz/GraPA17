@@ -88,6 +88,27 @@ void SceneController::wheelMoved(int wheelDelta) const
 	m_viewPortWidget->getCurrentCamera()->zoom(wheelDelta);
 }
 
+void SceneController::keyPressed(int key) const
+{
+	auto currentCamera = m_viewPortWidget->getCurrentCamera();
+
+	switch (key)
+	{
+	case Qt::Key_W:
+		currentCamera->move(new QVector3D(0, 0, 1));
+		break;
+	case Qt::Key_A:
+		currentCamera->move(new QVector3D(-1, 0, 0));
+		break;
+	case Qt::Key_S:
+		currentCamera->move(new QVector3D(0, 0, -1));
+		break;
+	case Qt::Key_D:
+		currentCamera->move(new QVector3D(1, 0, 0));
+		break;
+	}
+}
+
 void SceneController::resetCamera() const
 {
 	m_viewPortWidget->getCurrentCamera()->reset();
@@ -249,7 +270,7 @@ void SceneController::manipulateCamera(QPointF screenPos, QVector3D* delta, QMou
 	else if (event->buttons() & Qt::RightButton)
 	{
 		m_trackBall->release(screenPos, m_trackBall->getRotation().conjugate());
-		currentCamera->move(delta);
+		currentCamera->moveTo(delta);
 	}
 	else
 	{
