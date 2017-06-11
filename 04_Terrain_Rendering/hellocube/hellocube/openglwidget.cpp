@@ -138,6 +138,7 @@ void OpenGLWidget::initializeGL()
 	initializeHighlightShaderProgram();
 	initializeEntryExitShaderProgram();
 	initializeVolumeShaderProgram();
+	initializeTerrainShaderProgram();
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -159,12 +160,12 @@ void OpenGLWidget::paintGL()
 	auto items = m_scene->getAllItems();
 
 	m_fbo->bind();
-	glClearColor(0.f, 0.f, 0.f, 0.f);
+	glClearColor(0.3f, 0.3f, 0.3f, 0.3f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_fbo->release();
 
-
-	paintWithSceneShaderProgram(&items);
+	paintWithTerrainShaderProgram(&items);
+	//paintWithSceneShaderProgram(&items);
 	//paintWithVolumeShaderProgram(&items);
 	paintWithHighlightShaderProgram();
 }
@@ -262,6 +263,17 @@ void OpenGLWidget::initializeVolumeShaderProgram()
 	OpenGLHelper::getGLFunc()->glGenBuffers(1, &m_boxVbo);
 	OpenGLHelper::getGLFunc()->glBindBuffer(GL_ARRAY_BUFFER, m_boxVbo);
 	OpenGLHelper::getGLFunc()->glBufferData(GL_ARRAY_BUFFER, 6 * 2 * 3 * 3 * sizeof(float), boxVx, GL_STATIC_DRAW);
+}
+
+void OpenGLWidget::initializeTerrainShaderProgram()
+{
+	m_terrainProgram = OpenGLHelper::createShaderProgam(m_terrain_vshFile, m_terrain_fshFile);
+	m_terrainProgram->bindAttributeLocation("in_position", 0);
+	m_terrainProgram->bindAttributeLocation("in_normal", 1);
+	if (!m_terrainProgram->link())
+	{
+		qWarning() << "Linking Error" << m_terrainProgram->log();
+	}
 }
 
 QPointF OpenGLWidget::pixelPosToScreenPos(const QPointF &pos) const
@@ -409,8 +421,6 @@ void OpenGLWidget::paintWithHighlightShaderProgram()
 
 void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items) 
 {
-	QString err = OpenGLHelper::Error();
-
 	for(int i = 0; i < items->size(); i++)
 	{
 		auto item = items->at(i);
@@ -424,6 +434,59 @@ void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items)
 		renderVolumeData(volume);
 
 	}	
+}
+
+void OpenGLWidget::paintWithTerrainShaderProgram(QList<SceneItem*>* items)
+{
+	m_fbo->bind();
+	GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	OpenGLHelper::getGLFunc()->glDrawBuffers(2, buffers);
+
+	m_terrainProgram->bind();
+	m_terrainProgram->setUniformValue("projMatrix", *m_cameraModel->getProjectionMatrix());
+	m_terrainProgram->setUniformValue("lightPos", m_lightPos);
+	m_terrainProgram->setUniformValue("ambientColor", m_ka);
+	m_terrainProgram->setUniformValue("diffuseColor", m_kd);
+	m_terrainProgram->setUniformValue("specularColor", m_ks);
+	m_terrainProgram->setUniformValue("specularExp", m_specExp);
+
+	for (auto i = 0; i < items->count(); i++)
+	{
+		auto item = items->at(i);
+		if (item->getPrimitiveType() != Terrain)
+		{
+			continue;
+		}
+		m_world = item->getRigidBodyTransformation()->getWorldMatrix();
+
+		m_terrainProgram->setUniformValue("idColor", item->getId()->getIdAsColor());
+		m_terrainProgram->setUniformValue("mvMatrix", *m_cameraModel->getCameraMatrix() * m_world);
+		m_terrainProgram->setUniformValue("normalMatrix", m_world.normalMatrix());
+
+		m_primitiveFactory->renderPrimitive(item->getPrimitiveType())->draw(m_terrainProgram);
+		//m_primitiveFactory->renderPrimitive(Cube)->draw(m_terrainProgram);
+	}
+	glFlush();
+
+	m_terrainProgram->release();
+	m_fbo->release();
+
+	auto img1 = m_fbo->toImage(false, 0);
+	if (!img1.save("./tex/terrainTex.jpg"))
+	{
+		qWarning() << "Terrain Texture not saved correctly";
+	}auto img2 = m_fbo->toImage(false, 1);
+	if (!img2.save("./tex/terrainPickTex.jpg"))
+	{
+		qWarning() << "Terrain Pick Texture not saved correctly";
+	}
+
+	auto err = OpenGLHelper::Error();
+	if (!err.isEmpty())
+	{
+		qInfo() << "terrain shader program errors:" << err;
+	}
+
 }
 
 void OpenGLWidget::renderEntryExitPoints(VolumeModel *volume)

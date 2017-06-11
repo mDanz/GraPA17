@@ -28,7 +28,7 @@ void TerrainModelFactory::fillTerrainModel(const QString& heightMapFile, const Q
 	}
 
 	auto line = file.readLine();
-	if (line != "P5")
+	if (line != "P5\n")
 	{
 		qWarning() << "Unsupported file format: " << line << "!";
 		return;
@@ -85,7 +85,7 @@ void TerrainModelFactory::createHeightMapTexture(TerrainModel& model)
 	//model.setHistogram(new Histogram(model.getByteArrayData(), model.getScalarByteSize(), 256));
 	//qInfo() << "Intensity values between " << model.getMinValue() << "and" << model.getMaxValue() << " and scalar Type: " << model.getScalarType() << "Size: " << model.getScalarByteSize();
 
-	glFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, model.getMapSize()->x(), model.getMapSize()->y(), 0, GL_RGBA, model.getScalarType(), model.getData());
+	glFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_R, model.getMapSize()->x(), model.getMapSize()->y(), 0, GL_RED, model.getScalarType(), model.getData());
 	glFunc->glBindTexture(GL_TEXTURE_2D, model.getHeighMapTextureName());
 }
 
