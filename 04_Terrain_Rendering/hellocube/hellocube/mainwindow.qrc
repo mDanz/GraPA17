@@ -19,5 +19,7 @@
         <file>Resources/img/view-single.png</file>
         <file>Resources/shaders/highlight.fsh</file>
         <file>Resources/shaders/highlight.vsh</file>
+        <file>Resources/img/terrain.png</file>
+        <file>Resources/img/volume.png</file>
     </qresource>
 </RCC>

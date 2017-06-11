@@ -150,8 +150,8 @@ void MainWindow::initializeGeometryActions()
 	m_addConeAction->setIcon(QIcon(":/Resources/img/cone.png"));
 	m_addTorusAction->setIcon(QIcon(":/Resources/img/torus.png"));
 	m_addCubeAction->setIcon(QIcon(":/Resources/img/box.png"));
-	m_addVolumeAction->setIcon(QIcon(":/Resources/img/sphere.png")); //todo correct icon for volume
-	m_addTerrainAction->setIcon(QIcon(":/Resources/img/sphere.png")); //todo make terrain and volume icons
+	m_addVolumeAction->setIcon(QIcon(":/Resources/img/volume.png")); //todo correct icon for volume
+	m_addTerrainAction->setIcon(QIcon(":/Resources/img/terrain.png")); //todo make terrain and volume icons
 }
 
 void MainWindow::initializeController()
