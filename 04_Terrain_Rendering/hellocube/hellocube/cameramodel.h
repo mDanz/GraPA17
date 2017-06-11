@@ -32,7 +32,7 @@ private:
 	QVector3D *m_center;
 	bool m_isOrthographic;
 	QVector3D *m_position;
-	QQuaternion *m_rotation;
+	QQuaternion m_rotation;
 	QVector3D m_defaultPosition;
 	QQuaternion m_defaultRotation;
 	QMatrix4x4 *m_projectionMatrix;

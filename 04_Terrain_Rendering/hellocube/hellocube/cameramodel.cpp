@@ -10,7 +10,8 @@ CameraModel::CameraModel(bool isOrthographic, QVector3D position, QQuaternion ro
 	m_defaultPosition = position;
 	m_position = new QVector3D(m_defaultPosition);
 	m_defaultRotation = rotation;
-	m_rotation = new QQuaternion(m_defaultRotation);
+	m_rotation = m_defaultRotation;
+	m_center = new QVector3D();
 	setProjection(m_isOrthographic, 45.0f, 0.01f, 1000.f);
 }
 
@@ -20,7 +21,7 @@ CameraModel::~CameraModel()
 	delete m_projectionMatrix;
 	delete m_position;
 	delete m_center;
-	delete m_rotation;
+	//delete m_rotation;
 }
 
 QMatrix4x4* CameraModel::getCameraMatrix()
@@ -33,7 +34,7 @@ QMatrix4x4* CameraModel::getCameraMatrix()
 	//m_cameraMatrix->lookAt(m_position, m_center, m_rotation * QVector3D(0, 1, 0));
 	m_cameraMatrix->translate(*m_position);
 	m_cameraMatrix->translate(-(*m_center));
-	m_cameraMatrix->rotate(*m_rotation);
+	m_cameraMatrix->rotate(m_rotation);
 	m_cameraMatrix->translate(*m_center);
 	
 	return m_cameraMatrix;
@@ -103,10 +104,9 @@ void CameraModel::move(const QVector3D* translation) const
 
 void CameraModel::rotate(const QQuaternion& rotation)
 {
-	auto tmp = QQuaternion(-rotation.scalar(), *m_rotation * rotation.vector()) * *m_rotation;
-	delete m_rotation;
-	m_rotation = &tmp;
-	//m_rotation *= rotation;
+	/*m_rotation = QQuaternion(-rotation.scalar(), *m_rotation * rotation.vector()) * *m_rotation;
+	m_rotation = &tmp;*/
+	m_rotation *= rotation;
 }
 
 QVector3D* CameraModel::getPointOfInterest() const
@@ -118,8 +118,7 @@ void CameraModel::reset()
 {
 	delete m_position;
 	m_position = new QVector3D(m_defaultPosition);
-	delete m_rotation;
-	m_rotation = new QQuaternion(m_defaultRotation);
+	m_rotation = m_defaultRotation;
 	delete m_center;
 	m_center = new QVector3D();
 }

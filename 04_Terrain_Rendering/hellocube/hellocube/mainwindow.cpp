@@ -178,7 +178,7 @@ void MainWindow::initializeActionConnections() const
 	connect(m_addConeAction, SIGNAL(triggered()), m_sceneController, SLOT(coneAdded()));
 	connect(m_addTorusAction, SIGNAL(triggered()), m_sceneController, SLOT(torusAdded()));
 	connect(m_addVolumeAction, SIGNAL(triggered()), m_sceneController, SLOT(volumeAdded()));
-	connect(m_addTerrainAction, SIGNAL(triggered()), m_sceneController, SLOT(TerrainAdded()));
+	connect(m_addTerrainAction, SIGNAL(triggered()), m_sceneController, SLOT(terrainAdded()));
 	
 	
 	connect(m_tessellationSlider, SIGNAL(valueChanged(int)), m_sceneController, SLOT(setTessellation(int)));

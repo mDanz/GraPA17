@@ -165,7 +165,7 @@ void OpenGLWidget::paintGL()
 
 
 	paintWithSceneShaderProgram(&items);
-	paintWithVolumeShaderProgram(&items);
+	//paintWithVolumeShaderProgram(&items);
 	paintWithHighlightShaderProgram();
 }
 

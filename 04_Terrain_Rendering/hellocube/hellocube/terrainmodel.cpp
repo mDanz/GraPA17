@@ -3,7 +3,9 @@
 #include <QOpenGLTexture>
 
 TerrainModel::TerrainModel(RigidBodyTransformation* rigidBodyTransform, SceneItem* parent)
-	: m_mapSize(nullptr)
+	: SceneItem(Terrain, rigidBodyTransform, parent)
+	, m_mapSize(nullptr)
+	, m_floatData(nullptr)
 	, m_scalarByteSize(0)
 	, m_maxValue(0)
 	, m_textureName(0)
