@@ -1,0 +1,61 @@
+#version 440
+
+layout(quads, equal_spacing, cw) in;
+in vec3 tcPosition[];
+in flat int cLod[];
+
+out vec3 tePosition;
+out vec3 tePatchDistance;
+
+out vec3 posInWorld;
+out vec3 posInView;
+out vec3 normal;
+out float height;
+out int eLod;
+
+uniform mat4 viewMat;
+uniform mat4 projMat;
+
+uniform sampler2D heightMap;
+uniform float terrainHeight = 1.f;
+uniform float totalTerrainWidth;
+
+void main() {
+
+    // calculate the interpolated vertex xz-position
+    vec3 p0 = mix(tcPosition[0], tcPosition[1], gl_TessCoord.x);
+    vec3 p1 = mix(tcPosition[3], tcPosition[2], gl_TessCoord.x);
+
+    tePatchDistance = gl_TessCoord;
+    tePosition = mix(p0, p1, gl_TessCoord.y);
+
+    // sample the vertex y-coordinate from the heightmap
+    vec2 totalSize = vec2(totalTerrainWidth, totalTerrainWidth);
+    vec2 uv = (tePosition.xz+totalSize/2.f)/totalSize;
+
+    // get the heightmap texture LOD
+    int lod = cLod[0];
+    eLod = cLod[0];
+    if(gl_TessCoord.x == 0 || gl_TessCoord.x == 1 || gl_TessCoord.y == 0 || gl_TessCoord.y == 1)
+        lod = 0;
+
+    // sample the height
+    height = textureLod(heightMap, uv, lod).r;
+    tePosition.y = height * terrainHeight;
+
+    // calculate the normal from the heightmap
+    vec2 size = textureSize(heightMap, lod);
+    float step = (1.f/size.x + 1.f/size.y)/2.f;
+
+    vec3 hx = vec3((uv.x + step) * totalTerrainWidth, terrainHeight * textureLod(heightMap, uv + vec2(step, 0.f), lod).r, uv.y * totalTerrainWidth);
+    vec3 hz = vec3(uv.x * totalTerrainWidth, terrainHeight * textureLod(heightMap, uv + vec2(0.f, step), lod).r, (uv.y + step)*totalTerrainWidth);
+
+    normal = cross(hz - vec3(uv.x * totalTerrainWidth, terrainHeight * height, uv.y * totalTerrainWidth), hx - vec3(uv.x * totalTerrainWidth, terrainHeight * height, uv.y * totalTerrainWidth));
+    normal = normalize(normal);
+
+    posInWorld = tePosition;
+    posInView = (viewMat * vec4(tePosition, 1)).xyz;
+
+    // apply view and projection matrizes
+    gl_Position = projMat * viewMat * vec4(tePosition, 1);
+}

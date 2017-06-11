@@ -8,8 +8,10 @@ TerrainModel::TerrainModel(RigidBodyTransformation* rigidBodyTransform, SceneIte
 	, m_floatData(nullptr)
 	, m_scalarByteSize(0)
 	, m_maxValue(0)
-	, m_textureName(0)
+	, m_textureName(GL_INVALID_VALUE)
 	, m_materials(nullptr)
+	, m_isWireframeEnabled(false)
+	, m_isReady(false)
 {
 	m_scale = new QPointF(1, 1);
 }
@@ -18,7 +20,6 @@ TerrainModel::~TerrainModel()
 {
 	delete m_scale;
 	delete m_mapSize;
-	delete m_materials;
 }
 
 int TerrainModel::getHeightScale() const
@@ -29,7 +30,10 @@ int TerrainModel::getHeightScale() const
 void TerrainModel::setHeightScale(int height)
 {
 	m_scale->setY(height);
-	emit terrainModelChanged();
+	if (m_isReady)
+	{
+		emit terrainModelChanged();
+	}
 }
 
 int TerrainModel::getWidthScale() const
@@ -40,7 +44,10 @@ int TerrainModel::getWidthScale() const
 void TerrainModel::setWidthScale(int width)
 {
 	m_scale->setX(width);
-	emit terrainModelChanged();
+	if (m_isReady)
+	{
+		emit terrainModelChanged();
+	}
 }
 
 void TerrainModel::setSize(int width, int height)
@@ -53,14 +60,20 @@ void TerrainModel::setSize(int width, int height)
 	m_mapSize->setX(width);
 	m_mapSize->setY(height);
 
-	emit terrainModelChanged();
+	if (m_isReady)
+	{
+		emit terrainModelChanged();
+	}
 }
 
 void TerrainModel::setMaxValue(int maxVal)
 {
 	m_maxValue = maxVal;
 
-	emit terrainModelChanged();
+	if (m_isReady)
+	{
+		emit terrainModelChanged();
+	};
 }
 
 void TerrainModel::setData(QByteArray data)
@@ -74,7 +87,10 @@ void TerrainModel::setData(QByteArray data)
 
 	m_floatData = getHeightValues(data);
 
-	emit terrainModelChanged();
+	if (m_isReady)
+	{
+		emit terrainModelChanged();
+	}
 }
 
 unsigned char* TerrainModel::getData()
@@ -101,7 +117,10 @@ void TerrainModel::setTextureName(int textureName)
 {
 	m_textureName = textureName;
 
-	emit terrainModelChanged();
+	if (m_isReady)
+	{
+		emit terrainModelChanged();
+	}
 }
 
 QPoint* TerrainModel::getMapSize() const
@@ -126,11 +145,34 @@ GLuint TerrainModel::getScalarType()
 	return GL_UNSIGNED_BYTE;
 }
 
-void TerrainModel::setMaterials(QOpenGLTexture* materials)
+void TerrainModel::setMaterials(const QStringList &materialFiles)
 {
-	m_materials = materials;
+	m_materials = materialFiles;
 
-	emit terrainModelChanged();
+	if (m_isReady)
+	{
+		emit terrainModelChanged();
+	}
+}
+
+QStringList* TerrainModel::getMaterials()
+{
+	return &m_materials;
+}
+
+bool TerrainModel::isWireframeEnabled() const
+{
+	return m_isWireframeEnabled;
+}
+
+bool TerrainModel::isReady() const
+{
+	return m_isReady;
+}
+
+void TerrainModel::setReady(bool flag)
+{
+	m_isReady = flag;
 }
 
 void TerrainModel::fixByteOrder()

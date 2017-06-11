@@ -10,7 +10,7 @@ TerrainModel* TerrainModelFactory::createFromFile(const QString& heightMapFile, 
 {
 	auto model = new TerrainModel;
 	fillTerrainModel(heightMapFile, textureFiles, *model);
-
+	model->setReady(true);
 	return model;
 }
 
@@ -111,16 +111,6 @@ void TerrainModelFactory::generateHeightMapTexture(TerrainModel& model, QOpenGLF
 
 void TerrainModelFactory::createMaterialTextures(const QStringList& textureFiles, TerrainModel& model)
 {
-	QOpenGLTexture *materialTextures[4];
-	for (int i = 0; i < 4; i++)
-	{
-		if (i < textureFiles.size())
-		{
-			break;
-		}
-		materialTextures[i] = new QOpenGLTexture(QImage(textureFiles[i])); //todo insert warning code
-	}
-
 	//if (materialTextures[textureStage] != 0) //todo maybe use explicit texture options
 	//{
 	//	glBindTexture(GL_TEXTURE_2D, m_GLTextures[textureStage]);
@@ -132,7 +122,8 @@ void TerrainModelFactory::createMaterialTextures(const QStringList& textureFiles
 	//	glBindTexture(GL_TEXTURE_2D, 0);
 	//}
 
-	model.setMaterials(*materialTextures);
+
+	model.setMaterials(textureFiles);
 
 
 }

@@ -54,7 +54,6 @@ private:
 	void initializeHighlightShaderProgram();
 	void initializeEntryExitShaderProgram();
 	void initializeVolumeShaderProgram();
-	void initializeTerrainShaderProgram();
 	void paintWithSceneShaderProgram(QList<SceneItem*> *items);
 	void paintWithHighlightShaderProgram();
 	void paintWithVolumeShaderProgram(QList<SceneItem*> *items);
@@ -80,8 +79,6 @@ private:
 	const QString m_volume_fshFile = "./Resources/shaders/volume.fsh";
 	const QString m_entryExit_vshFile = "./Resources/shaders/entryExit.vsh";
 	const QString m_entryExit_fshFile = "./Resources/shaders/entryExit.fsh";
-	const QString m_terrain_vshFile = "./Resources/shaders/terrain.vsh";
-	const QString m_terrain_fshFile = "./Resources/shaders/terrain.fsh";
 
 	bool m_isSelected;
 	int m_displaymode;
@@ -90,7 +87,6 @@ private:
 	QOpenGLShaderProgram *m_highlightProgram;
 	QOpenGLShaderProgram *m_entryExitProgram;
 	QOpenGLShaderProgram *m_volumeShaderProgram;
-	QOpenGLShaderProgram* m_terrainProgram;
 	QOpenGLFramebufferObject *m_fbo;
 	QOpenGLFramebufferObject *m_entryExitFbo;
 

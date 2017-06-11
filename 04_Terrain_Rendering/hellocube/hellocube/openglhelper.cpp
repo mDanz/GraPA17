@@ -20,7 +20,7 @@ QString OpenGLHelper::Error()
 	return message;
 }
 
-QOpenGLShaderProgram* OpenGLHelper::createShaderProgam(QString vshFile, QString fshFile)
+QOpenGLShaderProgram* OpenGLHelper::createShaderProgram(QString vshFile, QString fshFile)
 {
 	auto program = new QOpenGLShaderProgram;
 
@@ -28,6 +28,23 @@ QOpenGLShaderProgram* OpenGLHelper::createShaderProgam(QString vshFile, QString 
 	addNewShader(fshFile, QOpenGLShader::Fragment, *program);
 
 	if (!program->link()) 
+	{
+		qCritical() << "Linking program failed:" << program->log() << "\n";
+	}
+
+	return program;
+}
+
+QOpenGLShaderProgram* OpenGLHelper::createShaderProgram(QString vshFile, QString tcsFile, QString tesFile, QString fshFile)
+{
+	auto program = new QOpenGLShaderProgram;
+
+	addNewShader(vshFile, QOpenGLShader::Vertex, *program);
+	addNewShader(tcsFile, QOpenGLShader::TessellationControl, *program);
+	addNewShader(tesFile, QOpenGLShader::TessellationEvaluation, *program);
+	addNewShader(fshFile, QOpenGLShader::Fragment, *program);
+
+	if (!program->link())
 	{
 		qCritical() << "Linking program failed:" << program->log() << "\n";
 	}

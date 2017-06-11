@@ -1,0 +1,54 @@
+#version 440
+layout(vertices = 4) out;
+
+#define FALLOF 1500.f
+#define MAX_TESS_POW 6  // => max. tesselation level 2^MAX_TESS_POW
+
+in vec3 vPosition[];
+
+uniform vec3 c_camPos;
+
+out vec3 tcPosition[];
+out flat int cLod[];
+
+int getExp(float dist) {
+    return int(ceil(MAX_TESS_POW * exp(-dist / FALLOF)));
+}
+
+int getTesselation(float dist) {
+    return int(pow(2,getExp(dist)));
+}
+
+void main() {
+    tcPosition[gl_InvocationID] = vPosition[gl_InvocationID];
+
+    if(gl_InvocationID == 0) {
+
+        // calculate the camera distance and the resulating tesselation level
+        float dist = length(c_camPos.xz - vPosition[gl_InvocationID].xz);
+        int tessLevel = getTesselation(dist);
+
+        // calculate the mip map level for the heightmap sampling
+        cLod[gl_InvocationID] = MAX_TESS_POW - getExp(dist);
+
+        // the inner tesselation levels are constant
+        gl_TessLevelInner[0] = tessLevel;
+        gl_TessLevelInner[1] = tessLevel;
+
+        // get the tesselation levels from the neighbors for seamless
+        // outer tesselation levels
+        float w = (tcPosition[1].x - vPosition[0].x);
+
+        dist = length(c_camPos.xz - vPosition[0].xz + vec2(w,0));
+        gl_TessLevelOuter[0] = max(tessLevel, getTesselation(dist));
+
+        dist = length(c_camPos.xz - vPosition[0].xz - vec2(0,-w));
+        gl_TessLevelOuter[1] = max(tessLevel, getTesselation(dist));
+
+        dist = length(c_camPos.xz - vPosition[0].xz + vec2(-w,0));
+        gl_TessLevelOuter[2] = max(tessLevel, getTesselation(dist));
+
+        dist = length(c_camPos.xz - vPosition[0].xz - vec2(0,w));
+        gl_TessLevelOuter[3] = max(tessLevel, getTesselation(dist));
+    }
+}

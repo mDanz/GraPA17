@@ -25,7 +25,11 @@ public:
 	void setTextureName(int textureName);
 	QPoint* getMapSize() const;
 	GLuint getScalarType();
-	void setMaterials(QOpenGLTexture* materials);
+	void setMaterials(const QStringList &materialFiles);
+	QStringList *getMaterials();
+	bool isWireframeEnabled() const;
+	bool isReady() const;
+	void setReady(bool flag);
 
 signals:
 	void terrainModelChanged();
@@ -42,6 +46,8 @@ private:
 	int m_scalarByteSize;
 	int m_maxValue;
 	GLuint m_textureName;
-	QOpenGLTexture* m_materials;
+	QStringList m_materials;
+	bool m_isWireframeEnabled;
+	bool m_isReady;
 };
 

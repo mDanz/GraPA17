@@ -8,7 +8,8 @@ class OpenGLHelper
 public:
 	static QOpenGLFunctions_4_4_Compatibility* getGLFunc();
 	static QString Error();
-	static QOpenGLShaderProgram* createShaderProgam(QString vshPath, QString fshPath);
+	static QOpenGLShaderProgram* createShaderProgram(QString vshPath, QString fshPath);
+	static QOpenGLShaderProgram* createShaderProgram(QString vshPath, QString tcsPath, QString tesPath, QString fshPath);
 	static void initializeGLFunc(QOpenGLContext *context);
 
 private:
