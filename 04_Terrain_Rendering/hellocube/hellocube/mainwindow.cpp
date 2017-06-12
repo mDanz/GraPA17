@@ -188,6 +188,7 @@ void MainWindow::initializeActionConnections() const
 	connect(m_scene, SIGNAL(sceneChanged()), m_viewPortWidget, SLOT(update()));
 	connect(m_scene, SIGNAL(itemSelected(QString)), this, SLOT(updateStatusBar(QString)));
 	connect(m_scene, SIGNAL(volumeSelected(VolumeModel*)), m_transferFunctionEditor, SLOT(updateVolume(VolumeModel*)));
+	connect(m_scene, SIGNAL(terrainSelected(TerrainModel*)), m_terrainEditor, SLOT(updateTerrain(TerrainModel*)));
 
 	connect(m_outlinerTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), m_sceneController, SLOT(selectedItemChanged(QModelIndex, QModelIndex)));
 }

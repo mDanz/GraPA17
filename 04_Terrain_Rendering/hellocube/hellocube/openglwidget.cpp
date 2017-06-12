@@ -75,6 +75,7 @@ OpenGLWidget::OpenGLWidget(QWidget* parent)
 	, m_scene(nullptr)
 	, m_primitiveFactory(nullptr)
 {
+	setFocusPolicy(Qt::StrongFocus);
 }
 
 OpenGLWidget::~OpenGLWidget()
@@ -309,6 +310,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent* event)
 void OpenGLWidget::keyPressEvent(QKeyEvent* event)
 {
 	SceneController::getController()->keyPressed(event->key());
+	update();
 }
 
 void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
@@ -427,7 +429,7 @@ void OpenGLWidget::paintWithVolumeShaderProgram(QList<SceneItem*> *items)
 	}	
 }
 
-void OpenGLWidget::paintWithTerrainShaderProgram(QList<SceneItem*>* items)
+void OpenGLWidget::paintWithTerrainShaderProgram(QList<SceneItem*>* items) const
 {
 	m_fbo->bind();
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };

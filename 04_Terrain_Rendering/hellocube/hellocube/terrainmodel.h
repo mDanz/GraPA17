@@ -28,6 +28,7 @@ public:
 	void setMaterials(const QStringList &materialFiles);
 	QStringList *getMaterials();
 	bool isWireframeEnabled() const;
+	void updateWireframEnabled(bool isEnabled);
 	bool isReady() const;
 	void setReady(bool flag);
 

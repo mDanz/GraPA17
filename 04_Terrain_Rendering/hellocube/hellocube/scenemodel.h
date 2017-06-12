@@ -4,6 +4,7 @@
 #include "volumemodel.h"
 
 
+class TerrainModel;
 class RigidBodyTransformation;
 class SceneItem;
 
@@ -43,6 +44,7 @@ public slots:
 
 signals:
 	void volumeSelected(VolumeModel* volume);
+	void terrainSelected(TerrainModel* terrain);
 
 private:
 	SceneItem *m_root;

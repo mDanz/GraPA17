@@ -8,9 +8,9 @@
 
 OpenGLTerrain::OpenGLTerrain()
 {
-	initializeOpenGLFunctions();
 	initializeShaderProgram();
-	initCubeGeometry();
+	initializeOpenGLFunctions();
+	initGeometry();
 }
 
 OpenGLTerrain::~OpenGLTerrain()
@@ -48,9 +48,9 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	m_terrainProgram->setUniformValue("c_camPos", *camera.getPointOfInterest());// + QVector3D(-GRID_GLOBAL_SCALING/2,0,-GRID_GLOBAL_SCALING/2));
 
 																	  // set the terrain parameter uniforms
-	m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getHeightScale() * m_terrainScaling);
+	m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale() * m_terrainScaling);
 	m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(m_terrainScaling));
-	m_terrainProgram->setUniformValue("terrainHeight", terrain.getWidthScale());
+	m_terrainProgram->setUniformValue("terrainHeight", terrain.getHeightScale());
 
 	m_terrainProgram->setUniformValue("heightMap", 0);
 	m_terrainProgram->setUniformValue("fracture[0]", 1);
@@ -95,6 +95,16 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 		glFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
+	// update the camera height todo refactor this
+	float totalWidth = terrain.getWidthScale() * m_terrainScaling;
+	auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getMapSize()->x(),
+		(camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getMapSize()->y());
+
+	float height = 2.f + terrain.getHeightScale() * terrain.getHeightValue(camHmPos) / 255.f;
+	if (camera.getPosition()->y() < height)
+		camera.setHeight(height);
+
+
 	glFlush();
 	//glDrawArrays(GL_PATCHES, 0, m_vertexBuf.size());
 
@@ -121,10 +131,9 @@ void OpenGLTerrain::initializeShaderProgram()
 	}
 }
 
-void OpenGLTerrain::initCubeGeometry()
+void OpenGLTerrain::initGeometry()
 {
 	QVector<float> vertices;
-	// set up the vertices
 	for (int z = 0; z <= m_gridSize; z++) 
 	{
 		for (int x = 0; x <= m_gridSize; x++) 
@@ -152,6 +161,7 @@ void OpenGLTerrain::initCubeGeometry()
 			indices.append(lo);
 		}
 	}
+
 
 	m_vertexBuf.create();
 	m_indexBuf.create();

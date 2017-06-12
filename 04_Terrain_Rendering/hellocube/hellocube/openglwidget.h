@@ -47,7 +47,7 @@ protected:
 	void mouseMoveEvent(QMouseEvent *event) override;
 	void wheelEvent(QWheelEvent *event) override;
 	void keyPressEvent(QKeyEvent *event) override;
-
+	
 private:
 	void initializeFrameBufferObjects(int width, int height);
 	void initializeSceneShaderProgram();
@@ -57,7 +57,7 @@ private:
 	void paintWithSceneShaderProgram(QList<SceneItem*> *items);
 	void paintWithHighlightShaderProgram();
 	void paintWithVolumeShaderProgram(QList<SceneItem*> *items);
-	void paintWithTerrainShaderProgram(QList<SceneItem*>* items);
+	void paintWithTerrainShaderProgram(QList<SceneItem*>* items) const;
 	void renderEntryPoints();
 	void renderEntryExitPoints(VolumeModel* volume);
 	void renderExitPoints(VolumeModel* volume);

@@ -266,22 +266,23 @@ void SceneController::AddTerrain(RigidBodyTransformation* rigidBodyTransform, Sc
 void SceneController::manipulateCamera(QPointF screenPos, QVector3D* delta, QMouseEvent* event) const
 {
 	auto currentCamera = m_viewPortWidget->getCurrentCamera();
-
-	if (event->buttons() & Qt::LeftButton && !currentCamera->isOrthographic())
-	{
-		m_trackBall->reset();
-		m_trackBall->move(screenPos, m_trackBall->getRotation().conjugate());
-		currentCamera->rotate(m_trackBall->getRotation());
-	}
-	else if (event->buttons() & Qt::RightButton)
-	{
-		m_trackBall->release(screenPos, m_trackBall->getRotation().conjugate());
-		currentCamera->moveTo(delta);
-	}
-	else
-	{
-		m_trackBall->release(screenPos, m_trackBall->getRotation().conjugate());
-	}
+	//todo disabled because not needed.
+	//if (event->buttons() & Qt::LeftButton && !currentCamera->isOrthographic())
+	//{
+	//	m_trackBall->reset();
+	//	m_trackBall->move(screenPos, m_trackBall->getRotation().conjugate());
+	//	//currentCamera->rotate(m_trackBall->getRotation());
+	//	//currentCamera->rotateAroundEye(m_trackBall->getRotation());
+	//}
+	//else if (event->buttons() & Qt::RightButton) 
+	//{
+	//	m_trackBall->release(screenPos, m_trackBall->getRotation().conjugate());
+	//	currentCamera->moveTo(delta);
+	//}
+	//else
+	//{
+	//	m_trackBall->release(screenPos, m_trackBall->getRotation().conjugate());
+	//}
 }
 
 void SceneController::manipulateSelectedItem(QPointF screenPos, QVector3D* delta, QMouseEvent* event) const

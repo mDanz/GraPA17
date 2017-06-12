@@ -1,6 +1,7 @@
 
 #include "scenemodel.h"
 #include "sceneitem.h"
+#include "openglterrain.h"
 
 SceneModel::SceneModel()
 	: m_selectedItem(nullptr)
@@ -52,13 +53,24 @@ void SceneModel::addItem(SceneItem *item, SceneItem *parent)
 void SceneModel::selectItem(SceneItem* item)
 {
 	m_selectedItem = item;
+	emit itemSelected(!m_selectedItem ? QString("<none>") : m_selectedItem->getName());
 
-	if (m_selectedItem && m_selectedItem->getPrimitiveType() == Volume)
+	if (m_selectedItem)
 	{
-		emit volumeSelected(reinterpret_cast<VolumeModel*>(item));
+		if (m_selectedItem->getPrimitiveType() == Volume)
+		{
+			emit volumeSelected(reinterpret_cast<VolumeModel*>(item));
+		}
+		if (m_selectedItem->getPrimitiveType() == Terrain)
+		{
+			emit terrainSelected(reinterpret_cast<TerrainModel*>(item));
+		}
 	}
 
-	emit itemSelected(!m_selectedItem ? QString("<none>") : m_selectedItem->getName());
+
+
+
+	
 }
 
 SceneItem* SceneModel::getItem(int id) const

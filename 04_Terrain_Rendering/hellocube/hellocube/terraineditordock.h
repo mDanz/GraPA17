@@ -1,6 +1,7 @@
 #pragma once
 #include <QDockWidget>
 #include "terrainmodel.h"
+#include <QCheckBox>
 
 
 class QSlider;
@@ -18,6 +19,7 @@ public slots:
 
 private:
 	void initializeSliders();
+	void initializeCheckBoxes();
 	QSlider* createSlider();
 
 	QLayout *m_layout;
@@ -25,10 +27,13 @@ private:
 	QSlider *m_heightSlider;
 	QSlider *m_widthSlider;
 
+	QCheckBox *m_wireframeEnabledBox;
+
 	TerrainModel *m_terrain;
 
 private slots:
 	void setTerrainHeight(int height) const;
 	void setTerrainWidth(int width) const;
+	void updateWireframeMode() const;
 
 };

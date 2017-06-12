@@ -1,6 +1,7 @@
 #pragma once
 #include "openglgeometry.h"
 #include <QOpenGLBuffer>
+#include <QOpenGLVertexArrayObject>
 
 
 class TerrainModel;
@@ -17,8 +18,7 @@ public:
 
 private:
 	void initializeShaderProgram();
-
-	void initCubeGeometry();
+	void initGeometry();
 
 
 	const QString m_terrain_vshFile = "./Resources/shaders/terrain.vsh";

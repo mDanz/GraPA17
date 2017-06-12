@@ -165,6 +165,16 @@ bool TerrainModel::isWireframeEnabled() const
 	return m_isWireframeEnabled;
 }
 
+void TerrainModel::updateWireframEnabled(bool isEnabled)
+{
+	m_isWireframeEnabled = isEnabled;
+
+	if (m_isReady)
+	{
+		emit terrainModelChanged();
+	}
+}
+
 bool TerrainModel::isReady() const
 {
 	return m_isReady;

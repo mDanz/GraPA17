@@ -93,13 +93,20 @@ void CameraModel::moveTo(const QVector3D* translation) const
 
 void CameraModel::move(const QVector3D* translation) const
 {
-	m_center->setX(m_center->x() + translation->x() * m_damping);
-	m_center->setY(m_center->y() + translation->y() * m_damping);
-	m_center->setZ(m_center->z() + translation->z() * m_damping);
-	m_position->setX(m_position->x() + translation->x() * m_damping);
-	m_position->setY(m_position->y() + translation->y() * m_damping);
-	m_position->setZ(m_position->z() + translation->z() * m_damping);
+	auto damping = m_damping * 30;
+	m_center->setX(m_center->x() + translation->x() * damping);
+	m_center->setY(m_center->y() + translation->y() * damping);
+	m_center->setZ(m_center->z() + translation->z() * damping);
+	m_position->setX(m_position->x() + translation->x() * damping);
+	m_position->setY(m_position->y() + translation->y() * damping);
+	m_position->setZ(m_position->z() + translation->z() * damping);
 
+}
+
+void CameraModel::setHeight(float height) const
+{
+	m_center->setY(height);
+	m_position->setY(height);
 }
 
 void CameraModel::rotate(const QQuaternion& rotation)
@@ -109,9 +116,23 @@ void CameraModel::rotate(const QQuaternion& rotation)
 	m_rotation *= rotation;
 }
 
+void CameraModel::rotateAroundEye(QQuaternion& rotation)
+{
+	m_rotation *= rotation;
+	auto rotatedCenter = m_rotation.rotatedVector(*m_center);
+	m_center->setX(rotatedCenter.x());
+	m_center->setY(rotatedCenter.y());
+	m_center->setZ(rotatedCenter.z());
+}
+
 QVector3D* CameraModel::getPointOfInterest() const
 {
 	return m_center;
+}
+
+QVector3D* CameraModel::getPosition() const
+{
+	return m_position;
 }
 
 void CameraModel::reset()

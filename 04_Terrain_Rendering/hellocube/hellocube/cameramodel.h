@@ -16,8 +16,11 @@ public:
 	void zoom(int m_wheel_delta) const;
 	void moveTo(const QVector3D *translation) const;
 	void move(const QVector3D *translation) const;
+	void setHeight(float height) const;
 	void rotate(const QQuaternion& rotation);
+	void rotateAroundEye(QQuaternion& rotation);
 	QVector3D* getPointOfInterest() const;
+	QVector3D* getPosition() const;
 	void reset();
 private:
 	void updateOrthoProjection() const;

@@ -3,11 +3,14 @@
 #include <QVBoxLayout>
 #include <qslider.h>
 
-TerrainEditorDock::TerrainEditorDock(QString title, QWidget* parent) : QDockWidget(title, parent)
+TerrainEditorDock::TerrainEditorDock(QString title, QWidget* parent) 
+	: QDockWidget(title, parent)
+	, m_terrain(nullptr)
 {
 	m_layout = new QGridLayout(this);
 
 	initializeSliders();
+	initializeCheckBoxes();
 
 	auto widget = new QWidget(this);
 	widget->setLayout(m_layout);
@@ -38,6 +41,14 @@ void TerrainEditorDock::initializeSliders()
 	connect(m_widthSlider, SIGNAL(valueChanged(int)), this, SLOT(setTerrainWidth(int)));
 }
 
+void TerrainEditorDock::initializeCheckBoxes()
+{
+	m_wireframeEnabledBox = new QCheckBox("Wireframe", this);
+	m_layout->addWidget(m_wireframeEnabledBox);
+	connect(m_wireframeEnabledBox, SIGNAL(clicked(bool)), this, SLOT(updateWireframeMode()));
+
+}
+
 QSlider* TerrainEditorDock::createSlider()
 {
 	auto slider = new QSlider(Qt::Horizontal, this);
@@ -65,4 +76,13 @@ void TerrainEditorDock::setTerrainWidth(int width) const
 		return;
 	}
 	m_terrain->setWidthScale(width);
+}
+
+void TerrainEditorDock::updateWireframeMode() const
+{
+	if (!m_terrain)
+	{
+		return;
+	}
+	m_terrain->updateWireframEnabled(m_wireframeEnabledBox->isChecked());
 }
