@@ -18,7 +18,7 @@ public:
 	void setSize(int width, int height);
 	void setMaxValue(int maxVal);
 	void setData(QByteArray data);
-	unsigned char* getData();
+	unsigned short* getData() const;
 	float getHeightValue(QPoint &pos) const;
 	int getDataSize() const;
 	int getHeighMapTextureName() const;
@@ -50,5 +50,6 @@ private:
 	QVector<GLuint> *m_materials;
 	bool m_isWireframeEnabled;
 	bool m_isReady;
+	unsigned short* m_realData;
 };
 

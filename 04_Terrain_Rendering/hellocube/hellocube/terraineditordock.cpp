@@ -52,7 +52,7 @@ void TerrainEditorDock::initializeCheckBoxes()
 QSlider* TerrainEditorDock::createSlider()
 {
 	auto slider = new QSlider(Qt::Horizontal, this);
-	slider->setRange(1, 100);
+	slider->setRange(1, 500);
 	slider->setSingleStep(1);
 	slider->setTickPosition(QSlider::TicksRight);
 	slider->setValue(1);

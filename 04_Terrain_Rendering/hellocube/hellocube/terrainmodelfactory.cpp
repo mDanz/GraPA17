@@ -11,6 +11,9 @@ TerrainModel* TerrainModelFactory::createFromFile(const QString& heightMapFile, 
 	auto model = new TerrainModel;
 	fillTerrainModel(heightMapFile, textureFiles, *model);
 	model->setReady(true);
+
+	qInfo() << "New Terrain created.";
+
 	return model;
 }
 
@@ -87,7 +90,6 @@ void TerrainModelFactory::createHeightMapTexture(TerrainModel& model)
 	glFunc->glGenerateMipmap(GL_TEXTURE_2D);
 	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 }
 
 void TerrainModelFactory::generateHeightMapTexture(TerrainModel& model, QOpenGLFunctions_4_4_Compatibility* glFunc)

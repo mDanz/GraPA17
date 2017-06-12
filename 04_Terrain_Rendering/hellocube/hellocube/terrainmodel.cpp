@@ -13,7 +13,7 @@ TerrainModel::TerrainModel(RigidBodyTransformation* rigidBodyTransform, SceneIte
 	, m_isWireframeEnabled(false)
 	, m_isReady(false)
 {
-	m_scale = new QPointF(1, 1);
+	m_scale = new QPointF(30, 100);
 }
 
 TerrainModel::~TerrainModel()
@@ -81,12 +81,13 @@ void TerrainModel::setData(QByteArray data)
 {
 	m_data = data;
 
-	if (getScalarType() != GL_UNSIGNED_BYTE)
+	//if (getScalarType() != GL_UNSIGNED_BYTE)
 	{
+		getScalarType();
 		fixByteOrder();
 	}
 
-	m_floatData = getHeightValues(data);
+	//m_floatData = getHeightValues(data);
 
 	if (m_isReady)
 	{
@@ -94,19 +95,19 @@ void TerrainModel::setData(QByteArray data)
 	}
 }
 
-unsigned char* TerrainModel::getData()
+unsigned short* TerrainModel::getData() const
 {
-	return reinterpret_cast<unsigned char*>(m_data.data());
+	return m_realData;
 }
 
 float TerrainModel::getHeightValue(QPoint& pos) const
 {
-	return m_floatData[pos.x()*m_mapSize->x() + pos.y()];
+	return m_realData[pos.x()*m_mapSize->x() + pos.y()];
 }
 
 int TerrainModel::getDataSize() const
 {
-	return m_data.count();
+	return m_data.size();
 }
 
 int TerrainModel::getHeighMapTextureName() const
@@ -192,10 +193,15 @@ void TerrainModel::setReady(bool flag)
 
 void TerrainModel::fixByteOrder()
 {
-	char tmp;
+	char tmp; //todo refactor
 	int left;
 	int right;
-	for (int i = 0; i < getDataSize(); i += m_scalarByteSize)
+	m_realData = new ushort[m_data.size() / 2];
+	auto data = reinterpret_cast<uchar*>(m_data.data());
+	int v;
+	int maxV = 0;
+	int domain = pow(256, m_scalarByteSize);
+	for (int i = 0; i < m_data.size(); i += m_scalarByteSize)
 	{
 		for (int n = 0; n < (m_scalarByteSize + 1) / 2; n++)
 		{
@@ -205,6 +211,25 @@ void TerrainModel::fixByteOrder()
 			m_data[left] = m_data[right];
 			m_data[right] = tmp;
 		}
+
+		v = 0;
+		for (int b = m_scalarByteSize - 1; b >= 0; b--) 
+		{
+			v = (v << 8) | static_cast<int>(data[i + b]);
+		}
+
+		m_realData[i / 2] = v;
+
+		if (v > maxV) 
+		{
+			maxV = v;
+		}
+	}
+
+	auto scaling = static_cast<float>(domain) / static_cast<float>(maxV);
+	for (int i = 0; i < m_data.size() / 2; i++) 
+	{
+		m_realData[i] *= scaling;
 	}
 }
 
