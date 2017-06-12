@@ -19,4 +19,5 @@ private:
 	static void createHeightMapTexture(TerrainModel& model);
 	static void generateHeightMapTexture(TerrainModel& model, QOpenGLFunctions_4_4_Compatibility* glFunc);
 	static void createMaterialTextures(const QStringList& textureFiles, TerrainModel& model);
+	static GLuint createMaterial(const QString& path);
 };

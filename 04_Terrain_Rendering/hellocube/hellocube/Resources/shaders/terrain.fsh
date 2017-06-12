@@ -67,6 +67,8 @@ layout(location=0) out vec4 colorBuffer;
 layout(location=1) out vec4 idBuffer;
 
 
+uniform vec3 idColor;
+
 // returns color.rgb + the specular parameter as the alpha value
 vec4 material(vec2 uv, float height, float slope) {
     float totalAmount = 0.f;
@@ -164,7 +166,7 @@ void main(void)
 
 
     // apply lighting
-    colorBuffer = vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
+    colorBuffer = vec4(1.f, 0.f, 0.f, 1.f);//vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
 
-    idBuffer = vec4(0.f);
+    idBuffer = vec4(1.f, 0.f, 0.f, 1.0f);//vec4(0.f);
 }

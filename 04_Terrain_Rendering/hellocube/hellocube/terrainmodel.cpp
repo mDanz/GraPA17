@@ -20,6 +20,7 @@ TerrainModel::~TerrainModel()
 {
 	delete m_scale;
 	delete m_mapSize;
+	delete m_materials;
 }
 
 int TerrainModel::getHeightScale() const
@@ -145,7 +146,7 @@ GLuint TerrainModel::getScalarType()
 	return GL_UNSIGNED_BYTE;
 }
 
-void TerrainModel::setMaterials(const QStringList &materialFiles)
+void TerrainModel::setMaterials(QVector<GLuint> *materialFiles)
 {
 	m_materials = materialFiles;
 
@@ -155,9 +156,13 @@ void TerrainModel::setMaterials(const QStringList &materialFiles)
 	}
 }
 
-QStringList* TerrainModel::getMaterials()
+QVector<GLuint>* TerrainModel::getMaterials()
 {
-	return &m_materials;
+	if (!m_materials)
+	{
+		m_materials = new QVector<GLuint>;
+	}
+	return m_materials;
 }
 
 bool TerrainModel::isWireframeEnabled() const

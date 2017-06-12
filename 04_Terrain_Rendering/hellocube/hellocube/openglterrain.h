@@ -30,8 +30,9 @@ private:
 	const float m_terrainScaling = 128.f;
 
 	QOpenGLShaderProgram* m_terrainProgram;
-	QOpenGLBuffer m_vertexBuf;
-	QOpenGLBuffer m_indexBuf;
+	GLuint m_vertexBuf;
+	GLuint m_indexBuf;
+	GLuint m_vao;
 
 };
 

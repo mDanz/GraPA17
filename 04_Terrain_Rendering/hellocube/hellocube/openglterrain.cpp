@@ -5,6 +5,7 @@
 #include "terrainmodel.h"
 #include "cameramodel.h"
 #include <QOpenGLTexture>
+#include <set>
 
 OpenGLTerrain::OpenGLTerrain()
 {
@@ -16,8 +17,8 @@ OpenGLTerrain::OpenGLTerrain()
 OpenGLTerrain::~OpenGLTerrain()
 {
 	delete m_terrainProgram;
-	m_vertexBuf.destroy();
-	m_indexBuf.destroy();
+	/*m_vertexBuf.destroy();
+	m_indexBuf.destroy();*/
 }
 
 void OpenGLTerrain::draw(QOpenGLShaderProgram* program)
@@ -36,28 +37,31 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	auto glFunc = OpenGLHelper::getGLFunc();
 	m_terrainProgram->bind();
 
+	glFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	if (terrain.isWireframeEnabled())
 	{
 		glFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
+	m_terrainProgram->setUniformValue("idColor", terrain.getId()->getIdAsColor());
+
 	// set the camera uniforms
 	m_terrainProgram->setUniformValue("viewMat", *camera.getCameraMatrix());
 	m_terrainProgram->setUniformValue("projMat", *camera.getProjectionMatrix());
-	m_terrainProgram->setUniformValue("cameraPos", *camera.getPointOfInterest());
-	m_terrainProgram->setUniformValue("c_camPos", *camera.getPointOfInterest());// + QVector3D(-GRID_GLOBAL_SCALING/2,0,-GRID_GLOBAL_SCALING/2));
+	m_terrainProgram->setUniformValue("cameraPos", *camera.getPosition());
+	m_terrainProgram->setUniformValue("c_camPos", *camera.getPosition());// + QVector3D(-GRID_GLOBAL_SCALING/2,0,-GRID_GLOBAL_SCALING/2));
 
 																	  // set the terrain parameter uniforms
 	m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale() * m_terrainScaling);
 	m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(m_terrainScaling));
 	m_terrainProgram->setUniformValue("terrainHeight", terrain.getHeightScale());
 
-	m_terrainProgram->setUniformValue("heightMap", 0);
+	/*m_terrainProgram->setUniformValue("heightMap", 0);
 	m_terrainProgram->setUniformValue("fracture[0]", 1);
 	m_terrainProgram->setUniformValue("fracture[1]", 2);
 	m_terrainProgram->setUniformValue("fracture[2]", 3);
 	m_terrainProgram->setUniformValue("fracture[3]", 4);
-
+*/
 	m_terrainProgram->setUniformValue("testSampler", 2);
 
 
@@ -72,21 +76,20 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	
 	// bind the facture textures
 	auto materials = terrain.getMaterials();
-	QVector<QOpenGLTexture*> materialTextures;
 	for (int i = 0; i < materials->size(); i++)
 	{
-		materialTextures.append(new QOpenGLTexture(QImage(materials->at(i)))); //todo insert warning code
 		glFunc->glActiveTexture(GL_TEXTURE1 + i);
-		materialTextures.at(i)->bind();
+		glFunc->glBindTexture(GL_TEXTURE_2D, materials->at(i));
 	}
 
-	m_vertexBuf.bind();
+	/*m_vertexBuf.bind();
 	int vertexLocation = m_terrainProgram->attributeLocation("in_position");
 	m_terrainProgram->enableAttributeArray(vertexLocation);
 	m_terrainProgram->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
-
-	m_indexBuf.bind();
-	glDrawElements(GL_PATCHES, m_indexBuf.size(), GL_UNSIGNED_SHORT, static_cast<GLvoid*>(nullptr));
+*/
+	//m_indexBuf.bind();
+	glFunc->glBindVertexArray(m_vao);
+	glDrawElements(GL_PATCHES, m_gridSize * m_gridSize * 4, GL_UNSIGNED_SHORT, static_cast<GLvoid*>(nullptr));
 
 	m_terrainProgram->release();
 
@@ -123,8 +126,13 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 void OpenGLTerrain::initializeShaderProgram()
 {
 	m_terrainProgram = OpenGLHelper::createShaderProgram(m_terrain_vshFile, m_terrain_tcsFile, m_terrain_tesFile, m_terrain_fshFile);
-	m_terrainProgram->bindAttributeLocation("in_position", 0);
-	m_terrainProgram->bindAttributeLocation("in_normal", 1);
+
+	m_terrainProgram->setUniformValue("heightMap", 0);
+	m_terrainProgram->setUniformValue("fracture[0]", 1);
+	m_terrainProgram->setUniformValue("fracture[1]", 2);
+	m_terrainProgram->setUniformValue("fracture[2]", 3);
+	m_terrainProgram->setUniformValue("fracture[3]", 4);
+
 	if (!m_terrainProgram->link())
 	{
 		qWarning() << "Linking Error" << m_terrainProgram->log();
@@ -163,76 +171,35 @@ void OpenGLTerrain::initGeometry()
 	}
 
 
-	m_vertexBuf.create();
-	m_indexBuf.create();
-
-	m_vertexBuf.bind();
-	m_vertexBuf.allocate(vertices.data(), vertices.size() * sizeof(float));
-	m_vertexBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
-
-	m_indexBuf.bind();
-	m_indexBuf.allocate(indices.data(), indices.size() * sizeof(ushort));
-	m_indexBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
-
-	OpenGLHelper::getGLFunc()->glPatchParameteri(GL_PATCH_VERTICES, 4);
-
-	// set up the vao, vbo and ibo
-	//
-	//glf->glGenBuffers(1, &gridVbo);
-	//glf->glGenBuffers(1, &gridIbo);
-	//glf->glGenVertexArrays(1, &gridVao);
-	//glf->glBindVertexArray(gridVao);
-
-	//glf->glBindBuffer(GL_ARRAY_BUFFER, gridVbo);
-	//glf->glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-	//glf->glEnableVertexAttribArray(0);
-	//glf->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // vertex
-
-	//glf->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gridIbo);
-	//glf->glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(ushort), indices.data(), GL_STATIC_DRAW);
-
-	//glf->glBindVertexArray(0);
-
-	// set up the tesselation parameters
-	//glf->glPatchParameteri(GL_PATCH_VERTICES, 4);
-
-
-
-
-
 	//m_vertexBuf.create();
 	//m_indexBuf.create();
-
-	//auto vertices = new QVector3D[4];
-	//vertices[0] = QVector3D(0, 0, 0);
-	//vertices[1] = QVector3D(0, 0, 1);
-	//vertices[2] = QVector3D(1, 0, 1);
-	//vertices[3] = QVector3D(1, 0, 0);
-
-	//auto indices = new GLushort[5];
-	//indices[0] = 0;
-	//indices[1] = 1;
-	//indices[2] = 2;
-	//indices[3] = 3;
-
-	////auto indices = new GLushort[m_gridSize * m_gridSize * 4];
-	///*for (int i = 0; i < m_gridSize; i++)
-	//{
-	//	for (int j = 0; j < m_gridSize*4; j+=4) 
-	//	{
-	//		int k = j / 4;
-	//		indices[i * m_gridSize + j] = i * m_gridSize + k;
-	//		indices[i * m_gridSize + j + 1] = i * m_gridSize + k + 1;
-	//		indices[i * m_gridSize + j + 2] = (i + 1) * m_gridSize + k + 1;
-	//		indices[i * m_gridSize + j + 3] = (i + 1) * m_gridSize + k;
-	//	}
-	//}*/
-
-
+	//
 	//m_vertexBuf.bind();
-	//m_vertexBuf.allocate(vertices, 4 * sizeof(QVector3D));
-
+	//m_vertexBuf.allocate(vertices.data(), vertices.size() * sizeof(float));
+	//m_vertexBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	//
 	//m_indexBuf.bind();
-	//m_indexBuf.allocate(indices, 5 * sizeof(GLushort));
+	//m_indexBuf.allocate(indices.data(), indices.size() * sizeof(ushort));
+	//m_indexBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	//
+	//OpenGLHelper::getGLFunc()->glPatchParameteri(GL_PATCH_VERTICES, 4);
 
+	// set up the vao, vbo and ibo
+	auto glFunc = OpenGLHelper::getGLFunc();
+	glFunc->glGenBuffers(1, &m_vertexBuf);
+	glFunc->glGenBuffers(1, &m_indexBuf);
+	glFunc->glGenVertexArrays(1, &m_vao);
+	glFunc->glBindVertexArray(m_vao);
+
+	glFunc->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuf);
+	glFunc->glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+	glFunc->glEnableVertexAttribArray(0);
+	glFunc->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // vertex
+
+	glFunc->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuf);
+	glFunc->glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(ushort), indices.data(), GL_STATIC_DRAW);
+
+	glFunc->glBindVertexArray(0);
+
+	glFunc->glPatchParameteri(GL_PATCH_VERTICES, 4);
 }

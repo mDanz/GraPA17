@@ -76,17 +76,18 @@ void TerrainModelFactory::createHeightMapTexture(TerrainModel& model)
 	// set up wrapping, filtering and pixel alignment todo see if this is correct
 	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glFunc->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -1.0f);
-	glFunc->glGenerateMipmap(GL_TEXTURE_2D);
-	//glFunc->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	//glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//glFunc->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -1.0f);
+	//glFunc->glGenerateMipmap(GL_TEXTURE_2D);
 
-	//model.setHistogram(new Histogram(model.getByteArrayData(), model.getScalarByteSize(), 256));
-	//qInfo() << "Intensity values between " << model.getMinValue() << "and" << model.getMaxValue() << " and scalar Type: " << model.getScalarType() << "Size: " << model.getScalarByteSize();
-
-	glFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_R, model.getMapSize()->x(), model.getMapSize()->y(), 0, GL_RED, model.getScalarType(), model.getData());
+	glFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_R16, model.getMapSize()->x(), model.getMapSize()->y(), 0, GL_RED, model.getScalarType(), model.getData());
 	glFunc->glBindTexture(GL_TEXTURE_2D, model.getHeighMapTextureName());
+
+	glFunc->glGenerateMipmap(GL_TEXTURE_2D);
+	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 }
 
 void TerrainModelFactory::generateHeightMapTexture(TerrainModel& model, QOpenGLFunctions_4_4_Compatibility* glFunc)
@@ -111,19 +112,35 @@ void TerrainModelFactory::generateHeightMapTexture(TerrainModel& model, QOpenGLF
 
 void TerrainModelFactory::createMaterialTextures(const QStringList& textureFiles, TerrainModel& model)
 {
-	//if (materialTextures[textureStage] != 0) //todo maybe use explicit texture options
-	//{
-	//	glBindTexture(GL_TEXTURE_2D, m_GLTextures[textureStage]);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	//	glBindTexture(GL_TEXTURE_2D, 0);
-	//}
+	for (int i = 0; i < textureFiles.size(); i++) 
+	{
+		auto texName = createMaterial(textureFiles.at(i));
+		model.getMaterials()->append(texName);
+	}
+}
 
+GLuint TerrainModelFactory::createMaterial(const QString &path)
+{
+	QImage img(path);
+	if (img.isNull()) {
+		qWarning() << "Cold not load material texture" << path << "!";
+		return GL_INVALID_VALUE;
+	}
 
-	model.setMaterials(textureFiles);
+	// create and fill the texture
+	auto glFunc = OpenGLHelper::getGLFunc();
+	GLuint texName;
+	glFunc->glActiveTexture(GL_TEXTURE0);
+	glFunc->glGenTextures(1, &texName);
+	glFunc->glBindTexture(GL_TEXTURE_2D, texName);
+	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//    glf->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,  GL_LINEAR);
+	//    glf->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,  GL_LINEAR);
+	glFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.width(), img.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, img.bits());
 
-
+	glFunc->glGenerateMipmap(GL_TEXTURE_2D);
+	// save the texture name in the vector
+	qInfo() << "new Material Texture " << texName << OpenGLHelper::Error();
+	return texName;
 }

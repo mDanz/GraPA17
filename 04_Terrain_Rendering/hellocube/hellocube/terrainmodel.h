@@ -25,8 +25,8 @@ public:
 	void setTextureName(int textureName);
 	QPoint* getMapSize() const;
 	GLuint getScalarType();
-	void setMaterials(const QStringList &materialFiles);
-	QStringList *getMaterials();
+	void setMaterials(QVector<GLuint> *materialFiles);
+	QVector<GLuint> *getMaterials();
 	bool isWireframeEnabled() const;
 	void updateWireframEnabled(bool isEnabled);
 	bool isReady() const;
@@ -47,7 +47,7 @@ private:
 	int m_scalarByteSize;
 	int m_maxValue;
 	GLuint m_textureName;
-	QStringList m_materials;
+	QVector<GLuint> *m_materials;
 	bool m_isWireframeEnabled;
 	bool m_isReady;
 };
