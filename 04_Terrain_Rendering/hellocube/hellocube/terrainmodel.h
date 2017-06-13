@@ -1,5 +1,6 @@
 #pragma once
 #include "sceneitem.h"
+#include <qimage.h>
 
 class QOpenGLTexture;
 
@@ -31,6 +32,8 @@ public:
 	void updateWireframEnabled(bool isEnabled);
 	bool isReady() const;
 	void setReady(bool flag);
+	void setHeighMapImage(QImage &img);
+	QImage getHeightMapImage() const;
 
 signals:
 	void terrainModelChanged();
@@ -51,5 +54,6 @@ private:
 	bool m_isWireframeEnabled;
 	bool m_isReady;
 	QVector<unsigned short> m_realData;
+	QImage m_heightMapImage;
 };
 

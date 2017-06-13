@@ -191,6 +191,16 @@ void TerrainModel::setReady(bool flag)
 	m_isReady = flag;
 }
 
+void TerrainModel::setHeighMapImage(QImage& img)
+{
+	m_heightMapImage = img;
+}
+
+QImage TerrainModel::getHeightMapImage() const
+{
+	return m_heightMapImage;
+}
+
 void TerrainModel::fixByteOrderAndFillHeightValues()
 {
 	char tmp; //todo refactor

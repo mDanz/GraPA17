@@ -28,7 +28,7 @@ private:
 	const QString m_terrain_fshFile = "./Resources/shaders/terrain.fsh";
 	//const float m_step = 1.f;
 	const int m_gridSize = 50; //needs to be even number
-	const float m_terrainScaling = 1;// 128.f;
+	const float m_terrainScaling = 128.f;
 
 	QOpenGLShaderProgram* m_terrainProgram;
 	GLuint m_vertexBuf;

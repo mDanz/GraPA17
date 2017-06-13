@@ -85,11 +85,17 @@ void TerrainModelFactory::createHeightMapTexture(TerrainModel& model)
 	//glFunc->glGenerateMipmap(GL_TEXTURE_2D);
 
 	glFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_R16, model.getMapSize()->x(), model.getMapSize()->y(), 0, GL_RED, model.getScalarType(), model.getData().data());
-	glFunc->glBindTexture(GL_TEXTURE_2D, model.getHeighMapTextureName());
+	//glFunc->glBindTexture(GL_TEXTURE_2D, model.getHeighMapTextureName());
 
 	glFunc->glGenerateMipmap(GL_TEXTURE_2D);
 	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+	uchar* hmData = new uchar[model.getMapSize()->x()*model.getMapSize()->y() * 4];
+	glFunc->glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, static_cast<void*>(hmData));
+	model.setHeighMapImage(QImage(hmData, model.getMapSize()->x(), model.getMapSize()->y(), model.getMapSize()->x() * 4, QImage::Format_RGBA8888));
+
 }
 
 void TerrainModelFactory::generateHeightMapTexture(TerrainModel& model, QOpenGLFunctions_4_4_Compatibility* glFunc)
