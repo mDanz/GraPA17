@@ -18,7 +18,7 @@ public:
 	void setSize(int width, int height);
 	void setMaxValue(int maxVal);
 	void setData(QByteArray data);
-	unsigned short* getData() const;
+	QVector<unsigned short> getData() const;
 	float getHeightValue(QPoint &pos) const;
 	int getDataSize() const;
 	int getHeighMapTextureName() const;
@@ -36,7 +36,7 @@ signals:
 	void terrainModelChanged();
 
 private:
-	void fixByteOrder();
+	void fixByteOrderAndFillHeightValues();
 	float* getHeightValues(QByteArray &data) const;
 	float getHeightValue(unsigned char* data) const;
 
@@ -50,6 +50,6 @@ private:
 	QVector<GLuint> *m_materials;
 	bool m_isWireframeEnabled;
 	bool m_isReady;
-	unsigned short* m_realData;
+	QVector<unsigned short> m_realData;
 };
 

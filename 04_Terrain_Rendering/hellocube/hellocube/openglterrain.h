@@ -19,6 +19,7 @@ public:
 private:
 	void initializeShaderProgram();
 	void initGeometry();
+	void updateCameraHeight(TerrainModel& terrain, CameraModel& camera) const;
 
 
 	const QString m_terrain_vshFile = "./Resources/shaders/terrain.vsh";

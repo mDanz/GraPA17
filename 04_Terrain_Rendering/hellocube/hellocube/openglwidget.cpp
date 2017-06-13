@@ -83,6 +83,11 @@ OpenGLWidget::~OpenGLWidget()
 	cleanup();
 }
 
+void OpenGLWidget::setWidgetName(QString name)
+{
+	m_widgetName = name;
+}
+
 void OpenGLWidget::setModel(SceneModel* scene, CameraModel* camera)
 {
 	m_scene = scene;
@@ -351,11 +356,11 @@ void OpenGLWidget::paintWithSceneShaderProgram(QList<SceneItem*> *items)
 	m_fbo->release();
 
 	auto img1 = m_fbo->toImage(false, 0);
-	if (!img1.save("./tex/sceneTex.jpg"))
+	if (!img1.save("./tex/sceneTex_" + m_widgetName + ".jpg"))
 	{
 		qWarning() << "Scene Texture not saved correctly";
 	}auto img2 = m_fbo->toImage(false, 1);
-	if (!img2.save("./tex/pickTex.jpg"))
+	if (!img2.save("./tex/pickTex_" + m_widgetName + ".jpg"))
 	{
 		qWarning() << "Pick Texture not saved correctly";
 	}
@@ -473,11 +478,11 @@ void OpenGLWidget::paintWithTerrainShaderProgram(QList<SceneItem*>* items) const
 	m_fbo->release();
 
 	auto img1 = m_fbo->toImage(false, 0);
-	if (!img1.save("./tex/terrainTex.jpg"))
+	if (!img1.save("./tex/terrainTex_" + m_widgetName + ".jpg"))
 	{
 		qWarning() << "Terrain Texture not saved correctly";
 	}auto img2 = m_fbo->toImage(false, 1);
-	if (!img2.save("./tex/terrainPickTex.jpg"))
+	if (!img2.save("./tex/terrainPickTex_" + m_widgetName + ".jpg"))
 	{
 		qWarning() << "Terrain Pick Texture not saved correctly";
 	}
@@ -527,7 +532,7 @@ void OpenGLWidget::renderExitPoints(VolumeModel* volume)
 	glFlush();
 
 	auto img = m_entryExitFbo->toImage(false, 0);
-	if (!img.save("./tex/exitTex.jpg"))
+	if (!img.save("./tex/exitTex_" + m_widgetName + ".jpg"))
 	{
 		qWarning() << "Exit Texture not saved correctly";
 	}
@@ -555,7 +560,7 @@ void OpenGLWidget::renderEntryPoints()
 	glFlush();
 
 	auto img = m_entryExitFbo->toImage(false, 1);
-	if (!img.save("./tex/entryTex.jpg"))
+	if (!img.save("./tex/entryTex_" + m_widgetName + ".jpg"))
 	{
 		qWarning() << "Entry Texture not saved correctly";
 	}
@@ -617,12 +622,12 @@ void OpenGLWidget::renderVolumeData(VolumeModel *volume)
 	m_fbo->release();
 
 	auto img1 = m_fbo->toImage(false, 0);
-	if (!img1.save("./tex/volumeTex.jpg"))
+	if (!img1.save("./tex/volumeTex_" + m_widgetName + ".jpg"))
 	{
 		qWarning() << "Volume Texture not saved correctly";
 	}
 	auto img2 = m_fbo->toImage(false, 1);
-	if (!img2.save("./tex/volumePickTex.jpg"))
+	if (!img2.save("./tex/volumePickTex_" + m_widgetName + ".jpg"))
 	{
 		qWarning() << "Volume Pick Texture not saved correctly";
 	}

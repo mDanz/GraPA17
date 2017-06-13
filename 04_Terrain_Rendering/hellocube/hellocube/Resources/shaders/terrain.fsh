@@ -166,7 +166,8 @@ void main(void)
 
 
     // apply lighting
-    colorBuffer = vec4(1.f, 0.f, 0.f, 1.f);//vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
-
-    idBuffer = vec4(1.f, 0.f, 0.f, 1.0f);//vec4(0.f);
+//    colorBuffer = vec4(1.f);//vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
+    gl_FragData[0] = vec4(1.f);
+//    idBuffer = vec4(1.f, 0.f, 0.f, 1.0f);//vec4(0.f);
+    gl_FragData[1] = vec4(1.f, 0.f, 0.f, 1.f);
 }

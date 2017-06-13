@@ -37,7 +37,6 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	auto glFunc = OpenGLHelper::getGLFunc();
 	m_terrainProgram->bind();
 
-	glFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	if (terrain.isWireframeEnabled())
 	{
 		glFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -98,14 +97,7 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 		glFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	// update the camera height todo refactor this
-	float totalWidth = terrain.getWidthScale() * m_terrainScaling;
-	auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getMapSize()->x(),
-		(camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getMapSize()->y());
-
-	float height = 2.f + terrain.getHeightScale() * terrain.getHeightValue(camHmPos) / 255.f;
-	if (camera.getPosition()->y() < height)
-		camera.setHeight(height);
+	//updateCameraHeight(terrain, camera);
 
 
 	glFlush();
@@ -202,4 +194,16 @@ void OpenGLTerrain::initGeometry()
 	glFunc->glBindVertexArray(0);
 
 	glFunc->glPatchParameteri(GL_PATCH_VERTICES, 4);
+}
+
+void OpenGLTerrain::updateCameraHeight(TerrainModel& terrain, CameraModel& camera) const
+{
+	//todo refactor this
+	float totalWidth = terrain.getWidthScale() * m_terrainScaling;
+	auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getMapSize()->x(),
+		(camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getMapSize()->y());
+
+	float height = 2.f + terrain.getHeightScale() * terrain.getHeightValue(camHmPos) / 255.f;
+	if (camera.getPosition()->y() < height)
+		camera.setHeight(height);
 }

@@ -107,6 +107,12 @@ void ViewPortWidget::initializeOpenGLWidgets()
 	m_leftWidget = new OpenGLWidget(this);
 	m_topWidget = new OpenGLWidget(this);
 
+	m_perspectiveWidget->setWidgetName("Perspective");
+	m_frontWidget->setWidgetName("Front");
+	m_leftWidget->setWidgetName("Left");
+	m_topWidget->setWidgetName("Top");
+
+
 	connect(m_perspectiveWidget, SIGNAL(clickedInside()), this, SLOT(selectPerspective()));
 	connect(m_frontWidget, SIGNAL(clickedInside()), this, SLOT(selectFront()));
 	connect(m_leftWidget, SIGNAL(clickedInside()), this, SLOT(selectLeft()));

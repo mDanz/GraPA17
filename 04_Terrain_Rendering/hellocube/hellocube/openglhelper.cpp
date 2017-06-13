@@ -104,7 +104,7 @@ void OpenGLHelper::addNewShader(QString fileName, QOpenGLShader::ShaderType type
 			qCritical() << "Shader Error" << shader->log();
 		}
 
-		qInfo() << "Shader initialized successful: " << shader->log();
+		qInfo() << "Shader " + fileName + " initialized successful: " << shader->log();
 	}
 	else
 	{

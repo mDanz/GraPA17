@@ -22,6 +22,7 @@ public:
 	explicit OpenGLWidget(QWidget *parent = nullptr);
 	~OpenGLWidget();
 
+	void setWidgetName(QString name);
 	void setModel(SceneModel *scene, CameraModel* camera);
 	CameraModel* getCamera() const;
 
@@ -79,6 +80,8 @@ private:
 	const QString m_volume_fshFile = "./Resources/shaders/volume.fsh";
 	const QString m_entryExit_vshFile = "./Resources/shaders/entryExit.vsh";
 	const QString m_entryExit_fshFile = "./Resources/shaders/entryExit.fsh";
+
+	QString m_widgetName;
 
 	bool m_isSelected;
 	int m_displaymode;

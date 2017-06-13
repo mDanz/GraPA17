@@ -84,7 +84,7 @@ void TerrainModel::setData(QByteArray data)
 	//if (getScalarType() != GL_UNSIGNED_BYTE)
 	{
 		getScalarType();
-		fixByteOrder();
+		fixByteOrderAndFillHeightValues();
 	}
 
 	//m_floatData = getHeightValues(data);
@@ -95,14 +95,14 @@ void TerrainModel::setData(QByteArray data)
 	}
 }
 
-unsigned short* TerrainModel::getData() const
+QVector<unsigned short> TerrainModel::getData() const
 {
 	return m_realData;
 }
 
 float TerrainModel::getHeightValue(QPoint& pos) const
 {
-	return m_realData[pos.x()*m_mapSize->x() + pos.y()];
+	return m_realData.at(pos.x()*m_mapSize->x() + pos.y());
 }
 
 int TerrainModel::getDataSize() const
@@ -191,12 +191,12 @@ void TerrainModel::setReady(bool flag)
 	m_isReady = flag;
 }
 
-void TerrainModel::fixByteOrder()
+void TerrainModel::fixByteOrderAndFillHeightValues()
 {
 	char tmp; //todo refactor
 	int left;
 	int right;
-	m_realData = new ushort[m_data.size() / 2];
+	//m_realData = new QVector<ushort>;//[m_data.size() / 2];
 	auto data = reinterpret_cast<uchar*>(m_data.data());
 	int v;
 	int maxV = 0;
@@ -218,7 +218,8 @@ void TerrainModel::fixByteOrder()
 			v = (v << 8) | static_cast<int>(data[i + b]);
 		}
 
-		m_realData[i / 2] = v;
+		//m_realData[i / 2] = v;
+		m_realData.append(v);
 
 		if (v > maxV) 
 		{
