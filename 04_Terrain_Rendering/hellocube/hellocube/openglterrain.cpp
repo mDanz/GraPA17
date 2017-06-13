@@ -51,16 +51,16 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	m_terrainProgram->setUniformValue("c_camPos", *camera.getPosition());// + QVector3D(-GRID_GLOBAL_SCALING/2,0,-GRID_GLOBAL_SCALING/2));
 
 																	  // set the terrain parameter uniforms
-	m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale() * m_terrainScaling);
+	m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale());// *m_terrainScaling);
 	m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(m_terrainScaling));
 	m_terrainProgram->setUniformValue("terrainHeight", terrain.getHeightScale());
 
-	/*m_terrainProgram->setUniformValue("heightMap", 0);
+	m_terrainProgram->setUniformValue("heightMap", 0);
 	m_terrainProgram->setUniformValue("fracture[0]", 1);
 	m_terrainProgram->setUniformValue("fracture[1]", 2);
 	m_terrainProgram->setUniformValue("fracture[2]", 3);
 	m_terrainProgram->setUniformValue("fracture[3]", 4);
-*/
+
 	m_terrainProgram->setUniformValue("testSampler", 2);
 
 
@@ -88,7 +88,7 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 */
 	//m_indexBuf.bind();
 	glFunc->glBindVertexArray(m_vao);
-	glDrawElements(GL_PATCHES, m_gridSize * m_gridSize * 4, GL_UNSIGNED_SHORT, static_cast<GLvoid*>(nullptr));
+	glDrawElements(GL_PATCHES, m_gridSize * m_gridSize * 4, GL_UNSIGNED_SHORT, 0);
 
 	m_terrainProgram->release();
 
@@ -97,10 +97,11 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 		glFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	//updateCameraHeight(terrain, camera);
+	updateCameraHeight(terrain, camera);
 
 
 	glFlush();
+
 	//glDrawArrays(GL_PATCHES, 0, m_vertexBuf.size());
 
 	//auto cube = OpenGLCube();
@@ -119,15 +120,15 @@ void OpenGLTerrain::initializeShaderProgram()
 {
 	m_terrainProgram = OpenGLHelper::createShaderProgram(m_terrain_vshFile, m_terrain_tcsFile, m_terrain_tesFile, m_terrain_fshFile);
 
-	m_terrainProgram->setUniformValue("heightMap", 0);
-	m_terrainProgram->setUniformValue("fracture[0]", 1);
-	m_terrainProgram->setUniformValue("fracture[1]", 2);
-	m_terrainProgram->setUniformValue("fracture[2]", 3);
-	m_terrainProgram->setUniformValue("fracture[3]", 4);
+	//m_terrainProgram->setUniformValue("heightMap", 0);
+	//m_terrainProgram->setUniformValue("fracture[0]", 1);
+	//m_terrainProgram->setUniformValue("fracture[1]", 2);
+	//m_terrainProgram->setUniformValue("fracture[2]", 3);
+	//m_terrainProgram->setUniformValue("fracture[3]", 4);
 
 	if (!m_terrainProgram->link())
 	{
-		qWarning() << "Linking Error" << m_terrainProgram->log();
+		qWarning() << "Linking Terrain Program Error" << m_terrainProgram->log();
 	}
 }
 
@@ -139,8 +140,8 @@ void OpenGLTerrain::initGeometry()
 		for (int x = 0; x <= m_gridSize; x++) 
 		{
 			vertices.append(x - m_gridSize / 2.f);
-			vertices.append(0.f);
 			vertices.append(z - m_gridSize / 2.f);
+			vertices.append(0.f);
 		}
 	}
 
@@ -203,7 +204,10 @@ void OpenGLTerrain::updateCameraHeight(TerrainModel& terrain, CameraModel& camer
 	auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getMapSize()->x(),
 		(camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getMapSize()->y());
 
-	float height = 2.f + terrain.getHeightScale() * terrain.getHeightValue(camHmPos) / 255.f;
-	if (camera.getPosition()->y() < height)
+	float height = 20.f + terrain.getHeightScale() * terrain.getHeightValue(camHmPos) / 255.f;
+	//height = -height;
+	if (camera.getPosition()->y() < height || camera.getPosition()->y() > height + 30.f)
+	{
 		camera.setHeight(height);
+	}
 }

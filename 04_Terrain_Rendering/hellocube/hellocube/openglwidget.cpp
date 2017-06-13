@@ -144,10 +144,10 @@ void OpenGLWidget::initializeGL()
 	initializeFrameBufferObjects(width(), height());
 	initializeSceneShaderProgram();
 	initializeHighlightShaderProgram();
-	initializeEntryExitShaderProgram();
-	initializeVolumeShaderProgram();
+	//initializeEntryExitShaderProgram();
+	//initializeVolumeShaderProgram();
 
-	glClearColor(0.3f, 0.3f, 0.3f, 0.f);
+	//glClearColor(0.3f, 0.3f, 0.3f, 0.f);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -155,12 +155,12 @@ void OpenGLWidget::initializeGL()
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
-
-	/*glClearColor(0, 0, 0, 0);
+/*
+	glClearColor(0, 0, 0, 0);
 	glEnable(GL_LIGHTING);
 	glLightfv(GL_LIGHT0, GL_POSITION, new float[3]{ m_lightPos.x(), m_lightPos.y(), m_lightPos.z() });
-	glEnable(GL_LIGHT0);*/
-
+	glEnable(GL_LIGHT0);
+*/
 	m_primitiveFactory = new OpenGLPrimitiveFactory();
 }
 
@@ -173,11 +173,10 @@ void OpenGLWidget::paintGL()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_fbo->release();
 
-
 	paintWithTerrainShaderProgram(&items);
-	//paintWithSceneShaderProgram(&items);
+	paintWithSceneShaderProgram(&items);
 	//paintWithVolumeShaderProgram(&items);
-	//paintWithHighlightShaderProgram();
+	paintWithHighlightShaderProgram();
 }
 
 void OpenGLWidget::resizeGL(int width, int height)

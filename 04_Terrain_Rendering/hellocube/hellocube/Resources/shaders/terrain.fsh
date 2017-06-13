@@ -1,56 +1,18 @@
-//#version 440
-//
-//
-//varying vec3 N;
-//varying vec3 L;
-//varying vec3 vert;
-//
-//uniform vec3 ambientColor;
-//uniform vec3 diffuseColor;
-//uniform vec3 specularColor;
-//uniform float specularExp;
-//uniform vec3 idColor;
-//
-////const vec3 ambientColor = vec3(1.0, 0.0, 0.0);
-////const vec3 diffuseColor = vec3(0.5, 0.0, 0.0);
-////const vec3 specularColor = vec3(1.0, 1.0, 1.0);
-////const float specularExp = 50.0;
-//
-//void main() {
-//    vec3 R = reflect(-L, N);
-//    vec3 V = normalize(-vert);
-//
-//    float lambertian = clamp(dot(L,N), 0.0, 1.0);
-//    
-//	float specular = 0.0;
-//	if(lambertian > 0.0) 
-//  {
-//    float specAngle = clamp(dot(R, V), 0.0, 1.0);
-//    specular = pow(specAngle, specularExp);
-//  }
-//  //gl_FragColor = vec4(1,0,0,1);
-//  gl_FragData[0] = vec4(ambientColor, 1.0);//vec4(ambientColor + lambertian*diffuseColor + specular*specularColor, 1.0);
-//
-//
-//	gl_FragData[1] = vec4(idColor, 1.0);
-//
-//}
-//
-
-
-#version 440
+#version 400
 
 in vec3 posInWorld;
 in vec3 posInView;
 in float height;
 in vec3 normal;
-in flat int eLod;
+flat in int eLod;
 
 uniform mat4 frag_viewMat;
 uniform mat3 frag_normalMat;
 
 uniform sampler2D fracture[4];
 uniform sampler2D testSampler;
+
+uniform vec3 idColor;
 
 struct FracDef {
     float minH;
@@ -66,8 +28,6 @@ const FracDef materials[4] = FracDef[4](FracDef(0.f, 0.2f, 0.8f, 0.1f, 1.f), Fra
 layout(location=0) out vec4 colorBuffer;
 layout(location=1) out vec4 idBuffer;
 
-
-uniform vec3 idColor;
 
 // returns color.rgb + the specular parameter as the alpha value
 vec4 material(vec2 uv, float height, float slope) {
@@ -156,7 +116,7 @@ vec3 lighting(vec3 pos, vec3 normal, vec3 viewPos, vec3 color, float shininess) 
 void main(void)
 {    
     // get color from the frac materials
-    vec4 color = material(posInWorld.xz/10.f, height, normal.y);
+    //vec4 color = material(posInWorld.xz/10.f, height, normal.y);
 
 // LOD Visualization ------------
 //    color = vec4((eLod%3)/3.f, ((eLod+1)%4)/4.f, ((eLod+2)%3)/3.f, 1.f);
@@ -166,8 +126,7 @@ void main(void)
 
 
     // apply lighting
-//    colorBuffer = vec4(1.f);//vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
-    gl_FragData[0] = vec4(1.f);
-//    idBuffer = vec4(1.f, 0.f, 0.f, 1.0f);//vec4(0.f);
-    gl_FragData[1] = vec4(1.f, 0.f, 0.f, 1.f);
+    colorBuffer = vec4(1.f);//vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
+
+    idBuffer = vec4(idColor, 1.f);//vec4(0.f);
 }
