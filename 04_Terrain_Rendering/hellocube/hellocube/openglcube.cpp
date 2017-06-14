@@ -33,7 +33,7 @@ OpenGLCube::~OpenGLCube()
 void OpenGLCube::draw(QOpenGLShaderProgram* program)
 {
 	renderCube(0); //todo use tesselation
-	//renderTerrain();
+	renderTerrain();
 
 
 	//m_vertexBuf.bind();

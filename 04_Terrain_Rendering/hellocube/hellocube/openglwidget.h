@@ -67,7 +67,7 @@ private:
 
 	const QVector3D m_lightPos = { 0.5f, 0.0f, 0.2f };
 	const float m_damping = 0.01f;
-	const QVector3D m_ka = { .4f, 0.0f, 0.4f };
+	const QVector3D m_ka = { .0f, 0.8f, 0.0f };
 	const QVector3D m_kd = { .6f, .6f, .6f };
 	const QVector3D m_ks = { .8f, .8f, .8f };
 	const QVector4D m_highlightColor = { .0f, .7f, .0f, .9f };

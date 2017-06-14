@@ -5,12 +5,11 @@
 #include "terrainmodel.h"
 #include "cameramodel.h"
 #include <QOpenGLTexture>
-#include <set>
 
 OpenGLTerrain::OpenGLTerrain()
 {
-	initializeShaderProgram();
 	initializeOpenGLFunctions();
+	initializeShaderProgram();
 	initGeometry();
 }
 
@@ -45,10 +44,13 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	m_terrainProgram->setUniformValue("idColor", terrain.getId()->getIdAsColor());
 
 	// set the camera uniforms
-	m_terrainProgram->setUniformValue("viewMat", QMatrix4x4());//*camera.getCameraMatrix());
+	m_terrainProgram->setUniformValue("viewMat", *camera.getCameraMatrix());
 	m_terrainProgram->setUniformValue("projMat", *camera.getProjectionMatrix());
-	m_terrainProgram->setUniformValue("cameraPos", QVector3D());// *camera.getPosition());
-	m_terrainProgram->setUniformValue("c_camPos", QVector3D());// *camera.getPosition());// + QVector3D(-GRID_GLOBAL_SCALING/2,0,-GRID_GLOBAL_SCALING/2));
+	m_terrainProgram->setUniformValue("cameraPos", *camera.getPosition());
+	m_terrainProgram->setUniformValue("c_camPos", *camera.getPosition());// + QVector3D(-GRID_GLOBAL_SCALING/2,0,-GRID_GLOBAL_SCALING/2));
+
+	m_terrainProgram->setUniformValue("mvMatrix", *camera.getCameraMatrix() * terrain.getRigidBodyTransformation()->getWorldMatrix());
+	m_terrainProgram->setUniformValue("projMatrix", *camera.getProjectionMatrix());
 
 																	  // set the terrain parameter uniforms
 	m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale());// *m_terrainScaling);
@@ -97,7 +99,7 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 		glFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	updateCameraHeight(terrain, camera);
+	//updateCameraHeight(terrain, camera);
 
 
 	glFlush();
@@ -118,7 +120,7 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 
 void OpenGLTerrain::initializeShaderProgram()
 {
-	m_terrainProgram = OpenGLHelper::createShaderProgram(m_terrain_vshFile, m_terrain_tcsFile, m_terrain_tesFile, m_terrain_fshFile);
+	m_terrainProgram = OpenGLHelper::createShaderProgram(m_dummy_vshFile, m_dummy_tcsFile, m_dummy_tesFile, m_dummy_fshFile);
 
 	//m_terrainProgram->setUniformValue("heightMap", 0);
 	//m_terrainProgram->setUniformValue("fracture[0]", 1);
@@ -140,8 +142,8 @@ void OpenGLTerrain::initGeometry()
 		for (int x = 0; x <= m_gridSize; x++) 
 		{
 			vertices.append(x - m_gridSize / 2.f);
-			vertices.append(z - m_gridSize / 2.f);
 			vertices.append(0.f);
+			vertices.append(z - m_gridSize / 2.f);
 		}
 	}
 

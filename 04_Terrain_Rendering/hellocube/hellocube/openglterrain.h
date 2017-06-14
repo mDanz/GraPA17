@@ -26,6 +26,10 @@ private:
 	const QString m_terrain_tcsFile = "./Resources/shaders/terrain.tcs";
 	const QString m_terrain_tesFile = "./Resources/shaders/terrain.tes";
 	const QString m_terrain_fshFile = "./Resources/shaders/terrain.fsh";
+	const QString m_dummy_vshFile = "./Resources/shaders/terrain_dummy.vsh";
+	const QString m_dummy_tcsFile = "./Resources/shaders/terrain_dummy.tcs";
+	const QString m_dummy_tesFile = "./Resources/shaders/terrain_dummy.tes";
+	const QString m_dummy_fshFile = "./Resources/shaders/terrain_dummy.fsh";
 	//const float m_step = 1.f;
 	const int m_gridSize = 50; //needs to be even number
 	const float m_terrainScaling = 128.f;
