@@ -2,6 +2,7 @@
 #include "terraineditordock.h"
 #include <QVBoxLayout>
 #include <qslider.h>
+#include <QLabel>
 
 TerrainEditorDock::TerrainEditorDock(QString title, QWidget* parent) 
 	: QDockWidget(title, parent)
@@ -34,8 +35,13 @@ void TerrainEditorDock::initializeSliders()
 	m_heightSlider = createSlider();
 	m_widthSlider = createSlider();
 
-	m_layout->addWidget(m_heightSlider);
-	m_layout->addWidget(m_widthSlider);
+	auto heightLabel = new QLabel("Height:");
+	auto widthLabel = new QLabel("Width:");
+
+	m_layout->addWidget(heightLabel,0, 0);
+	m_layout->addWidget(m_heightSlider,1, 0);
+	m_layout->addWidget(widthLabel, 2, 0);
+	m_layout->addWidget(m_widthSlider, 3, 0);
 
 	connect(m_heightSlider, SIGNAL(valueChanged(int)), this, SLOT(setTerrainHeight(int)));
 	connect(m_widthSlider, SIGNAL(valueChanged(int)), this, SLOT(setTerrainWidth(int)));

@@ -2,6 +2,7 @@
 #include <QDockWidget>
 #include "terrainmodel.h"
 #include <QCheckBox>
+#include <QVBoxLayout>
 
 
 class QSlider;
@@ -22,7 +23,7 @@ private:
 	void initializeCheckBoxes();
 	QSlider* createSlider();
 
-	QLayout *m_layout;
+	QGridLayout *m_layout;
 
 	QSlider *m_heightSlider;
 	QSlider *m_widthSlider;

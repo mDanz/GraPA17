@@ -16,8 +16,8 @@ OpenGLTerrain::OpenGLTerrain()
 OpenGLTerrain::~OpenGLTerrain()
 {
 	delete m_terrainProgram;
-	/*m_vertexBuf.destroy();
-	m_indexBuf.destroy();*/
+	//m_vertexBuf.destroy();
+	//m_indexBuf.destroy();
 }
 
 void OpenGLTerrain::draw(QOpenGLShaderProgram* program)
@@ -49,12 +49,12 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	m_terrainProgram->setUniformValue("cameraPos", *camera.getPosition());
 	m_terrainProgram->setUniformValue("c_camPos", *camera.getPosition());// + QVector3D(-GRID_GLOBAL_SCALING/2,0,-GRID_GLOBAL_SCALING/2));
 
-	m_terrainProgram->setUniformValue("mvMatrix", *camera.getCameraMatrix() * terrain.getRigidBodyTransformation()->getWorldMatrix());
+	m_terrainProgram->setUniformValue("mvMatrix", *camera.getCameraMatrix());
 	m_terrainProgram->setUniformValue("projMatrix", *camera.getProjectionMatrix());
 
 																	  // set the terrain parameter uniforms
 	m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale());// *m_terrainScaling);
-	m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(m_terrainScaling));
+	m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(terrain.getWidthScale()));// static_cast<float>(m_terrainScaling));
 	m_terrainProgram->setUniformValue("terrainHeight", terrain.getHeightScale());
 
 	m_terrainProgram->setUniformValue("heightMap", 0);
@@ -83,12 +83,13 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 		glFunc->glBindTexture(GL_TEXTURE_2D, materials->at(i));
 	}
 
-	/*m_vertexBuf.bind();
-	int vertexLocation = m_terrainProgram->attributeLocation("in_position");
-	m_terrainProgram->enableAttributeArray(vertexLocation);
-	m_terrainProgram->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
-*/
+	//m_vertexBuf.bind();
+	//int vertexLocation = m_terrainProgram->attributeLocation("in_position");
+	//m_terrainProgram->enableAttributeArray(vertexLocation);
+	//m_terrainProgram->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
 	//m_indexBuf.bind();
+	//glDrawElements(GL_PATCHES, m_indexBuf.size(), GL_UNSIGNED_SHORT, 0);
 	glFunc->glBindVertexArray(m_vao);
 	glDrawElements(GL_PATCHES, m_gridSize * m_gridSize * 4, GL_UNSIGNED_SHORT, 0);
 
@@ -103,19 +104,6 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 
 
 	glFlush();
-
-	//glDrawArrays(GL_PATCHES, 0, m_vertexBuf.size());
-
-	//auto cube = OpenGLCube();
-	//cube.draw(program);
-
-	//glFunc->glBegin(GL_PATCHES);
-	//glFunc->glVertex3f(0, 0, 0);
-	//glFunc->glVertex3f(0, 0, .5);
-	//glFunc->glVertex3f(.5, 0, .5);
-	//glFunc->glVertex3f(.5, 0, 0);
-
-	//glFunc->glEnd();
 }
 
 void OpenGLTerrain::initializeShaderProgram()
@@ -176,7 +164,7 @@ void OpenGLTerrain::initGeometry()
 	//m_indexBuf.bind();
 	//m_indexBuf.allocate(indices.data(), indices.size() * sizeof(ushort));
 	//m_indexBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
-	//
+	
 	//OpenGLHelper::getGLFunc()->glPatchParameteri(GL_PATCH_VERTICES, 4);
 
 	// set up the vao, vbo and ibo
