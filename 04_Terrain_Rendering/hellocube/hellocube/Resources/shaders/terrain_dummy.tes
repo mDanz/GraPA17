@@ -2,12 +2,14 @@
  
 layout(quads, equal_spacing, ccw) in;
 
+in vec3 tcPosition[];
+
+uniform mat4 mvMatrix;
+uniform mat4 projMatrix;
 
 uniform sampler2D heightMap;
 uniform float terrainHeightScale;
 uniform float totalTerrainWidth;
-
-
 
 out float height;
 
@@ -21,15 +23,19 @@ vec4 interpolate(in vec4 v0, in vec4 v1, in vec4 v2, in vec4 v3)
  
 void main()
 { 
-	gl_Position = interpolate(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_in[2].gl_Position, gl_in[3].gl_Position);
+	//gl_Position = interpolate(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_in[2].gl_Position, gl_in[3].gl_Position);
+	//vec2 uv = gl_Position.xz;
 
+	vec4 tePosition = interpolate(vec4(tcPosition[0], 1.0), vec4(tcPosition[1], 1.0), vec4(tcPosition[2], 1.0), vec4(tcPosition[3], 1.0));
 
     // sample the height
-	vec2 totalSize = vec2(totalTerrainWidth, totalTerrainWidth);
-    vec2 uv = (gl_Position.xz+totalSize/2.f)/totalSize;
+	//vec2 totalSize = vec2(totalTerrainWidth, totalTerrainWidth);
+    //vec2 uv = (tePosition.xz+totalSize/2.f)/totalSize;
 
     int lod = 0;
-    height = textureLod(heightMap, uv, lod).r;
-    gl_Position.y = height / 255.f;// * terrainHeightScale / 255.f;
+    //height = textureLod(heightMap, uv, lod).r;
+    height = terrainHeightScale;
+    tePosition.y = -height;// * terrainHeightScale;
 
+	gl_Position = projMatrix * mvMatrix * tePosition;
 }
