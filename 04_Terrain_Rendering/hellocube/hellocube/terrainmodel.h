@@ -34,6 +34,8 @@ public:
 	void setReady(bool flag);
 	void setHeighMapImage(QImage &img);
 	QImage getHeightMapImage() const;
+	void setFallOff(float falloff);
+	float getFallOff() const;
 
 signals:
 	void terrainModelChanged();
@@ -45,6 +47,7 @@ private:
 
 	QPointF *m_scale;
 	QPoint *m_mapSize;
+	float m_fallOff;
 	QByteArray m_data;
 	float *m_floatData;
 	int m_scalarByteSize;

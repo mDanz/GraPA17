@@ -44,31 +44,34 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	m_terrainProgram->setUniformValue("idColor", terrain.getId()->getIdAsColor());
 
 	// set the camera uniforms
-	m_terrainProgram->setUniformValue("viewMat", *camera.getCameraMatrix());
-	m_terrainProgram->setUniformValue("projMat", *camera.getProjectionMatrix());
-	m_terrainProgram->setUniformValue("cameraPos", *camera.getPosition());
-	m_terrainProgram->setUniformValue("c_camPos", *camera.getPosition());// + QVector3D(-GRID_GLOBAL_SCALING/2,0,-GRID_GLOBAL_SCALING/2));
+	//m_terrainProgram->setUniformValue("viewMat", *camera.getCameraMatrix());
+	//m_terrainProgram->setUniformValue("projMat", *camera.getProjectionMatrix());
+	//m_terrainProgram->setUniformValue("cameraPos", *camera.getPosition());
+	//m_terrainProgram->setUniformValue("c_camPos", *camera.getPosition());// + QVector3D(-GRID_GLOBAL_SCALING/2,0,-GRID_GLOBAL_SCALING/2));
 
 	m_terrainProgram->setUniformValue("mvMatrix", *camera.getCameraMatrix());
 	m_terrainProgram->setUniformValue("projMatrix", *camera.getProjectionMatrix());
+	m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(terrain.getWidthScale()));
+	m_terrainProgram->setUniformValue("cameraPos", *camera.getPosition());
+	m_terrainProgram->setUniformValue("fallOff", terrain.getFallOff());
 
 																	  // set the terrain parameter uniforms
-	m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale());// *m_terrainScaling);
-	m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(terrain.getWidthScale()));// static_cast<float>(m_terrainScaling));
-	m_terrainProgram->setUniformValue("terrainHeight", terrain.getHeightScale());
+	//m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale());// *m_terrainScaling);
+	//m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(m_terrainScaling));
+	//m_terrainProgram->setUniformValue("terrainHeight", terrain.getHeightScale());
 
-	m_terrainProgram->setUniformValue("heightMap", 0);
-	m_terrainProgram->setUniformValue("fracture[0]", 1);
-	m_terrainProgram->setUniformValue("fracture[1]", 2);
-	m_terrainProgram->setUniformValue("fracture[2]", 3);
-	m_terrainProgram->setUniformValue("fracture[3]", 4);
-
-	m_terrainProgram->setUniformValue("testSampler", 2);
+	//m_terrainProgram->setUniformValue("heightMap", 0);
+	//m_terrainProgram->setUniformValue("fracture[0]", 1);
+	//m_terrainProgram->setUniformValue("fracture[1]", 2);
+	//m_terrainProgram->setUniformValue("fracture[2]", 3);
+	//m_terrainProgram->setUniformValue("fracture[3]", 4);
+	//
+	//m_terrainProgram->setUniformValue("testSampler", 2);
 
 
 	// set the fragment shader uniforms
-	m_terrainProgram->setUniformValue("frag_viewMat", QMatrix4x4());// *(camera.getCameraMatrix()));
-	m_terrainProgram->setUniformValue("frag_normalMat", QMatrix4x4().normalMatrix());//camera.getCameraMatrix()->normalMatrix());
+	//m_terrainProgram->setUniformValue("frag_viewMat", QMatrix4x4());// *(camera.getCameraMatrix()));
+	//m_terrainProgram->setUniformValue("frag_normalMat", QMatrix4x4().normalMatrix());//camera.getCameraMatrix()->normalMatrix());
 
 	// bind the heightmap texture
 	glFunc->glActiveTexture(GL_TEXTURE0);
@@ -190,7 +193,7 @@ void OpenGLTerrain::initGeometry()
 void OpenGLTerrain::updateCameraHeight(TerrainModel& terrain, CameraModel& camera) const
 {
 	//todo refactor this
-	float totalWidth = terrain.getWidthScale() * m_terrainScaling;
+	float totalWidth = terrain.getMapSize()->x() * terrain.getWidthScale();// * m_terrainScaling;
 	auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getMapSize()->x(),
 		(camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getMapSize()->y());
 

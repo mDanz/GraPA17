@@ -13,7 +13,8 @@ TerrainModel::TerrainModel(RigidBodyTransformation* rigidBodyTransform, SceneIte
 	, m_isWireframeEnabled(false)
 	, m_isReady(false)
 {
-	m_scale = new QPointF(30, 100);
+	m_scale = new QPointF(128, 100);
+	m_fallOff = 1500.f;
 }
 
 TerrainModel::~TerrainModel()
@@ -199,6 +200,16 @@ void TerrainModel::setHeighMapImage(QImage& img)
 QImage TerrainModel::getHeightMapImage() const
 {
 	return m_heightMapImage;
+}
+
+void TerrainModel::setFallOff(float falloff)
+{
+	m_fallOff = falloff;
+}
+
+float TerrainModel::getFallOff() const
+{
+	return m_fallOff;
 }
 
 void TerrainModel::fixByteOrderAndFillHeightValues()

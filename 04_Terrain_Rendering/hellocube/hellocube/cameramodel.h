@@ -26,7 +26,7 @@ private:
 	void updateOrthoProjection() const;
 
 	const float m_damping = 0.01f;
-	
+
 	float m_zNear;
 	float m_zFar;
 	float m_fov;

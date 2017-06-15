@@ -2,15 +2,55 @@
  
 layout(vertices = 4) out;
  
-void main(void)
+#define FALLOF 1500.f
+#define MAX_TESS_POW 6  // => max. tesselation level 2^MAX_TESS_POW
+
+uniform float fallOff;
+uniform vec3 cameraPos;
+
+
+int getExp(float distance) 
 {
- gl_TessLevelOuter[0] = 1.0;
- gl_TessLevelOuter[1] = 1.0;
- gl_TessLevelOuter[2] = 1.0;
- gl_TessLevelOuter[3] = 1.0;
- 
- gl_TessLevelInner[0] = 1.0;
- gl_TessLevelInner[1] = 1.0;
- 
- gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+    return int(ceil(MAX_TESS_POW * exp(-distance / fallOff)));
+}
+
+int getTesselation(float distance) 
+{
+    return int(pow(2, getExp(distance)));
+}
+
+void main(void)
+{ 
+ 	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+
+	//calculate only once
+	if (gl_InvocationID != 0) 
+	{
+		return;
+	}
+
+    // calculate the camera distance and the tesselation level
+    float distance = length(cameraPos.xz - gl_in[gl_InvocationID].gl_Position.xz);
+    int tessLevel = getTesselation(distance);
+
+    // the inner tesselation levels are constant
+    gl_TessLevelInner[0] = tessLevel;
+    gl_TessLevelInner[1] = tessLevel;
+
+    // get the tesselation levels from the neighbors for seamless
+    // outer tesselation levels
+    float width = (gl_out[1].gl_Position.x - gl_in[0].gl_Position.x);
+	
+	distance = length(cameraPos.xz - gl_in[0].gl_Position.xz + vec2(width,0));
+	gl_TessLevelOuter[0] = max(tessLevel, getTesselation(distance));
+	
+	distance = length(cameraPos.xz - gl_in[0].gl_Position.xz - vec2(0,-width));
+	gl_TessLevelOuter[1] = max(tessLevel, getTesselation(distance));
+	
+	distance = length(cameraPos.xz - gl_in[0].gl_Position.xz + vec2(-width,0));
+	gl_TessLevelOuter[2] = max(tessLevel, getTesselation(distance));
+	
+	distance = length(cameraPos.xz - gl_in[0].gl_Position.xz - vec2(0,width));
+    gl_TessLevelOuter[3] = max(tessLevel, getTesselation(distance));
+
 }

@@ -21,12 +21,13 @@ public slots:
 private:
 	void initializeSliders();
 	void initializeCheckBoxes();
-	QSlider* createSlider();
+	QSlider* createSlider(int start = 1, int end = 500);
 
 	QGridLayout *m_layout;
 
 	QSlider *m_heightSlider;
 	QSlider *m_widthSlider;
+	QSlider *m_fallOffSlider;
 
 	QCheckBox *m_wireframeEnabledBox;
 
@@ -35,6 +36,7 @@ private:
 private slots:
 	void setTerrainHeight(int height) const;
 	void setTerrainWidth(int width) const;
+	void setTerrainFallOff(int falloff) const;
 	void updateWireframeMode() const;
 
 };
