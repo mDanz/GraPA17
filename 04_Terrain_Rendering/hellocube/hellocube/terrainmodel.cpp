@@ -190,11 +190,21 @@ bool TerrainModel::isReady() const
 void TerrainModel::setReady(bool flag)
 {
 	m_isReady = flag;
+
+	if (m_isReady)
+	{
+		emit terrainModelChanged();
+	}
 }
 
 void TerrainModel::setHeighMapImage(QImage& img)
 {
 	m_heightMapImage = img;
+
+	if (m_isReady)
+	{
+		emit terrainModelChanged();
+	}
 }
 
 QImage TerrainModel::getHeightMapImage() const
@@ -205,6 +215,11 @@ QImage TerrainModel::getHeightMapImage() const
 void TerrainModel::setFallOff(float falloff)
 {
 	m_fallOff = falloff;
+
+	if (m_isReady)
+	{
+		emit terrainModelChanged();
+	}
 }
 
 float TerrainModel::getFallOff() const

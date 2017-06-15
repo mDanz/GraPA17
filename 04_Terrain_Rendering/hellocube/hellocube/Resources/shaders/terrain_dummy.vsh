@@ -14,6 +14,6 @@ void main(void)
     // pass through
     vec3 vPosition = vertex;//vec3(vertex.x + floor(cameraPos.x/terrainWidthScale), vertex.y, vertex.z + floor(cameraPos.z/terrainWidthScale));
     vPosition += vec3(floor(cameraPos.x/terrainWidthScale), 0.f, floor(cameraPos.z/terrainWidthScale));
-    vPosition *= terrainWidthScale;
+    vPosition.xz *= terrainWidthScale;
     gl_Position = projMatrix * mvMatrix * vec4(vPosition, 1.0f);
 }

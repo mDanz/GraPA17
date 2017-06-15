@@ -52,8 +52,10 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	m_terrainProgram->setUniformValue("mvMatrix", *camera.getCameraMatrix());
 	m_terrainProgram->setUniformValue("projMatrix", *camera.getProjectionMatrix());
 	m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(terrain.getWidthScale()));
+	m_terrainProgram->setUniformValue("terraiHeightScale", static_cast<float>(terrain.getHeightScale()));
 	m_terrainProgram->setUniformValue("cameraPos", *camera.getPosition());
 	m_terrainProgram->setUniformValue("fallOff", terrain.getFallOff());
+	m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale() * terrain.getMapSize()->x());// *m_terrainScaling);
 
 																	  // set the terrain parameter uniforms
 	//m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale());// *m_terrainScaling);
@@ -103,7 +105,7 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 		glFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	//updateCameraHeight(terrain, camera);
+	updateCameraHeight(terrain, camera);
 
 
 	glFlush();
@@ -113,11 +115,11 @@ void OpenGLTerrain::initializeShaderProgram()
 {
 	m_terrainProgram = OpenGLHelper::createShaderProgram(m_dummy_vshFile, m_dummy_tcsFile, m_dummy_tesFile, m_dummy_fshFile);
 
-	//m_terrainProgram->setUniformValue("heightMap", 0);
-	//m_terrainProgram->setUniformValue("fracture[0]", 1);
-	//m_terrainProgram->setUniformValue("fracture[1]", 2);
-	//m_terrainProgram->setUniformValue("fracture[2]", 3);
-	//m_terrainProgram->setUniformValue("fracture[3]", 4);
+	m_terrainProgram->setUniformValue("heightMap", 0);
+	/*m_terrainProgram->setUniformValue("fracture[0]", 1);
+	m_terrainProgram->setUniformValue("fracture[1]", 2);
+	m_terrainProgram->setUniformValue("fracture[2]", 3);
+	m_terrainProgram->setUniformValue("fracture[3]", 4);*/
 
 	if (!m_terrainProgram->link())
 	{
@@ -194,11 +196,13 @@ void OpenGLTerrain::updateCameraHeight(TerrainModel& terrain, CameraModel& camer
 {
 	//todo refactor this
 	float totalWidth = terrain.getMapSize()->x() * terrain.getWidthScale();// * m_terrainScaling;
-	auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getMapSize()->x(),
-		(camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getMapSize()->y());
-
-	float height = 20.f + terrain.getHeightScale() * qRed(terrain.getHeightMapImage().pixel(camHmPos)) / 255.f;
-	height = -height;
+	//(gl_Position.xz + totalSize / 2.f) / totalSize
+	//auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getMapSize()->x(),(camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getMapSize()->y());
+	auto cameraX = (camera.getPosition()->x() + totalWidth / 2.f) / totalWidth;
+	auto cameraZ= (camera.getPosition()->z() + totalWidth / 2.f) / totalWidth;
+	auto camHmPos = QPoint(cameraX, cameraZ);
+	float height = 1.f + qRed(terrain.getHeightMapImage().pixel(camHmPos)) / 255.f;
+	//height = -height;
 	if (camera.getPosition()->y() < height)// || camera.getPosition()->y() < height - 30.f)
 	{
 		camera.setHeight(height);
