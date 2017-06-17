@@ -56,32 +56,11 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	m_terrainProgram->setUniformValue("fallOff", terrain.getFallOff());
 	m_terrainProgram->setUniformValue("totalTerrainWidth", static_cast<float>(terrain.getMapSize()->x()));// *m_terrainScaling);
 
-			
-	//todo refactor this
-	m_terrainProgram->setUniformValue("materials[0].minHeight", static_cast<float>(terrain.getMaterials()->at(0)->getHeightBounds()->x()));
-	m_terrainProgram->setUniformValue("materials[0].maxHeight", static_cast<float>(terrain.getMaterials()->at(0)->getHeightBounds()->y()));
-	m_terrainProgram->setUniformValue("materials[0].minSlope", static_cast<float>(terrain.getMaterials()->at(0)->getSlopeBounds()->x()));
-	m_terrainProgram->setUniformValue("materials[0].maxSlope", static_cast<float>(terrain.getMaterials()->at(0)->getSlopeBounds()->y()));
-	m_terrainProgram->setUniformValue("materials[0].specular", static_cast<float>(terrain.getMaterials()->at(0)->getSpecular()));
-	
-	m_terrainProgram->setUniformValue("materials[1].minHeight", static_cast<float>(terrain.getMaterials()->at(1)->getHeightBounds()->x()));
-	m_terrainProgram->setUniformValue("materials[1].maxHeight", static_cast<float>(terrain.getMaterials()->at(1)->getHeightBounds()->y()));
-	m_terrainProgram->setUniformValue("materials[1].minSlope", static_cast<float>(terrain.getMaterials()->at(1)->getSlopeBounds()->x()));
-	m_terrainProgram->setUniformValue("materials[1].maxSlope", static_cast<float>(terrain.getMaterials()->at(1)->getSlopeBounds()->y()));
-	m_terrainProgram->setUniformValue("materials[1].specular", static_cast<float>(terrain.getMaterials()->at(1)->getSpecular()));
-
-	m_terrainProgram->setUniformValue("materials[2].minHeight", static_cast<float>(terrain.getMaterials()->at(2)->getHeightBounds()->x()));
-	m_terrainProgram->setUniformValue("materials[2].maxHeight", static_cast<float>(terrain.getMaterials()->at(2)->getHeightBounds()->y()));
-	m_terrainProgram->setUniformValue("materials[2].minSlope", static_cast<float>(terrain.getMaterials()->at(2)->getSlopeBounds()->x()));
-	m_terrainProgram->setUniformValue("materials[2].maxSlope", static_cast<float>(terrain.getMaterials()->at(2)->getSlopeBounds()->y()));
-	m_terrainProgram->setUniformValue("materials[2].specular", static_cast<float>(terrain.getMaterials()->at(2)->getSpecular()));
-
-	m_terrainProgram->setUniformValue("materials[3].minHeight", static_cast<float>(terrain.getMaterials()->at(3)->getHeightBounds()->x()));
-	m_terrainProgram->setUniformValue("materials[3].maxHeight", static_cast<float>(terrain.getMaterials()->at(3)->getHeightBounds()->y()));
-	m_terrainProgram->setUniformValue("materials[3].minSlope", static_cast<float>(terrain.getMaterials()->at(3)->getSlopeBounds()->x()));
-	m_terrainProgram->setUniformValue("materials[3].maxSlope", static_cast<float>(terrain.getMaterials()->at(3)->getSlopeBounds()->y()));
-	m_terrainProgram->setUniformValue("materials[3].specular", static_cast<float>(terrain.getMaterials()->at(3)->getSpecular()));
-
+	m_terrainProgram->setUniformValue("heightMap", 0);
+	m_terrainProgram->setUniformValue("materials[0].facture", 1);
+	m_terrainProgram->setUniformValue("materials[1].facture", 2);
+	m_terrainProgram->setUniformValue("materials[2].facture", 3);
+	m_terrainProgram->setUniformValue("materials[3].facture", 4);
 	
 	
 	// set the terrain parameter uniforms
@@ -114,7 +93,7 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 		glFunc->glBindTexture(GL_TEXTURE_2D, materials->at(i)->getTextureName());
 
 
-		/*std::string materialStr = "materials[" + i;
+		std::string materialStr = "materials[" + i;
 		materialStr += "]";
 		auto minHeightStr = materialStr + ".minHeight";
 		auto maxHeightStr = materialStr + ".maxHeight";
@@ -125,7 +104,7 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 		m_terrainProgram->setUniformValue(maxHeightStr.c_str(), static_cast<float>(materials->at(i)->getHeightBounds()->y()));
 		m_terrainProgram->setUniformValue(minSlopeStr.c_str(), static_cast<float>(materials->at(i)->getSlopeBounds()->x()));
 		m_terrainProgram->setUniformValue(maxSlopeStr.c_str(), static_cast<float>(materials->at(i)->getSlopeBounds()->y()));
-		m_terrainProgram->setUniformValue(specularStr.c_str(), materials->at(i)->getSpecular());*/
+		m_terrainProgram->setUniformValue(specularStr.c_str(), materials->at(i)->getSpecular());
 	}
 
 	glFunc->glBindVertexArray(m_vao);
@@ -138,7 +117,7 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 		glFunc->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	//updateCameraHeight(terrain, camera);
+	updateCameraHeight(terrain, camera);
 
 
 	glFlush();
@@ -220,10 +199,10 @@ void OpenGLTerrain::updateCameraHeight(TerrainModel& terrain, CameraModel& camer
 	auto cameraX = (camera.getPosition()->x() + totalWidth / 2.f) / totalWidth;
 	auto cameraZ= (camera.getPosition()->z() + totalWidth / 2.f) / totalWidth;
 	auto camHmPos = QPoint(cameraX, cameraZ);
-	float height = -10.f - qRed(terrain.getHeightMapImage().pixel(camHmPos)) / 255.f;
-	//height = -height;
+	float height = 10.f + terrain.getHeightScale() * qRed(terrain.getHeightMapImage().pixel(camHmPos)) / 255.f;
+	height = -height;
 	//camera.setHeight(100);
-	if (camera.getPosition()->y() < height)// || camera.getPosition()->y() < height - 30.f)
+	if (camera.getPosition()->y() > height)// || camera.getPosition()->y() < height - 30.f)
 	{
 		camera.setHeight(height);
 	}

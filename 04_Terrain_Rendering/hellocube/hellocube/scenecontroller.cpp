@@ -91,20 +91,22 @@ void SceneController::wheelMoved(int wheelDelta) const
 void SceneController::keyPressed(int key) const
 {
 	auto currentCamera = m_viewPortWidget->getCurrentCamera();
-
+	QVector3D* vec;
 	switch (key)
 	{
 	case Qt::Key_W:
-		currentCamera->move(new QVector3D(0, 0, 2));
+		vec = &currentCamera->getRotation().rotatedVector(QVector3D(0, 0, 2));
+		currentCamera->move(vec);
+		break;
+	case Qt::Key_S:;
+		vec = &currentCamera->getRotation().rotatedVector(QVector3D(0, 0, -2));
+		currentCamera->move(vec);
 		break;
 	case Qt::Key_A:
-		currentCamera->move(new QVector3D(2, 0, 0));
-		break;
-	case Qt::Key_S:
-		currentCamera->move(new QVector3D(0, 0, -2));
+		currentCamera->rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), -10));
 		break;
 	case Qt::Key_D:
-		currentCamera->move(new QVector3D(-2, 0, 0));
+		currentCamera->rotate(QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), 10));
 		break;
 	case Qt::Key_R:
 		currentCamera->move(new QVector3D(0, -2, 0));

@@ -40,8 +40,8 @@ void TerrainModelFactory::fillTerrainModel(const QString& heightMapFile, const Q
 	fillMapSize(file, model);
 	fillMaxValue(file, model);
 	fillData(file, model);
-	createHeightMapTexture(model);
 	createMaterialTextures(textureFiles, model);
+	createHeightMapTexture(model);
 }
 
 void TerrainModelFactory::fillMapSize(QFile& file, TerrainModel& model)

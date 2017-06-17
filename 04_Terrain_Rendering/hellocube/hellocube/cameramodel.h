@@ -22,6 +22,7 @@ public:
 	QVector3D* getPointOfInterest() const;
 	QVector3D* getPosition() const;
 	void reset();
+	QQuaternion getRotation() const;
 private:
 	void updateOrthoProjection() const;
 

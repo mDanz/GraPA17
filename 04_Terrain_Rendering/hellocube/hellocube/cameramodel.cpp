@@ -144,20 +144,25 @@ void CameraModel::reset()
 	m_center = new QVector3D();
 }
 
+QQuaternion CameraModel::getRotation() const
+{
+	return m_rotation;
+}
+
 void CameraModel::updateOrthoProjection() const
 {
 	float top, bottom, left, right;
 
 	if (m_aspect > 1.0)
 	{
-		top = 1.0f;
+		top = 100.0f;
 		bottom = -top;
 		right = top * m_aspect;
 		left = -right;
 	}
 	else
 	{
-		right = 1.0f;
+		right = 100.0f;
 		left = -right;
 		top = right / m_aspect;
 		bottom = -top;

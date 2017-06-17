@@ -456,6 +456,13 @@ void OpenGLWidget::paintWithTerrainShaderProgram(QList<SceneItem*>* items) const
 		{
 			continue;
 		}
+		/*auto terrain = static_cast<TerrainModel*>(item);
+		auto heightMapImage = terrain->getHeightMapImage();
+		if (!heightMapImage.save("./tex/heightMap.jpg"))
+		{
+			qWarning() << "HeightMap not saved correctly";
+		}*/
+
 		auto glTerrain = static_cast<OpenGLTerrain*>(m_primitiveFactory->renderPrimitive(item->getPrimitiveType()));
 		if (glTerrain)
 		{
@@ -480,7 +487,8 @@ void OpenGLWidget::paintWithTerrainShaderProgram(QList<SceneItem*>* items) const
 	if (!img1.save("./tex/terrainTex_" + m_widgetName + ".jpg"))
 	{
 		qWarning() << "Terrain Texture not saved correctly";
-	}auto img2 = m_fbo->toImage(false, 1);
+	}
+	auto img2 = m_fbo->toImage(false, 1);
 	if (!img2.save("./tex/terrainPickTex_" + m_widgetName + ".jpg"))
 	{
 		qWarning() << "Terrain Pick Texture not saved correctly";
