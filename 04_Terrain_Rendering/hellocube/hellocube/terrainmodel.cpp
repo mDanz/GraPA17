@@ -13,7 +13,7 @@ TerrainModel::TerrainModel(RigidBodyTransformation* rigidBodyTransform, SceneIte
 	, m_isWireframeEnabled(false)
 	, m_isReady(false)
 {
-	m_scale = new QPointF(128, 100);
+	m_scale = new QPointF(100, 30);
 	m_fallOff = 1500.f;
 }
 

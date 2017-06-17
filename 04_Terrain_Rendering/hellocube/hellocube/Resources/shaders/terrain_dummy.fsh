@@ -65,7 +65,7 @@ vec4 material(vec2 uv, float height, float slope) {
     //vec3 testCol[4] = vec3[4](vec3(1,0,0), vec3(0,1,0), vec3(0,0,1), vec3(1,1,0));
     for(int i = 0; i < 4; i++) 
     {
-        color += amount[i] * vec4(texture(materials[i].facture, uv).xyz, materials[i].specular);
+        color += amount[i] * vec4(texture2D(materials[i].facture, uv).xyz, materials[i].specular);
         totalAmount += amount[i];
     }
 

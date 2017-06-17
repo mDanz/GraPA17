@@ -49,12 +49,12 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 
 	m_terrainProgram->setUniformValue("mvMatrix", *camera.getCameraMatrix());
 	m_terrainProgram->setUniformValue("projMatrix", *camera.getProjectionMatrix());
-	m_terrainProgram->setUniformValue("terrainWidthScale", 128.f);//, static_cast<float>(terrain.getWidthScale()));
+	m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(terrain.getWidthScale()));
 	m_terrainProgram->setUniformValue("terrainHeightScale", static_cast<float>(terrain.getHeightScale()));
 	m_terrainProgram->setUniformValue("cameraPos", *camera.getPointOfInterest());
 	m_terrainProgram->setUniformValue("control_cameraPos", *camera.getPointOfInterest());
 	m_terrainProgram->setUniformValue("fallOff", terrain.getFallOff());
-	m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale() * terrain.getMapSize()->x());// *m_terrainScaling);
+	m_terrainProgram->setUniformValue("totalTerrainWidth", static_cast<float>(terrain.getMapSize()->x()));// *m_terrainScaling);
 
 																	  // set the terrain parameter uniforms
 	//m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale());// *m_terrainScaling);
