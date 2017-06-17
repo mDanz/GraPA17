@@ -17,7 +17,7 @@ ViewPortWidget::ViewPortWidget(QWidget *parent)
 	m_quadView->show();
 	syncTop();
 	m_currentLayout = QuadView;
-	switchToView(SingleView);
+	switchToView(QuadView);
 }
 
 ViewPortWidget::~ViewPortWidget()

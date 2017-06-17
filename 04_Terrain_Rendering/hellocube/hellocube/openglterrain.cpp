@@ -16,8 +16,6 @@ OpenGLTerrain::OpenGLTerrain()
 OpenGLTerrain::~OpenGLTerrain()
 {
 	delete m_terrainProgram;
-	//m_vertexBuf.destroy();
-	//m_indexBuf.destroy();
 }
 
 void OpenGLTerrain::draw(QOpenGLShaderProgram* program)
@@ -89,13 +87,6 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 		glFunc->glBindTexture(GL_TEXTURE_2D, materials->at(i));
 	}
 
-	//m_vertexBuf.bind();
-	//int vertexLocation = m_terrainProgram->attributeLocation("in_position");
-	//m_terrainProgram->enableAttributeArray(vertexLocation);
-	//m_terrainProgram->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
-
-	//m_indexBuf.bind();
-	//glDrawElements(GL_PATCHES, m_indexBuf.size(), GL_UNSIGNED_SHORT, 0);
 	glFunc->glBindVertexArray(m_vao);
 	glDrawElements(GL_PATCHES, m_gridSize * m_gridSize * 4, GL_UNSIGNED_SHORT, 0);
 
@@ -158,20 +149,6 @@ void OpenGLTerrain::initGeometry()
 			indices.append(lo);
 		}
 	}
-
-
-	//m_vertexBuf.create();
-	//m_indexBuf.create();
-	//
-	//m_vertexBuf.bind();
-	//m_vertexBuf.allocate(vertices.data(), vertices.size() * sizeof(float));
-	//m_vertexBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
-	//
-	//m_indexBuf.bind();
-	//m_indexBuf.allocate(indices.data(), indices.size() * sizeof(ushort));
-	//m_indexBuf.setUsagePattern(QOpenGLBuffer::StaticDraw);
-	
-	//OpenGLHelper::getGLFunc()->glPatchParameteri(GL_PATCH_VERTICES, 4);
 
 	// set up the vao, vbo and ibo
 	auto glFunc = OpenGLHelper::getGLFunc();

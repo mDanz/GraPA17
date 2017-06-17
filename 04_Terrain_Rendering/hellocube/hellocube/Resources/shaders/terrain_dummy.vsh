@@ -17,5 +17,5 @@ void main(void)
     vec3 vPosition = vertex;//vec3(vertex.x + floor(cameraPos.x/terrainWidthScale), vertex.y, vertex.z + floor(cameraPos.z/terrainWidthScale));
     vPosition += vec3(floor(cameraPos.x/terrainWidthScale), 0.f, floor(cameraPos.z/terrainWidthScale));
     vPosition.xz *= terrainWidthScale;
-    //gl_Position = vec4(vPosition, 1.0f);//projMatrix * mvMatrix * vec4(vPosition, 1.0f);
+    gl_Position = vec4(vPosition, 1.0f);//projMatrix * mvMatrix * vec4(vPosition, 1.0f);
 }
