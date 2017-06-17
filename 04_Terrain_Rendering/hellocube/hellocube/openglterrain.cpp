@@ -49,10 +49,10 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 
 	m_terrainProgram->setUniformValue("mvMatrix", *camera.getCameraMatrix());
 	m_terrainProgram->setUniformValue("projMatrix", *camera.getProjectionMatrix());
-	m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(terrain.getWidthScale()));
+	m_terrainProgram->setUniformValue("terrainWidthScale", 128.f);//, static_cast<float>(terrain.getWidthScale()));
 	m_terrainProgram->setUniformValue("terrainHeightScale", static_cast<float>(terrain.getHeightScale()));
-	m_terrainProgram->setUniformValue("cameraPos", *camera.getPosition());
-	m_terrainProgram->setUniformValue("control_cameraPos", *camera.getPosition());
+	m_terrainProgram->setUniformValue("cameraPos", *camera.getPointOfInterest());
+	m_terrainProgram->setUniformValue("control_cameraPos", *camera.getPointOfInterest());
 	m_terrainProgram->setUniformValue("fallOff", terrain.getFallOff());
 	m_terrainProgram->setUniformValue("totalTerrainWidth", terrain.getWidthScale() * terrain.getMapSize()->x());// *m_terrainScaling);
 
@@ -61,14 +61,13 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	//m_terrainProgram->setUniformValue("terrainWidthScale", static_cast<float>(m_terrainScaling));
 	//m_terrainProgram->setUniformValue("terrainHeight", terrain.getHeightScale());
 
-	m_terrainProgram->setUniformValue("heightMap", 0);
+	//m_terrainProgram->setUniformValue("heightMap", 0);
 	//m_terrainProgram->setUniformValue("fracture[0]", 1);
 	//m_terrainProgram->setUniformValue("fracture[1]", 2);
 	//m_terrainProgram->setUniformValue("fracture[2]", 3);
 	//m_terrainProgram->setUniformValue("fracture[3]", 4);
 	//
 	//m_terrainProgram->setUniformValue("testSampler", 2);
-
 
 	// set the fragment shader uniforms
 	//m_terrainProgram->setUniformValue("frag_viewMat", QMatrix4x4());// *(camera.getCameraMatrix()));
@@ -84,7 +83,21 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	for (int i = 0; i < materials->size(); i++)
 	{
 		glFunc->glActiveTexture(GL_TEXTURE1 + i);
-		glFunc->glBindTexture(GL_TEXTURE_2D, materials->at(i));
+		glFunc->glBindTexture(GL_TEXTURE_2D, materials->at(i)->getTextureName());
+
+
+		std::string materialStr = "materials[" + i;
+		materialStr += "]";
+		auto minHeightStr = materialStr + ".minHeight";
+		auto maxHeightStr = materialStr + ".maxHeight";
+		auto minSlopeStr = materialStr + ".minSlope";
+		auto maxSlopeStr = materialStr + ".maxSlope";
+		auto specularStr = materialStr + ".specular";
+		m_terrainProgram->setUniformValue(minHeightStr.c_str(), static_cast<float>(materials->at(i)->getHeightBounds()->x()));
+		m_terrainProgram->setUniformValue(maxHeightStr.c_str(), static_cast<float>(materials->at(i)->getHeightBounds()->y()));
+		m_terrainProgram->setUniformValue(minSlopeStr.c_str(), static_cast<float>(materials->at(i)->getSlopeBounds()->x()));
+		m_terrainProgram->setUniformValue(maxSlopeStr.c_str(), static_cast<float>(materials->at(i)->getSlopeBounds()->y()));
+		m_terrainProgram->setUniformValue(specularStr.c_str(), 3);
 	}
 
 	glFunc->glBindVertexArray(m_vao);
@@ -108,10 +121,10 @@ void OpenGLTerrain::initializeShaderProgram()
 	m_terrainProgram = OpenGLHelper::createShaderProgram(m_dummy_vshFile, m_dummy_tcsFile, m_dummy_tesFile, m_dummy_fshFile);
 
 	m_terrainProgram->setUniformValue("heightMap", 0);
-	/*m_terrainProgram->setUniformValue("fracture[0]", 1);
-	m_terrainProgram->setUniformValue("fracture[1]", 2);
-	m_terrainProgram->setUniformValue("fracture[2]", 3);
-	m_terrainProgram->setUniformValue("fracture[3]", 4);*/
+	m_terrainProgram->setUniformValue("materials[0].facture", 1);
+	m_terrainProgram->setUniformValue("materials[1].facture", 2);
+	m_terrainProgram->setUniformValue("materials[2].facture", 3);
+	m_terrainProgram->setUniformValue("materials[3].facture", 4);
 
 	if (!m_terrainProgram->link())
 	{

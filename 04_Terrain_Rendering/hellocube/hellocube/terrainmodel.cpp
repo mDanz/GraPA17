@@ -148,9 +148,9 @@ GLuint TerrainModel::getScalarType()
 	return GL_UNSIGNED_BYTE;
 }
 
-void TerrainModel::setMaterials(QVector<GLuint> *materialFiles)
+void TerrainModel::setMaterials(QVector<Material*> *materials)
 {
-	m_materials = materialFiles;
+	m_materials = materials;
 
 	if (m_isReady)
 	{
@@ -158,11 +158,11 @@ void TerrainModel::setMaterials(QVector<GLuint> *materialFiles)
 	}
 }
 
-QVector<GLuint>* TerrainModel::getMaterials()
+QVector<Material*>* TerrainModel::getMaterials()
 {
 	if (!m_materials)
 	{
-		m_materials = new QVector<GLuint>;
+		m_materials = new QVector<Material*>;
 	}
 	return m_materials;
 }

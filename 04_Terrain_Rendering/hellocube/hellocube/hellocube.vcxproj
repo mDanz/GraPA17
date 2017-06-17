@@ -146,6 +146,7 @@
     <ClCompile Include="histogram.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
+    <ClCompile Include="material.cpp" />
     <ClCompile Include="objectid.cpp" />
     <ClCompile Include="openglcone.cpp" />
     <ClCompile Include="openglcube.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="cameramodel.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="histogram.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="objectid.h" />
     <ClInclude Include="openglcone.h" />
     <ClInclude Include="openglcube.h" />

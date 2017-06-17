@@ -122,33 +122,41 @@ void TerrainModelFactory::createMaterialTextures(const QStringList& textureFiles
 {
 	for (int i = 0; i < textureFiles.size(); i++) 
 	{
-		auto texName = createMaterial(textureFiles.at(i));
-		model.getMaterials()->append(texName);
+		auto material = createMaterial(textureFiles.at(i), i);
+		model.getMaterials()->append(material);
 	}
 }
 
-GLuint TerrainModelFactory::createMaterial(const QString &path)
+Material* TerrainModelFactory::createMaterial(const QString &path, int index)
 {
+	GLuint texName;
+
 	QImage img(path);
 	if (img.isNull()) {
 		qWarning() << "Cold not load material texture" << path << "!";
-		return GL_INVALID_VALUE;
+		texName =  GL_INVALID_VALUE;
+	}
+	else
+	{
+		// create and fill the texture
+		auto glFunc = OpenGLHelper::getGLFunc();
+
+		glFunc->glActiveTexture(GL_TEXTURE0);
+		glFunc->glGenTextures(1, &texName);
+		glFunc->glBindTexture(GL_TEXTURE_2D, texName);
+		glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.width(), img.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, img.bits());
+
+		glFunc->glGenerateMipmap(GL_TEXTURE_2D);
+
+		qInfo() << "new Material Texture " << texName << OpenGLHelper::Error();
 	}
 
-	// create and fill the texture
-	auto glFunc = OpenGLHelper::getGLFunc();
-	GLuint texName;
-	glFunc->glActiveTexture(GL_TEXTURE0);
-	glFunc->glGenTextures(1, &texName);
-	glFunc->glBindTexture(GL_TEXTURE_2D, texName);
-	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//    glf->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,  GL_LINEAR);
-	//    glf->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,  GL_LINEAR);
-	glFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.width(), img.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, img.bits());
+	auto heightBounds = new QPointF(index*0.25f, (index + 1)*0.25f);
+	auto slopeBounds = new QPointF(index*0.25f, (index + 1)*0.25f);
+	auto specular = index * 10 + 1;
 
-	glFunc->glGenerateMipmap(GL_TEXTURE_2D);
-	// save the texture name in the vector
-	qInfo() << "new Material Texture " << texName << OpenGLHelper::Error();
-	return texName;
+	return new Material(texName, heightBounds, slopeBounds, specular);
 }
+

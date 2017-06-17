@@ -95,18 +95,26 @@ void SceneController::keyPressed(int key) const
 	switch (key)
 	{
 	case Qt::Key_W:
-		currentCamera->move(new QVector3D(0, 0, 1));
+		currentCamera->move(new QVector3D(0, 0, 2));
 		break;
 	case Qt::Key_A:
-		currentCamera->move(new QVector3D(-1, 0, 0));
+		currentCamera->move(new QVector3D(2, 0, 0));
 		break;
 	case Qt::Key_S:
-		currentCamera->move(new QVector3D(0, 0, -1));
+		currentCamera->move(new QVector3D(0, 0, -2));
 		break;
 	case Qt::Key_D:
-		currentCamera->move(new QVector3D(1, 0, 0));
+		currentCamera->move(new QVector3D(-2, 0, 0));
+		break;
+	case Qt::Key_R:
+		currentCamera->move(new QVector3D(0, -2, 0));
+		break;
+	case Qt::Key_F:
+		currentCamera->move(new QVector3D(0, 2, 0));
 		break;
 	}
+
+	m_viewPortWidget->update();
 }
 
 void SceneController::resetCamera() const

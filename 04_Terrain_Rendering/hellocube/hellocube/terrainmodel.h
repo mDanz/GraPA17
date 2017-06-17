@@ -1,6 +1,7 @@
 #pragma once
 #include "sceneitem.h"
 #include <qimage.h>
+#include "material.h"
 
 class QOpenGLTexture;
 
@@ -26,8 +27,8 @@ public:
 	void setTextureName(int textureName);
 	QPoint* getMapSize() const;
 	GLuint getScalarType();
-	void setMaterials(QVector<GLuint> *materialFiles);
-	QVector<GLuint> *getMaterials();
+	void setMaterials(QVector<Material*> *materials);
+	QVector<Material*> *getMaterials();
 	bool isWireframeEnabled() const;
 	void updateWireframEnabled(bool isEnabled);
 	bool isReady() const;
@@ -53,7 +54,7 @@ private:
 	int m_scalarByteSize;
 	int m_maxValue;
 	GLuint m_textureName;
-	QVector<GLuint> *m_materials;
+	QVector<Material*> *m_materials;
 	bool m_isWireframeEnabled;
 	bool m_isReady;
 	QVector<unsigned short> m_realData;
