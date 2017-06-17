@@ -1,7 +1,7 @@
 #include "material.h"
 
 Material::Material(GLuint texName, QPointF* heightBounds, QPointF* slopeBounds, float specular)
-	: m_textureName(GL_INVALID_VALUE)
+	: m_textureName(texName)
 	, m_heightBounds(heightBounds)
 	, m_slopeBounds(slopeBounds)
 	, m_specular(0)

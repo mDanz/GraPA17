@@ -78,7 +78,7 @@ vec4 material(vec2 uv, float height, float slope) {
 
 void main()
 {
-	vec4 color = vec4(material(posInWorld.xz, height, 0.f));//normal.y);
+	vec4 color = vec4(material(posInWorld.xz/10, height, 0.f));//normal.y);
 
 
 	colorBuffer = color;

@@ -203,7 +203,7 @@
     <ClInclude Include="cameramodel.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="histogram.h" />
-    <ClInclude Include="Material.h" />
+    <ClInclude Include="material.h" />
     <ClInclude Include="objectid.h" />
     <ClInclude Include="openglcone.h" />
     <ClInclude Include="openglcube.h" />

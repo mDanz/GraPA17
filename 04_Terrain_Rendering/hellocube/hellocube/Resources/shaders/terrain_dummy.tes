@@ -24,20 +24,20 @@ vec3 interpolate(in vec3 v0, in vec3 v1, in vec3 v2, in vec3 v3)
  
 void main()
 { 
-	vec3 position = interpolate(gl_in[0].gl_Position.xyz, gl_in[1].gl_Position.xyz, gl_in[2].gl_Position.xyz, gl_in[3].gl_Position.xyz);
+	vec3 tePosition = interpolate(gl_in[0].gl_Position.xyz, gl_in[1].gl_Position.xyz, gl_in[2].gl_Position.xyz, gl_in[3].gl_Position.xyz);
 	//vec2 uv = gl_Position.xz;
 
-	vec3 tePosition = interpolate(tcPosition[0], tcPosition[1], tcPosition[2], tcPosition[3]);
+	//vec3 tePosition = interpolate(tcPosition[0], tcPosition[1], tcPosition[2], tcPosition[3]);
 
     // sample the height
 	vec2 totalSize = vec2(totalTerrainWidth, totalTerrainWidth);
-    vec2 uv = (position.xz+(totalSize/2.f))/totalSize;
+    vec2 uv = (tePosition.xz+(totalSize/2.f))/totalSize;
 
     int lod = 0;
     height = textureLod(heightMap, uv, lod).r;
     //height = terrainHeightScale;
-    position.y = height * terrainHeightScale;
-    posInWorld = position;
+    tePosition.y = height * terrainHeightScale;
+    posInWorld = tePosition;
 
-	gl_Position = projMatrix * mvMatrix * vec4(position, 1.0f);
+	gl_Position = projMatrix * mvMatrix * vec4(tePosition, 1.0f);
 }
