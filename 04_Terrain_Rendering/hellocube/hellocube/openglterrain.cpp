@@ -54,7 +54,7 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	m_terrainProgram->setUniformValue("cameraPos", *camera.getPointOfInterest());
 	m_terrainProgram->setUniformValue("control_cameraPos", *camera.getPointOfInterest());
 	m_terrainProgram->setUniformValue("fallOff", terrain.getFallOff());
-	m_terrainProgram->setUniformValue("totalTerrainWidth", static_cast<float>(terrain.getMapSize()->x() * terrain.getWidthScale()));// *m_terrainScaling);
+	m_terrainProgram->setUniformValue("totalTerrainWidth", static_cast<float>(terrain.getMapSize()->x()));// * terrain.getWidthScale()));// *m_terrainScaling);
 
 	m_terrainProgram->setUniformValue("heightMap", 0);
 	m_terrainProgram->setUniformValue("materials[0].facture", 1);

@@ -45,7 +45,7 @@ void main()
 
     // sample the height
 	vec2 totalSize = vec2(totalTerrainWidth, totalTerrainWidth);
-    vec2 uv = ((tePosition.xz + (totalSize / 2.f)) / totalSize + 0.5f) * 4096.f;
+    vec2 uv = (tePosition.xz + totalSize / 2.f) / totalSize;
 
 	// get the heightmap texture LOD
     eLod = cLod[0];
@@ -55,7 +55,7 @@ void main()
     //height = terrainHeightScale;
     tePosition.y = height * terrainHeightScale;
     posInWorld = tePosition;
-    posInView = (mvMatrix * vec4(tePosition, 1)).xyz;
+    posInView = (mvMatrix * vec4(tePosition, 1.0f)).xyz;
 
     // calculate the normal from the heightmap
     vec2 size = textureSize(heightMap, lod);

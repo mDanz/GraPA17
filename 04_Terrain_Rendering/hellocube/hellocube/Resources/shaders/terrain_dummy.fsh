@@ -39,7 +39,7 @@ vec4 material(vec2 uv, float height, float slope)
         {
             float span = materials[i].maxSlope - materials[i].minSlope;
             float weight = 4.f * (1.f - 2.f*abs(slope - materials[i].minSlope - span/2.f)/span);
-            color = weight * vec4(texture(materials[i].facture, uv).xyz, materials[i].specular);
+            color = weight * vec4(texture2D(materials[i].facture, uv).xyz, materials[i].specular);
             totalAmount += weight;
             break;
         }
@@ -66,10 +66,10 @@ vec4 material(vec2 uv, float height, float slope)
     }
 
     // mix the materials
-    vec3 testCol[4] = vec3[4](vec3(1,0,0), vec3(0,1,0), vec3(0,0,1), vec3(1,1,0));
+    //vec3 testCol[4] = vec3[4](vec3(1,0,0), vec3(0,1,0), vec3(0,0,1), vec3(1,1,0));
     for(int i = 0; i < 4; i++) 
     {
-        color += amount[i] * vec4(texture2D(materials[i].facture, uv).xyz, materials[i].specular);
+        color += amount[i] * vec4(texture2D(materials[i].facture, uv).rgb, materials[i].specular);
         totalAmount += amount[i];
     }
 
@@ -85,9 +85,9 @@ vec3 lighting(vec3 pos, vec3 normal, vec3 viewPos, vec3 color, float shininess)
 
     const int LIGHT_COUNT = 2;
 
-    const vec3 lights[2] = vec3[2](vec3(0.f, 500.f, 60.f), vec3(40.f, 100.f, 10.f));
-    vec3 diffuseCol = vec3(1.f, 0.9f, 1.f);
-    vec3 specularCol = vec3(1.f);
+    const vec3 lights[2] = vec3[2](vec3(0.f, 500.f, 60.f), vec3(100.f, 500.f, 0.f));
+    vec3 diffuseCol = vec3(.4f, 0.3f, .4f);
+    vec3 specularCol = vec3(.8f);
     vec3 ambientCol = vec3(0.1f, 0.08f, 0.09f);
     float intensity = 1.f;
 
@@ -98,17 +98,20 @@ vec3 lighting(vec3 pos, vec3 normal, vec3 viewPos, vec3 color, float shininess)
     {
         vec3 lightPos = lights[i];
         vec3 toEye = normalize(-viewPos);//normalize(-(frag_viewMat * vec4(0.f, 0, 0, 1)).xyz);//
-        vec3 toLight = normalize(lightPos - pos);
-        vec3 reflect = reflect(toLight, normal);
+        vec3 toLight = lightPos - pos;
+        //float lightDistance = length(toLight);
+        toLight = normalize(toLight);
+        vec3 reflect = normalize(reflect(toLight, normal));
 
         //return vec3(normalize(pos));//toEye - normal);
 
-        vec3 diffuseSum = intensity * diffuseCol * max(dot(normal, toLight), 0.f);
-        vec3 specularSum = (shininess+2)/6.28318f * pow(max(dot(-toEye, reflect), 0.f), shininess) * specularCol;
+        vec3 diffuseSum = diffuseCol * max(dot(normal, toLight), 0.f) / 2.f;
+        vec3 specularSum = pow(clamp(dot(-toEye, reflect), 0.0, 1.0), shininess) * specularCol / 2.f;//(shininess+2)/6.28318f * pow(max(dot(-toEye, reflect), 0.f), shininess) * specularCol;
 
-        retCol += diffuseSum + specularSum;
+        retCol += diffuseSum;
+        retCol += specularSum;
     }
-    retCol = clamp(retCol, vec3(0.f), vec3(2.f));
+    //retCol = clamp(retCol, vec3(0.f), vec3(2.f));
     return retCol * color;
 }
 
@@ -123,7 +126,7 @@ void main()
 	    lodColor = vec4(1.f);
 	}
 // ------------------------------
-
-	colorBuffer = color;//vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
-	idBuffer = lodColor;//lodColor;//texture2D(heightMap, (posInWorld.xz+4096/2)/4096);
+	//color = vec4(0.f, 1.f, 0.f, 1.f);
+	colorBuffer = vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
+	idBuffer = color;//lodColor;//texture2D(heightMap, (posInWorld.xz+4096/2)/4096);
 }
