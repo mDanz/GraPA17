@@ -16,6 +16,7 @@ in vec3 posInWorld;
 in vec3 posInView;
 in float height;
 in vec3 normal;
+flat in int eLod;
 
 uniform Material materials[4];
 
@@ -96,7 +97,7 @@ vec3 lighting(vec3 pos, vec3 normal, vec3 viewPos, vec3 color, float shininess)
     for(int i = 0; i < LIGHT_COUNT; i++) 
     {
         vec3 lightPos = lights[i];
-        vec3 toEye = normalize(-viewPos);//normalize(-(frag_viewMat * vec4(0.f, 0, 0, 1)).xyz);
+        vec3 toEye = normalize(-viewPos);//normalize(-(frag_viewMat * vec4(0.f, 0, 0, 1)).xyz);//
         vec3 toLight = normalize(lightPos - pos);
         vec3 reflect = reflect(toLight, normal);
 
@@ -107,14 +108,22 @@ vec3 lighting(vec3 pos, vec3 normal, vec3 viewPos, vec3 color, float shininess)
 
         retCol += diffuseSum + specularSum;
     }
-    //retCol = clamp(retCol, vec3(0.f), vec3(2.f));
+    retCol = clamp(retCol, vec3(0.f), vec3(2.f));
     return retCol * color;
 }
 
 void main()
 {
-	vec4 color = vec4(material(posInWorld.xz/10, height, normal.y));
+	vec4 color = vec4(material((posInWorld.xz+512/2)/512, height, normal.y));
 
-	colorBuffer = vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
-	idBuffer = texture2D(materials[1].facture, (posInWorld.xz+512/2)/512);
+// LOD Visualization ------------
+	vec4 lodColor = vec4((eLod%3)/3.f, ((eLod+1)%4)/4.f, ((eLod+2)%3)/3.f, 1.f);
+	if(eLod==0) 
+	{
+	    lodColor = vec4(1.f);
+	}
+// ------------------------------
+
+	colorBuffer = color;//vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
+	idBuffer = lodColor;//lodColor;//texture2D(heightMap, (posInWorld.xz+4096/2)/4096);
 }

@@ -54,7 +54,7 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	m_terrainProgram->setUniformValue("cameraPos", *camera.getPointOfInterest());
 	m_terrainProgram->setUniformValue("control_cameraPos", *camera.getPointOfInterest());
 	m_terrainProgram->setUniformValue("fallOff", terrain.getFallOff());
-	m_terrainProgram->setUniformValue("totalTerrainWidth", static_cast<float>(terrain.getMapSize()->x()));// *m_terrainScaling);
+	m_terrainProgram->setUniformValue("totalTerrainWidth", static_cast<float>(terrain.getMapSize()->x() * terrain.getWidthScale()));// *m_terrainScaling);
 
 	m_terrainProgram->setUniformValue("heightMap", 0);
 	m_terrainProgram->setUniformValue("materials[0].facture", 1);
@@ -192,17 +192,23 @@ void OpenGLTerrain::initGeometry()
 
 void OpenGLTerrain::updateCameraHeight(TerrainModel& terrain, CameraModel& camera) const
 {
+	if (camera.isOrthographic())
+	{
+		return;
+	}
+
 	//todo refactor this
-	float totalWidth = terrain.getMapSize()->x() * terrain.getWidthScale();// * m_terrainScaling;
-	//(gl_Position.xz + totalSize / 2.f) / totalSize
-	//auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getMapSize()->x(),(camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getMapSize()->y());
-	auto cameraX = (camera.getPosition()->x() + totalWidth / 2.f) / totalWidth;
-	auto cameraZ= (camera.getPosition()->z() + totalWidth / 2.f) / totalWidth;
-	auto camHmPos = QPoint(cameraX, cameraZ);
-	float height = 10.f + terrain.getHeightScale() * qRed(terrain.getHeightMapImage().pixel(camHmPos)) / 255.f;
+	float totalWidth = terrain.getMapSize()->x();// *terrain.getWidthScale();
+	auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getWidthScale(),(-camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getWidthScale());
+	//auto cameraX = (camera.getPointOfInterest()->x() + totalWidth / 2.f) / totalWidth *terrain.getMapSize()->x();
+	//auto cameraZ = (camera.getPointOfInterest()->z() + totalWidth / 2.f) / totalWidth *terrain.getMapSize()->y();
+	//auto camHmPos = QPoint(cameraX, cameraZ);
+	float height = 2.f + terrain.getHeightScale() * qRed(terrain.getHeightMapImage().pixel(camHmPos)) / 255.f;
 	height = -height;
 	//camera.setHeight(100);
-	if (camera.getPosition()->y() > height)// || camera.getPosition()->y() < height - 30.f)
+
+	qInfo() << "Camera: " << camera.getPointOfInterest()->y() << "	Height: " << height << "	Position: " << camHmPos;
+	if (camera.getPointOfInterest()->y() > height)// || camera.getPosition()->y() < height - 30.f)
 	{
 		camera.setHeight(height);
 	}

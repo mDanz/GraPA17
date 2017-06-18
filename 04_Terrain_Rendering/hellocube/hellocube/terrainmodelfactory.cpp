@@ -153,10 +153,42 @@ Material* TerrainModelFactory::createMaterial(const QString &path, int index)
 		qInfo() << "new Material Texture " << texName << OpenGLHelper::Error();
 	}
 
-	auto heightBounds = new QPointF(index*0.25f, (index + 1)*0.25f);
-	auto slopeBounds = new QPointF(index*0.25f, (index + 1)*0.25f);
-	auto specular = index * 10 + 1;
 
-	return new Material(texName, heightBounds, slopeBounds, specular);
+	QPointF heightBounds;
+	QPointF slopeBounds;
+	float specular;
+	switch(index)
+	{
+	case 0 :
+		heightBounds = QPointF(0.f, 0.2f);
+		slopeBounds = QPointF(0.8f, 0.1f);
+		specular = 1.f;
+		break;
+	case 1:
+		heightBounds = QPointF(0.25f, 0.45f);
+		slopeBounds = QPointF(0.6f, 0.7f);
+		specular = 10.f;
+		break;
+	case 2:
+		heightBounds = QPointF(0.f, 0.2f);
+		slopeBounds = QPointF(0.8f, 0.1f);
+		specular = 1.f;
+		break;
+	case 3:
+		heightBounds = QPointF(0.5f, 0.75f);
+		slopeBounds = QPointF(-1.f, -1.f);
+		specular = 3.f;
+		break;
+	default:
+		heightBounds = QPointF(0.8f, 1.f);
+		slopeBounds = QPointF(0.0f, 0.4f);
+		specular = 50.f;
+
+	}
+
+	//auto heightBounds = new QPointF(index*0.25f, (index + 1)*0.25f);
+	//auto slopeBounds = new QPointF(index*0.25f, (index + 1)*0.25f);
+	//auto specular = index * 10 + 1;
+
+	return new Material(texName, &heightBounds, &slopeBounds, specular);
 }
-

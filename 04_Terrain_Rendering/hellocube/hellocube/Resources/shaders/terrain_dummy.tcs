@@ -10,6 +10,7 @@ uniform float fallOff;
 uniform vec3 control_cameraPos;
 
 out vec3 tcPosition[];
+flat out int cLod[];
 
 
 int getExp(float distance) 
@@ -36,6 +37,9 @@ void main(void)
     // calculate the camera distance and the tesselation level
     float distance = length(control_cameraPos.xz - gl_in[gl_InvocationID].gl_Position.xz);
     int tessLevel = getTesselation(distance);
+
+	// calculate the mip map level for the heightmap sampling
+    cLod[gl_InvocationID] = MAX_TESS_POW - getExp(distance);
 
     // the inner tesselation levels are constant
     gl_TessLevelInner[0] = tessLevel;

@@ -3,6 +3,7 @@
 layout(quads, equal_spacing, cw) in;
 
 in vec3 tcPosition[];
+flat in int cLod[];
 
 uniform mat4 mvMatrix;
 uniform mat4 projMatrix;
@@ -15,15 +16,26 @@ out vec3 posInWorld;
 out vec3 posInView;
 out float height;
 out vec3 normal;
+flat out int eLod;
 
 //quad interpol
 vec3 interpolate(in vec3 v0, in vec3 v1, in vec3 v2, in vec3 v3)
 {
- vec3 a = mix(v0, v1, gl_TessCoord.x);
- vec3 b = mix(v3, v2, gl_TessCoord.x);
- return mix(a, b, gl_TessCoord.y);
+    vec3 a = mix(v0, v1, gl_TessCoord.x);
+    vec3 b = mix(v3, v2, gl_TessCoord.x);
+    return mix(a, b, gl_TessCoord.y);
 }
- 
+
+int getLod()
+{
+    if(gl_TessCoord.x == 0 || gl_TessCoord.x == 1 || gl_TessCoord.y == 0 || gl_TessCoord.y == 1)
+    {
+        return 0;
+	}
+
+    return cLod[0];
+} 
+
 void main()
 { 
 	vec3 tePosition = interpolate(gl_in[0].gl_Position.xyz, gl_in[1].gl_Position.xyz, gl_in[2].gl_Position.xyz, gl_in[3].gl_Position.xyz);
@@ -33,9 +45,12 @@ void main()
 
     // sample the height
 	vec2 totalSize = vec2(totalTerrainWidth, totalTerrainWidth);
-    vec2 uv = (tePosition.xz+(totalSize/2.f))/totalSize;
+    vec2 uv = ((tePosition.xz + (totalSize / 2.f)) / totalSize + 0.5f) * 4096.f;
 
-    int lod = 0;
+	// get the heightmap texture LOD
+    eLod = cLod[0];
+    int lod = getLod();
+
     height = textureLod(heightMap, uv, lod).r;
     //height = terrainHeightScale;
     tePosition.y = height * terrainHeightScale;
@@ -49,7 +64,9 @@ void main()
     vec3 hx = vec3((uv.x + step) * totalTerrainWidth, terrainHeightScale * textureLod(heightMap, uv + vec2(step, 0.f), lod).r, uv.y * totalTerrainWidth);
     vec3 hz = vec3(uv.x * totalTerrainWidth, terrainHeightScale * textureLod(heightMap, uv + vec2(0.f, step), lod).r, (uv.y + step)*totalTerrainWidth);
 
-    normal = cross(hz - vec3(uv.x * totalTerrainWidth, terrainHeightScale * height, uv.y * totalTerrainWidth), hx - vec3(uv.x * totalTerrainWidth, terrainHeightScale * height, uv.y * totalTerrainWidth));
+    vec3 h_xz = vec3(uv.x * totalTerrainWidth, terrainHeightScale * height, uv.y * totalTerrainWidth);
+
+    normal = cross(hz - h_xz, hx - h_xz);
     normal = normalize(normal);
 
 	gl_Position = projMatrix * mvMatrix * vec4(tePosition, 1.0f);
