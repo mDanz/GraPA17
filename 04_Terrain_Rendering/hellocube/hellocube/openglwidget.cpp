@@ -276,7 +276,6 @@ void OpenGLWidget::initializeVolumeShaderProgram()
 
 QPointF OpenGLWidget::pixelPosToScreenPos(const QPointF &pos) const
 {
-	//todo fix needed
 	auto x = 2.0 * float(pos.x()) / width() - 1.0;
 	auto y = 1.0 - 2.0 * float(pos.y()) / height();
 	return QPointF(x, y);
@@ -441,14 +440,6 @@ void OpenGLWidget::paintWithTerrainShaderProgram(QList<SceneItem*>* items) const
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	OpenGLHelper::getGLFunc()->glDrawBuffers(2, buffers);
 
-	/*m_terrainProgram->bind();
-	m_terrainProgram->setUniformValue("projMatrix", *m_cameraModel->getProjectionMatrix());
-	m_terrainProgram->setUniformValue("lightPos", m_lightPos);
-	m_terrainProgram->setUniformValue("ambientColor", m_ka);
-	m_terrainProgram->setUniformValue("diffuseColor", m_kd);
-	m_terrainProgram->setUniformValue("specularColor", m_ks);
-	m_terrainProgram->setUniformValue("specularExp", m_specExp);
-*/
 	for (auto i = 0; i < items->count(); i++)
 	{
 		auto item = items->at(i);
@@ -456,31 +447,15 @@ void OpenGLWidget::paintWithTerrainShaderProgram(QList<SceneItem*>* items) const
 		{
 			continue;
 		}
-		/*auto terrain = static_cast<TerrainModel*>(item);
-		auto heightMapImage = terrain->getHeightMapImage();
-		if (!heightMapImage.save("./tex/heightMap.jpg"))
-		{
-			qWarning() << "HeightMap not saved correctly";
-		}*/
 
 		auto glTerrain = static_cast<OpenGLTerrain*>(m_primitiveFactory->renderPrimitive(item->getPrimitiveType()));
 		if (glTerrain)
 		{
 			glTerrain->draw(*static_cast<TerrainModel*>(item), *m_cameraModel);
 		}
-		
-		//m_world = *m_cameraModel->getCameraMatrix();
 
-		/*m_terrainProgram->setUniformValue("idColor", item->getId()->getIdAsColor());
-		m_terrainProgram->setUniformValue("mvMatrix", *m_cameraModel->getCameraMatrix() * m_world);
-		m_terrainProgram->setUniformValue("normalMatrix", m_world.normalMatrix());
-*/
-		//m_primitiveFactory->renderPrimitive(item->getPrimitiveType())->draw(nullptr);
-		//m_primitiveFactory->renderPrimitive(Cube)->draw(m_terrainProgram);
 	}
-	//glFlush();
 
-	//m_terrainProgram->release();
 	m_fbo->release();
 
 	auto img1 = m_fbo->toImage(false, 0);

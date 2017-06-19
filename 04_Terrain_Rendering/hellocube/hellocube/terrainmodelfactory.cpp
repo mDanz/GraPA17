@@ -76,16 +76,10 @@ void TerrainModelFactory::createHeightMapTexture(TerrainModel& model)
 	generateHeightMapTexture(model, glFunc);
 	glFunc->glBindTexture(GL_TEXTURE_2D, model.getHeighMapTextureName());
 
-	// set up wrapping, filtering and pixel alignment todo see if this is correct
 	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	//glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	//glFunc->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -1.0f);
-	//glFunc->glGenerateMipmap(GL_TEXTURE_2D);
 
 	glFunc->glTexImage2D(GL_TEXTURE_2D, 0, GL_R16, model.getMapSize()->x(), model.getMapSize()->y(), 0, GL_RED, model.getScalarType(), model.getData().data());
-	//glFunc->glBindTexture(GL_TEXTURE_2D, model.getHeighMapTextureName());
 
 	glFunc->glGenerateMipmap(GL_TEXTURE_2D);
 	glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);

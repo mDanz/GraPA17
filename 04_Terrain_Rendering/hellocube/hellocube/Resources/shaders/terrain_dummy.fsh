@@ -85,10 +85,10 @@ vec3 lighting(vec3 pos, vec3 normal, vec3 viewPos, vec3 color, float shininess)
 
     const int LIGHT_COUNT = 2;
 
-    const vec3 lights[2] = vec3[2](vec3(0.f, 500.f, 60.f), vec3(100.f, 500.f, 0.f));
-    vec3 diffuseCol = vec3(.4f, 0.3f, .4f);
-    vec3 specularCol = vec3(.8f);
-    vec3 ambientCol = vec3(0.1f, 0.08f, 0.09f);
+    const vec3 lights[2] = vec3[2](vec3(0.f, -500.f, 60.f), vec3(40.f, -100.f, 10.f));
+    vec3 diffuseCol = vec3(.1f, 0.09f, .1f);
+    vec3 specularCol = vec3(1.f);
+    vec3 ambientCol = vec3(0.2f, 0.18f, 0.19f);
     float intensity = 1.f;
 
     vec3 retCol = ambientCol;
@@ -101,7 +101,7 @@ vec3 lighting(vec3 pos, vec3 normal, vec3 viewPos, vec3 color, float shininess)
         vec3 toLight = lightPos - pos;
         //float lightDistance = length(toLight);
         toLight = normalize(toLight);
-        vec3 reflect = normalize(reflect(toLight, normal));
+        vec3 reflect = reflect(toLight, normal);
 
         //return vec3(normalize(pos));//toEye - normal);
 
@@ -117,7 +117,7 @@ vec3 lighting(vec3 pos, vec3 normal, vec3 viewPos, vec3 color, float shininess)
 
 void main()
 {
-	vec4 color = vec4(material((posInWorld.xz+512/2)/512, height, normal.y));
+	vec4 terColor = vec4(material((posInWorld.xz+512/2)/512, height, normal.y));
 
 // LOD Visualization ------------
 	vec4 lodColor = vec4((eLod%3)/3.f, ((eLod+1)%4)/4.f, ((eLod+2)%3)/3.f, 1.f);
@@ -126,8 +126,8 @@ void main()
 	    lodColor = vec4(1.f);
 	}
 // ------------------------------
-	
-	color = vec4(0.f, 1.f, 0.f, 1.f);
-	colorBuffer = vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
+
+	vec4 color = terColor;//vec4(0.f, 1.f, 0.f, 1.f);
+	colorBuffer = vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 4.f);
 	idBuffer = lodColor;//texture2D(heightMap, (posInWorld.xz+4096/2)/4096);
 }
