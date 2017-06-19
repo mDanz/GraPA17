@@ -54,7 +54,7 @@ void OpenGLTerrain::draw(TerrainModel& terrain, CameraModel& camera)
 	m_terrainProgram->setUniformValue("cameraPos", *camera.getPointOfInterest());
 	m_terrainProgram->setUniformValue("control_cameraPos", *camera.getPointOfInterest());
 	m_terrainProgram->setUniformValue("fallOff", terrain.getFallOff());
-	m_terrainProgram->setUniformValue("totalTerrainWidth", static_cast<float>(terrain.getMapSize()->x()));// * terrain.getWidthScale()));// *m_terrainScaling);
+	m_terrainProgram->setUniformValue("totalTerrainWidth", static_cast<float>(terrain.getMapSize()->x() * m_terrainScaling));// * terrain.getWidthScale()));// *m_terrainScaling);
 
 	m_terrainProgram->setUniformValue("heightMap", 0);
 	m_terrainProgram->setUniformValue("materials[0].facture", 1);
@@ -198,8 +198,8 @@ void OpenGLTerrain::updateCameraHeight(TerrainModel& terrain, CameraModel& camer
 	}
 
 	//todo refactor this
-	float totalWidth = terrain.getMapSize()->x();// *terrain.getWidthScale();
-	auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getWidthScale(),(-camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getWidthScale());
+	float totalWidth = terrain.getMapSize()->x() * m_terrainScaling;// *terrain.getWidthScale();
+	auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getMapSize()->x(), (-camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getMapSize()->x());
 	//auto cameraX = (camera.getPointOfInterest()->x() + totalWidth / 2.f) / totalWidth *terrain.getMapSize()->x();
 	//auto cameraZ = (camera.getPointOfInterest()->z() + totalWidth / 2.f) / totalWidth *terrain.getMapSize()->y();
 	//auto camHmPos = QPoint(cameraX, cameraZ);
@@ -207,7 +207,7 @@ void OpenGLTerrain::updateCameraHeight(TerrainModel& terrain, CameraModel& camer
 	height = -height;
 	//camera.setHeight(100);
 
-	qInfo() << "Camera: " << camera.getPointOfInterest()->y() << "	Height: " << height << "	Position: " << camHmPos;
+	qInfo() << "Camera: " << *camera.getPointOfInterest() << "	Height: " << height << "	Position: " << camHmPos;
 	if (camera.getPointOfInterest()->y() > height)// || camera.getPosition()->y() < height - 30.f)
 	{
 		camera.setHeight(height);
