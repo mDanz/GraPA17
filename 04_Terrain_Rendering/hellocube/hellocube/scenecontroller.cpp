@@ -95,16 +95,9 @@ void SceneController::keyPressed(int key) const
 	switch (key)
 	{
 	case Qt::Key_W:
-		//vec = *currentCamera->getCameraMatrix() * QVector3D(0, 0, 8);
-		//vec = currentCamera->getRotation().rotatedVector(*currentCamera->getPointOfInterest() - *currentCamera->getPosition());
-		//vec += currentCamera->getRotation().rotatedVector(QVector3D(0, 0, 8));
-		//vec.normalize();
-		//vec *= 8;
-		//vec.setY(currentCamera->getPosition()->y());
 		currentCamera->move(new QVector3D(0, 0, 8));
 		break;
-	case Qt::Key_S:;
-		//vec = &currentCamera->getRotation().rotatedVector(QVector3D(0, 0, -8));
+	case Qt::Key_S:
 		currentCamera->move(new QVector3D(0, 0, -8));
 		break;
 	case Qt::Key_A:

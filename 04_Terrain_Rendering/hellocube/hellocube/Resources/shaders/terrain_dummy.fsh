@@ -126,6 +126,7 @@ void main()
 	    lodColor = vec4(1.f);
 	}
 // ------------------------------
+	
 	color = vec4(0.f, 1.f, 0.f, 1.f);
 	colorBuffer = vec4(lighting(posInWorld, normalize(normal), posInView, color.rgb, color.a), 1.f);
 	idBuffer = lodColor;//texture2D(heightMap, (posInWorld.xz+4096/2)/4096);
