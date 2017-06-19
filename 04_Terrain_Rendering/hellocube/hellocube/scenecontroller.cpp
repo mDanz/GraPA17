@@ -91,21 +91,32 @@ void SceneController::wheelMoved(int wheelDelta) const
 void SceneController::keyPressed(int key) const
 {
 	auto currentCamera = m_viewPortWidget->getCurrentCamera();
-	QVector3D* vec;
+	QVector3D vec;
 	switch (key)
 	{
 	case Qt::Key_W:
-		vec = &currentCamera->getRotation().rotatedVector(QVector3D(0, 0, 8));
-		currentCamera->move(vec);
+		//vec = *currentCamera->getCameraMatrix() * QVector3D(0, 0, 8);
+		//vec = currentCamera->getRotation().rotatedVector(*currentCamera->getPointOfInterest() - *currentCamera->getPosition());
+		//vec += currentCamera->getRotation().rotatedVector(QVector3D(0, 0, 8));
+		//vec.normalize();
+		//vec *= 8;
+		//vec.setY(currentCamera->getPosition()->y());
+		currentCamera->move(new QVector3D(0, 0, 8));
 		break;
 	case Qt::Key_S:;
-		vec = &currentCamera->getRotation().rotatedVector(QVector3D(0, 0, -8));
-		currentCamera->move(vec);
+		//vec = &currentCamera->getRotation().rotatedVector(QVector3D(0, 0, -8));
+		currentCamera->move(new QVector3D(0, 0, -8));
 		break;
 	case Qt::Key_A:
-		currentCamera->rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), -10));
+		currentCamera->move(new QVector3D(8, 0, 0));
 		break;
 	case Qt::Key_D:
+		currentCamera->move(new QVector3D(-8, 0, 0));
+		break;
+	case Qt::Key_Q:
+		currentCamera->rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), -10));
+		break;
+	case Qt::Key_E:
 		currentCamera->rotate(QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), 10));
 		break;
 	case Qt::Key_R:

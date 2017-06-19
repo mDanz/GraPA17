@@ -199,7 +199,7 @@ void OpenGLTerrain::updateCameraHeight(TerrainModel& terrain, CameraModel& camer
 
 	//todo refactor this
 	float totalWidth = terrain.getMapSize()->x() * m_terrainScaling;// *terrain.getWidthScale();
-	auto camHmPos = QPoint((camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getMapSize()->x(), (-camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getMapSize()->x());
+	auto camHmPos = QPoint((-camera.getPosition()->x() / totalWidth + 0.5f) * terrain.getMapSize()->x(), (-camera.getPosition()->z() / totalWidth + 0.5f) * terrain.getMapSize()->x());
 	//auto cameraX = (camera.getPointOfInterest()->x() + totalWidth / 2.f) / totalWidth *terrain.getMapSize()->x();
 	//auto cameraZ = (camera.getPointOfInterest()->z() + totalWidth / 2.f) / totalWidth *terrain.getMapSize()->y();
 	//auto camHmPos = QPoint(cameraX, cameraZ);
